@@ -3339,10 +3339,9 @@ function renderizarBusca(codigo) {
       document.getElementById('modalMotorista')?.classList.remove('hidden');
     }
   }
-</script>
-  <script>
+<script>
   async function carregarUsuariosAdmin() {
-    const token = localStorage.getItem('token_admin'); // ou de onde você guarda o token
+    const token = localStorage.getItem('token_admin'); // ou o nome que você usa
 
     const resp = await fetch('https://mymobin.onrender.com/api/admin/usuarios', {
       headers: {
@@ -3352,7 +3351,7 @@ function renderizarBusca(codigo) {
     });
 
     if (!resp.ok) {
-      console.error('Erro ao carregar usuários admin');
+      console.error('Erro ao carregar usuários admin', await resp.text());
       return;
     }
 
@@ -3402,9 +3401,10 @@ function renderizarBusca(codigo) {
     });
   }
 
-  // Chame isso quando abrir a aba "Usuários"
-  // ex: ao clicar no menu, ou no onload da página:
-  // carregarUsuariosAdmin();
+  // Carrega a lista assim que a página terminar de carregar
+  document.addEventListener('DOMContentLoaded', function () {
+    carregarUsuariosAdmin();
+  });
 </script>
 </body>
 
