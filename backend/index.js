@@ -1,3 +1,5 @@
+// index.js
+
 // 1) Imports e configuração inicial
 require('dotenv').config();
 const express = require('express');
@@ -49,12 +51,16 @@ pool.connect()
   })
   .catch(err => console.error('❌ Erro ao obter cliente do pool:', err.message));
 
-// 6) Rotas (incluindo a /dev/create-admin)
+// 6) Rotas básicas
 app.get('/', (req, res) => {
   res.send('API do Mobin está rodando 🚀');
 });
 
-// 👉 ROTA TEMPORÁRIA PARA CRIAR ADMIN
+app.get('/api/health', async (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// 7) ROTA TEMPORÁRIA PARA CRIAR ADMIN
 app.post('/dev/create-admin', async (req, res) => {
   try {
     const { secret, nome_completo, login, senha } = req.body;
@@ -90,23 +96,13 @@ app.post('/dev/create-admin', async (req, res) => {
   }
 });
 
-// ... suas outras rotas normais (login, etc.)
+// 8) (aqui entram suas outras rotas normais: login, etc.)
 
-// 7) Start do servidor
+// 9) Start do servidor — APENAS UMA VEZ
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor API rodando na porta ${PORT}`);
 });
-// 👉 ADICIONE ESTE BLOCO AQUI
-app.get('/', (req, res) => {
-  res.send('API do Mobin está rodando 🚀');
-});
-
-// (se você tem /api/health, deixa também)
-app.get('/api/health', async (req, res) => {
-  res.json({ status: 'ok' });
-});
-
 
 
 // Função utilitária pra testar conexão na inicialização
