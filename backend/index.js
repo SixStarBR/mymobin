@@ -17,6 +17,22 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
+// ---------- LISTAR TODOS OS ADMINS (APENAS PARA ADMINS LOGADOS) ----------
+app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, nome_completo, login, nivel_acesso, status
+       FROM admin_users
+       ORDER BY id ASC`
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro em GET /api/admin/usuarios:', error);
+    res.status(500).json({ erro: 'Erro ao listar admins' });
+  }
+});
+
 // 3) Logs de ambiente (opcional, mas útil)
 console.log('=== ENV NO RENDER ===');
 console.log('DB_HOST:', process.env.DB_HOST);
