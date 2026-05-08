@@ -3340,6 +3340,72 @@ function renderizarBusca(codigo) {
     }
   }
 </script>
+  <script>
+  async function carregarUsuariosAdmin() {
+    const token = localStorage.getItem('token_admin'); // ou de onde você guarda o token
+
+    const resp = await fetch('https://mymobin.onrender.com/api/admin/usuarios', {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!resp.ok) {
+      console.error('Erro ao carregar usuários admin');
+      return;
+    }
+
+    const usuarios = await resp.json();
+    const tbody = document.getElementById('usuarios-tbody');
+    tbody.innerHTML = '';
+
+    usuarios.forEach((u) => {
+      const primeiraLetra = (u.nome_completo || '?').trim().charAt(0).toUpperCase();
+      const nivelBadge =
+        u.nivel_acesso === 'super_admin'
+          ? '<span class="badge badge-danger">Super Admin</span>'
+          : '<span class="badge badge-info">' + (u.nivel_acesso || 'Admin') + '</span>';
+
+      const statusBadge =
+        u.status === 'ativo'
+          ? '<span class="badge badge-success">Ativo</span>'
+          : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div class="flex-center gap-1">
+            <div class="avatar">${primeiraLetra}</div>
+            <div>
+              <strong>${u.nome_completo}</strong><br>
+              <small class="text-muted">${u.login}</small>
+            </div>
+          </div>
+        </td>
+        <td>${nivelBadge}</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>${statusBadge}</td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="openModal('modalUsuario', ${u.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="toggleBlock(${u.id})">🚫 Bloquear</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Chame isso quando abrir a aba "Usuários"
+  // ex: ao clicar no menu, ou no onload da página:
+  // carregarUsuariosAdmin();
+</script>
 </body>
 
 
