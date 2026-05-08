@@ -639,7 +639,7 @@ app.get('/api/motorista/me', autenticarMotorista, async (req, res) => {
 });
 
 // ---------- INICIALIZAÇÃO ----------
-const PORT = process.env.PORT || 4000;
+
 
 testDbConnection().then(() => {
   app.listen(PORT, () => {
