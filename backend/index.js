@@ -43,11 +43,7 @@ app.get('/api/health', async (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// por fim:
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor API rodando na porta ${PORT}`);
-});
+
 
 // Função utilitária pra testar conexão na inicialização
 async function testDbConnection() {
