@@ -597,32 +597,39 @@
       </div>
 
       <!-- ========== USUÁRIOS ========== -->
-      <div id="page-usuarios" class="page hidden">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <h3>Usuários Administrativos</h3>
-          <button class="btn btn-primary" onclick="openModal('modalUsuario')">+ Novo Usuário</button>
-        </div>
-        <div class="card"><div class="table-wrapper"><table class="perm-table">
-          <thead><tr><th style="text-align:left;">Usuário</th><th>Nível</th><th>Dashboard</th><th>Mapa</th><th>Motoristas</th><th>Clientes</th><th>Transfers</th><th>Eventos</th><th>Histórico</th><th>Usuários</th><th>Status</th><th>Ações</th></tr></thead>
-          <tbody>
-            <tr>
-              <td><div class="flex-center gap-1"><div class="avatar">W</div><div><strong>William Admin</strong><br><small class="text-muted">admin</small></div></div></td>
-              <td><span class="badge badge-danger">Super Admin</span></td>
-              <td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
-              <td><span class="badge badge-success">Ativo</span></td>
-              <td><em class="text-muted">—</em></td>
-            </tr>
-            <tr>
-              <td><div class="flex-center gap-1"><div class="avatar" style="background:#2980B9">CO</div><div><strong>Carlos Operador</strong><br><small class="text-muted">operador1</small></div></div></td>
-              <td><span class="badge badge-info">Operador</span></td>
-               <td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
-              <td><span class="badge badge-success">Ativo</span></td>
-              <td><button class="btn btn-secondary btn-sm" onclick="openModal('modalUsuario')">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="toggleBlock(this)">🚫 Bloquear</button></td>
-            </tr>
-          </tbody>
-        </table></div></div>
-      </div>
+<div id="page-usuarios" class="page hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <h3>Usuários Administrativos</h3>
+    <button class="btn btn-primary" onclick="openModal('modalUsuario')">+ Novo Usuário</button>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table class="perm-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Usuário</th>
+            <th>Nível</th>
+            <th>Dashboard</th>
+            <th>Mapa</th>
+            <th>Motoristas</th>
+            <th>Clientes</th>
+            <th>Transfers</th>
+            <th>Eventos</th>
+            <th>Histórico</th>
+            <th>Usuários</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="usuarios-tbody">
+          <!-- As linhas de usuários reais serão inseridas aqui via JavaScript,
+               usando os dados retornados de /api/admin/usuarios -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
       <!-- ========== BUSCA POR CÓDIGO ========== -->
 <div id="page-busca" class="page hidden">
