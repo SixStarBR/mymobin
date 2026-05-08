@@ -33,6 +33,22 @@ const pool = new Pool({
   }
 });
 
+// 👉 ADICIONE ESTE BLOCO AQUI
+app.get('/', (req, res) => {
+  res.send('API do Mobin está rodando 🚀');
+});
+
+// (se você tem /api/health, deixa também)
+app.get('/api/health', async (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// por fim:
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor API rodando na porta ${PORT}`);
+});
+
 // Função utilitária pra testar conexão na inicialização
 async function testDbConnection() {
   try {
