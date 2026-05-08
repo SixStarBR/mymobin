@@ -12,6 +12,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 👇 COLOCA AQUI ESSE BLOCO DE LOG
+console.log('=== ENV NO RENDER ===');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('JWT_SECRET definido?', !!process.env.JWT_SECRET);
+console.log('======================');
+
 // ---------- CONEXÃO COM O SUPABASE (PostgreSQL) ----------
 const pool = new Pool({
   host: process.env.DB_HOST,
