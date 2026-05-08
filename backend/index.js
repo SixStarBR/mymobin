@@ -124,6 +124,22 @@ app.post('/dev/create-admin', async (req, res) => {
 //   console.log(`🚀 Servidor API rodando na porta ${PORT}`);
 // });
 
+// ---------- LISTAR TODOS OS ADMINS REAIS ----------
+app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, nome_completo, login, nivel_acesso, status
+       FROM admin_users
+       ORDER BY id ASC`
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro em GET /api/admin/usuarios:', error);
+    res.status(500).json({ erro: 'Erro ao listar admins' });
+  }
+});
+
 // Função utilitária pra testar conexão na inicialização
 async function testDbConnection() {
   try {
