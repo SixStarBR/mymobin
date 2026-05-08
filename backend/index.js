@@ -1,4 +1,4 @@
-// index.js
+// 1) Imports e configuração inicial
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -8,11 +8,11 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 
-// ---------- MIDDLEWARES BÁSICOS ----------
+// 2) Middlewares globais
 app.use(cors());
 app.use(express.json());
 
-// 👇 COLOCA AQUI ESSE BLOCO DE LOG
+// 3) Logs de ambiente (opcional, mas útil)
 console.log('=== ENV NO RENDER ===');
 console.log('DB_HOST:', process.env.DB_HOST);
 console.log('DB_PORT:', process.env.DB_PORT);
@@ -21,7 +21,7 @@ console.log('DB_USER:', process.env.DB_USER);
 console.log('JWT_SECRET definido?', !!process.env.JWT_SECRET);
 console.log('======================');
 
-// ---------- CONEXÃO COM O SUPABASE (PostgreSQL) ----------
+// 4) Conexão com o banco (pool)
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 5432,
@@ -29,10 +29,74 @@ const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   ssl: {
-    rejectUnauthorized: false // Supabase pede SSL
+    rejectUnauthorized: false
   }
 });
 
+// 5) Teste de conexão
+pool.connect()
+  .then(client => {
+    return client
+      .query('SELECT NOW()')
+      .then(res => {
+        console.log('✅ Conectado ao banco Supabase. Hora do servidor:', res.rows[0].now);
+        client.release();
+      })
+      .catch(err => {
+        client.release();
+        console.error('❌ Erro ao conectar no banco:', err.message);
+      });
+  })
+  .catch(err => console.error('❌ Erro ao obter cliente do pool:', err.message));
+
+// 6) Rotas (incluindo a /dev/create-admin)
+app.get('/', (req, res) => {
+  res.send('API do Mobin está rodando 🚀');
+});
+
+// 👉 ROTA TEMPORÁRIA PARA CRIAR ADMIN
+app.post('/dev/create-admin', async (req, res) => {
+  try {
+    const { secret, nome_completo, login, senha } = req.body;
+
+    // proteção simples
+    if (secret !== process.env.ADMIN_SETUP_SECRET) {
+      return res.status(403).json({ error: 'Não autorizado' });
+    }
+
+    if (!nome_completo || !login || !senha) {
+      return res.status(400).json({ error: 'Informe nome_completo, login e senha' });
+    }
+
+    const senhaHash = await bcrypt.hash(senha, 10);
+
+    const query = `
+      INSERT INTO admin_users
+        (nome_completo, login, senha_hash, nivel_acesso, status)
+      VALUES
+        ($1, $2, $3, 'super_admin', 'ativo')
+      RETURNING id, nome_completo, login, nivel_acesso, status;
+    `;
+
+    const result = await pool.query(query, [nome_completo, login, senhaHash]);
+
+    res.json({
+      message: 'Admin criado com sucesso',
+      admin: result.rows[0],
+    });
+  } catch (err) {
+    console.error('Erro ao criar admin:', err);
+    res.status(500).json({ error: 'Erro interno ao criar admin' });
+  }
+});
+
+// ... suas outras rotas normais (login, etc.)
+
+// 7) Start do servidor
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor API rodando na porta ${PORT}`);
+});
 // 👉 ADICIONE ESTE BLOCO AQUI
 app.get('/', (req, res) => {
   res.send('API do Mobin está rodando 🚀');
