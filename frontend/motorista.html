@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Six Star Mobin — Motorista</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --mob-bg: #F5F5F5;
+      --mob-card: #FFFFFF;
+      --mob-header: #1a1a1a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--mob-bg);
+      color: #2C2C2C;
+      min-height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+      position: relative;
+      padding-bottom: 80px;
+    }
+
+    /* HEADER */
+    .mob-header {
+      background: var(--mob-header);
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .mob-header-left { display: flex; align-items: center; gap: 10px; }
+    .mob-header-left img { height: 30px; }
+    .mob-header h1 { font-size: 15px; font-weight: 800; color: #F5A623; }
+    .mob-header p  { font-size: 10px; color: rgba(255,255,255,0.45); }
+    .btn-menu { background: none; border: none; font-size: 24px; cursor: pointer; color: #fff; }
+
+    /* DRAWER */
+    .drawer-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 200;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: -280px; bottom: 0;
+      width: 270px; background: var(--mob-header);
+      z-index: 300; transition: right 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    .drawer.open { right: 0; }
+    .drawer-header {
+      padding: 28px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .drawer-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #F5A623;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: #fff;
+      margin-bottom: 12px;
+    }
+    .drawer-header h3 { font-size: 15px; color: #fff; font-weight: 700; }
+    .drawer-header p  { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .drawer-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .drawer-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px;
+      color: rgba(255,255,255,0.75);
+      font-size: 14px; cursor: pointer;
+      transition: background 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .drawer-item:hover { background: rgba(255,255,255,0.06); }
+    .drawer-item.active {
+      background: rgba(245,166,35,0.15);
+      border-left-color: #F5A623;
+      color: #F5A623;
+    }
+    .drawer-item .d-icon { font-size: 20px; width: 28px; text-align: center; }
+    .drawer-badge {
+      margin-left: auto; background: #E74C3C;
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+    }
+    .drawer-logout {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .drawer-logout button {
+      width: 100%;
+      background: rgba(231,76,60,0.15);
+      border: 1px solid rgba(231,76,60,0.4);
+      color: #E74C3C; padding: 11px;
+      border-radius: 8px; font-size: 14px;
+      font-weight: 600; cursor: pointer;
+    }
+    .drawer-logout button:hover { background: rgba(231,76,60,0.25); }
+
+    /* PAGES */
+    .mob-page { display: none; padding: 20px 16px; }
+    .mob-page.active { display: block; }
+
+    /* HOME */
+    .home-greeting {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      border-radius: 16px; padding: 24px 20px;
+      color: #fff; margin-bottom: 20px;
+      position: relative; overflow: hidden;
+    }
+    .home-greeting::before {
+      content: '★'; position: absolute;
+      right: 20px; top: 10px; font-size: 72px;
+      color: rgba(245,166,35,0.12); line-height: 1;
+    }
+    .home-greeting p  { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .home-greeting h2 { font-size: 20px; font-weight: 800; color: #F5A623; margin-top: 4px; }
+    .home-greeting small { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    .home-btn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-bottom: 24px;
+    }
+    .home-big-btn {
+      background: #fff; border-radius: 16px;
+      padding: 22px 16px; text-align: center;
+      cursor: pointer; border: 2px solid transparent;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: all 0.2s; position: relative;
+    }
+    .home-big-btn:hover { border-color: #F5A623; transform: translateY(-2px); }
+    .home-big-btn.has-alert { border-color: rgba(231,76,60,0.25); }
+    .home-big-btn .hb-icon { font-size: 36px; margin-bottom: 10px; }
+    .home-big-btn .hb-label { font-size: 13px; font-weight: 700; color: #2C2C2C; }
+    .home-big-btn .hb-count { font-size: 28px; font-weight: 900; color: #F5A623; display: block; margin-top: 4px; }
+    .alert-dot {
+      position: absolute; top: 10px; right: 10px;
+      width: 14px; height: 14px; background: #E74C3C;
+      border-radius: 50%; border: 2px solid #fff;
+    }
+
+    .section-title {
+      font-size: 13px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: #6B6B6B; margin-bottom: 12px;
+    }
+
+    /* TRIP CARDS */
+    .trip-card {
+      background: #fff; border-radius: 14px;
+      padding: 16px; margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-left: 4px solid #F5A623;
+      cursor: pointer; transition: transform 0.15s;
+    }
+    .trip-card:hover { transform: translateY(-1px); }
+    .trip-card.confirmed { border-left-color: #27AE60; }
+    .trip-card.ongoing   { border-left-color: #2980B9; }
+    .trip-card.done      { border-left-color: #bbb; opacity: 0.8; }
+    .trip-card-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 10px;
+    }
+    .trip-card-top h4 { font-size: 14px; font-weight: 700; }
+    .trip-route {
+      display: flex; flex-direction: column;
+      gap: 6px; font-size: 13px; color: #6B6B6B;
+      margin-bottom: 10px;
+    }
+    .trip-route-dot { display: flex; align-items: flex-start; gap: 8px; }
+    .route-line {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2px; padding-top: 3px;
+    }
+    .dot-green-sm { width: 9px; height: 9px; border-radius: 50%; background: #27AE60; flex-shrink: 0; }
+    .dot-red-sm   { width: 9px; height: 9px; border-radius: 50%; background: #E74C3C; flex-shrink: 0; }
+    .route-vline  { width: 1px; height: 18px; background: #E0E0E0; }
+    .trip-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; color: #6B6B6B; }
+    .trip-meta span { background: #F8F8F8; padding: 3px 8px; border-radius: 6px; }
+    .trip-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+    /* BADGE */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-info    { background: #d1ecf1; color: #0c5460; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-gray    { background: #E8E8E8; color: #6B6B6B; }
+    .badge-danger  { background: #f8d7da; color: #721c24; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center;
+      gap: 6px; padding: 10px 18px;
+      border-radius: 8px; border: none;
+      cursor: pointer; font-size: 14px;
+      font-weight: 600; transition: all 0.2s;
+    }
+    .btn-sm { padding: 7px 14px; font-size: 12px; }
+    .btn-lg { padding: 14px 28px; font-size: 16px; }
+    .btn-block { width: 100%; justify-content: center; }
+    .btn-primary { background: #F5A623; color: #fff; }
+    .btn-primary:hover { background: #D4881A; }
+    .btn-secondary { background: #E8E8E8; color: #2C2C2C; }
+    .btn-secondary:hover { background: #d0d0d0; }
+    .btn-success { background: #27AE60; color: #fff; }
+    .btn-success:hover { background: #1e8449; }
+    .btn-danger  { background: #E74C3C; color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+
+    /* DETAIL */
+    .detail-header {
+      background: linear-gradient(135deg, #1a1a1a, #333);
+      border-radius: 14px; padding: 20px;
+      color: #fff; margin-bottom: 16px;
+    }
+    .detail-header h3 { font-size: 16px; color: #F5A623; margin-bottom: 6px; }
+    .detail-header p  { font-size: 12px; color: rgba(255,255,255,0.45); }
+    .detail-section {
+      background: #fff; border-radius: 12px;
+      padding: 16px; margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .detail-section h4 {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: #6B6B6B; margin-bottom: 12px;
+    }
+    .detail-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; padding: 7px 0;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row span:first-child { color: #6B6B6B; }
+    .detail-row span:last-child  { font-weight: 600; text-align: right; max-width: 62%; }
+
+    .passenger-item {
+      display: flex; align-items: center;
+      gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid #F0F0F0; font-size: 13px;
+    }
+    .passenger-item:last-child { border-bottom: none; }
+    .passenger-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #F5A623;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .passenger-item a { font-size: 12px; color: #27AE60; font-weight: 600; }
+
+    .confirm-band {
+      background: #F5A623; border-radius: 10px;
+      padding: 10px 16px; display: flex;
+      align-items: center; justify-content: space-between;
+      margin-bottom: 14px; color: #fff;
+      font-size: 13px; font-weight: 700;
+    }
+    .confirm-band.confirmed { background: #27AE60; }
+
+    /* ANDAMENTO */
+    .progress-steps {
+      display: flex; align-items: center;
+      margin-bottom: 20px;
+    }
+    .step {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px; flex: 1;
+    }
+    .step-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #E0E0E0; color: #6B6B6B;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step.done .step-circle   { background: #27AE60; color: #fff; }
+    .step.active .step-circle { background: #F5A623; color: #fff; }
+    .step-label { font-size: 9px; color: #6B6B6B; text-align: center; line-height: 1.2; }
+    .step.done .step-label   { color: #27AE60; }
+    .step.active .step-label { color: #F5A623; font-weight: 700; }
+    .step-line { flex: 1; height: 2px; background: #E0E0E0; margin-top: -22px; }
+    .step-line.done { background: #27AE60; }
+
+    .gps-panel {
+      background: linear-gradient(135deg, #1a1a1a, #222);
+      border-radius: 14px; padding: 18px; color: #fff;
+      margin-bottom: 16px; display: flex;
+      align-items: center; gap: 14px;
+    }
+    .gps-icon {
+      width: 50px; height: 50px; background: #F5A623;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 22px; flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(245,166,35,0.5); }
+      70%  { box-shadow: 0 0 0 12px rgba(245,166,35,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+    }
+    .gps-info p  { font-size: 11px; color: rgba(255,255,255,0.5); }
+    .gps-info h4 { font-size: 16px; font-weight: 800; color: #F5A623; }
+    .gps-info small { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+    .event-btn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 14px;
+    }
+    .event-btn {
+      padding: 16px 12px; border-radius: 12px;
+      border: 2px solid #E0E0E0; background: #fff;
+      cursor: pointer; text-align: center;
+      font-size: 12px; font-weight: 700; color: #2C2C2C;
+      transition: all 0.2s; display: flex;
+      flex-direction: column; align-items: center; gap: 6px;
+    }
+    .event-btn .ev-icon { font-size: 26px; }
+    .event-btn:hover:not(:disabled) { border-color: #F5A623; background: #fffbf2; }
+    .event-btn.done {
+      background: #f5f5f5; color: #ccc;
+      border-color: #e8e8e8; cursor: not-allowed;
+    }
+    .event-btn.done .ev-icon { filter: grayscale(1); opacity: 0.4; }
+    .event-btn.multi-use { border-color: #2980B9; }
+    .event-btn.toggled { background: #fff8ed; border-color: #F5A623; color: #F5A623; }
+
+    /* PROFILE */
+    .profile-cover {
+      background: linear-gradient(135deg, #1a1a1a, #333);
+      border-radius: 14px; padding: 28px 20px;
+      text-align: center; margin-bottom: 16px;
+    }
+    .profile-avatar-lg {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #F5A623; display: flex; align-items: center;
+      justify-content: center; font-size: 30px; font-weight: 900;
+      color: #fff; margin: 0 auto 12px;
+      border: 4px solid rgba(255,255,255,0.2);
+    }
+    .profile-cover h3 { font-size: 18px; color: #fff; font-weight: 800; }
+    .profile-cover p  { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+    /* VEHICLE */
+    .vehicle-card-mob {
+      background: #fff; border-radius: 14px; padding: 16px;
+      margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .vehicle-icon-lg {
+      font-size: 34px; background: #fff8ed;
+      width: 60px; height: 60px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .vehicle-info h4 { font-size: 15px; font-weight: 700; }
+    .vehicle-info p  { font-size: 12px; color: #6B6B6B; margin-top: 2px; }
+    .vehicle-info a  { font-size: 12px; color: #F5A623; font-weight: 600; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      background: #fff; border-top: 1px solid #E0E0E0;
+      display: flex; z-index: 100;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    }
+    .bn-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px 6px; cursor: pointer;
+      font-size: 10px; color: #6B6B6B;
+      transition: color 0.2s; position: relative; gap: 3px;
+    }
+    .bn-item .bn-icon { font-size: 22px; }
+    .bn-item.active { color: #F5A623; }
+    .bn-badge {
+      position: absolute; top: 6px; right: calc(50% - 20px);
+      background: #E74C3C; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed; top: 70px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999; width: calc(100% - 32px);
+      max-width: 400px; display: flex;
+      flex-direction: column; gap: 8px;
+    }
+    .toast {
+      background: #2C2C2C; color: #fff;
+      padding: 12px 16px; border-radius: 10px;
+      font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex; align-items: center; gap: 10px;
+      animation: slideDown 0.3s ease;
+    }
+    .toast.success { background: #27AE60; }
+    .toast.warning { background: #F39C12; }
+    .toast.danger  { background: #E74C3C; }
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    .divider { height: 1px; background: #F0F0F0; margin: 12px 0; }
+    .mt-2 { margin-top: 16px; }
+    .empty-state { text-align: center; padding: 40px 20px; color: #6B6B6B; }
+    .empty-state .em-icon { font-size: 52px; margin-bottom: 12px; }
+    .empty-state h4 { font-size: 16px; margin-bottom: 6px; color: #2C2C2C; }
+  </style>
+  <script>
+  (function () {
+    const token = localStorage.getItem('sixstar_motorista_token');
+    const dadosMotorista = localStorage.getItem('sixstar_motorista');
+
+    // Se não tiver token, manda pro login do motorista
+    if (!token || !dadosMotorista) {
+      window.location.href = 'login-motorista.html';
+      return;
+    }
+  })();
+</script>
+
+</head>
+<body>
+
+<div class="toast-container" id="toastMot"></div>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="mob-header-left">
+      <h1 style="color: #f5a623;" >Six Star Mobin</h1>
+    </div>
+    <h3 id="drawerName">João Silva</h3>
+    <p id="drawerLogin">motorista01</p>
+  </div>
+  <nav class="drawer-nav">
+    <div class="drawer-item active" id="di-home" onclick="showMobPage('home');closeDrawer()">
+      <span class="d-icon">🏠</span> Início
+    </div>
+    <div class="drawer-item" id="di-pendentes" onclick="showMobPage('pendentes');closeDrawer()">
+      <span class="d-icon">⏳</span> Viagens Pendentes
+      <span class="drawer-badge" id="badgePendDrawer">2</span>
+    </div>
+    <div class="drawer-item" id="di-confirmadas" onclick="showMobPage('confirmadas');closeDrawer()">
+      <span class="d-icon">✅</span> Viagens Confirmadas
+      <span class="drawer-badge" id="badgeConfDrawer">3</span>
+    </div>
+    <div class="drawer-item" id="di-concluidas" onclick="showMobPage('concluidas');closeDrawer()">
+      <span class="d-icon">📋</span> Viagens Concluídas
+    </div>
+    <div class="drawer-item" id="di-perfil" onclick="showMobPage('perfil');closeDrawer()">
+      <span class="d-icon">👤</span> Meu Perfil
+    </div>
+    <div class="drawer-item" id="di-veiculos" onclick="showMobPage('veiculos');closeDrawer()">
+      <span class="d-icon">🚗</span> Meus Veículos
+    </div>
+  </nav>
+  <div class="drawer-logout">
+    <button onclick="logout()">⏻ Sair do Aplicativo</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="mob-header">
+  <div class="mob-header-left">
+    <img src="logo_icon.png" alt="Six Star Mobin" onerror="this.style.display='none'">
+    <div>
+      <h1>Six Star Mobin</h1>
+      <p>Painel do Motorista</p>
+    </div>
+  </div>
+  <button class="btn-menu" onclick="openDrawer()">☰</button>
+</header>
+
+<!-- ==================================================
+     PAGE: HOME
+     ================================================== -->
+<div class="mob-page active" id="page-home">
+  <div class="home-greeting">
+    <p id="greetTime">Bom dia,</p>
+    <h2 id="greetName">João Pedro</h2>
+    <small id="greetDate">Carregando...</small>
+  </div>
+
+  <div class="home-btn-grid">
+    <div class="home-big-btn has-alert" onclick="showMobPage('pendentes')">
+      <div class="alert-dot"></div>
+      <div class="hb-icon">⏳</div>
+      <div class="hb-label">Viagens Pendentes</div>
+      <span class="hb-count" id="homeCountPend">2</span>
+    </div>
+    <div class="home-big-btn has-alert" onclick="showMobPage('confirmadas')">
+      <div class="alert-dot"></div>
+      <div class="hb-icon">✅</div>
+      <div class="hb-label">Viagens Confirmadas</div>
+      <span class="hb-count" id="homeCountConf">3</span>
+    </div>
+  </div>
+
+  <div class="section-title">Próxima Viagem</div>
+  <div class="trip-card confirmed" onclick="showDetail('conf1')">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Aeroporto</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">Hoje · 14:00h</div>
+      </div>
+      <span class="badge badge-info">Confirmada</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Centro de Convenções Rebouças</div>
+          <div>Aeroporto Internacional GRU</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 4 pax</span>
+      <span>✈️ LA3201</span>
+      <span>📍 32 km · 45 min</span>
+    </div>
+  </div>
+
+  <div class="gps-panel" style="margin-top:8px;">
+    <div class="gps-icon">📡</div>
+    <div class="gps-info">
+      <p>GPS Ativo</p>
+      <h4>Rastreamento Ligado</h4>
+      <small>Posição enviada em tempo real durante viagens</small>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     PAGE: PENDENTES
+     ================================================== -->
+<div class="mob-page" id="page-pendentes">
+  <div class="section-title" style="margin-bottom:16px;">⏳ Aguardando sua confirmação</div>
+
+  <div class="trip-card" id="cardPend1">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Corporativo</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">26/04/2025 · 08:30h</div>
+      </div>
+      <span class="badge badge-warning">Pendente</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Aeroporto de Guarulhos — GRU</div>
+          <div>Hotel Maksoud Plaza — Alameda Campinas, 150</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 4 pax</span><span>✈️ LA3050</span><span>📍 28,4 km · 38 min</span>
+    </div>
+    <div class="trip-actions">
+      <button class="btn btn-secondary btn-sm" style="flex:1;"
+        onclick="showDetail('pend1')">👁️ Detalhes</button>
+      <button class="btn btn-success btn-sm" style="flex:1;"
+        onclick="acceptTrip('cardPend1','pend1')">✅ Aceitar</button>
+      <button class="btn btn-danger btn-sm" style="flex:1;"
+        onclick="rejectTrip('cardPend1')">✕ Recusar</button>
+    </div>
+  </div>
+
+  <div class="trip-card" id="cardPend2">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Evento — Congresso TI</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">27/04/2025 · 10:00h</div>
+      </div>
+      <span class="badge badge-warning">Pendente</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Hotel Unique — R. Oscar Freire, 440</div>
+          <div>Centro de Convenções Rebouças</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 2 pax</span><span>📍 8 km · 20 min</span>
+    </div>
+    <div class="trip-actions">
+      <button class="btn btn-secondary btn-sm" style="flex:1;"
+        onclick="showDetail('pend2')">👁️ Detalhes</button>
+      <button class="btn btn-success btn-sm" style="flex:1;"
+        onclick="acceptTrip('cardPend2','pend2')">✅ Aceitar</button>
+      <button class="btn btn-danger btn-sm" style="flex:1;"
+        onclick="rejectTrip('cardPend2')">✕ Recusar</button>
+    </div>
+  </div>
+
+  <div id="emptyPendentes" style="display:none;">
+    <div class="empty-state">
+      <div class="em-icon">✅</div>
+      <h4>Nenhuma viagem pendente</h4>
+      <p>Todas as viagens foram respondidas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     PAGE: CONFIRMADAS
+     ================================================== -->
+<div class="mob-page" id="page-confirmadas">
+  <div class="section-title" style="margin-bottom:16px;">✅ Viagens Confirmadas</div>
+
+  <div id="listaConfirmadas">
+    <div class="trip-card confirmed" id="cardConf1">
+      <div class="trip-card-top">
+        <div>
+          <h4>Transfer Aeroporto</h4>
+          <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">Hoje · 14:00h</div>
+        </div>
+        <span class="badge badge-info">Confirmada</span>
+      </div>
+      <div class="trip-route">
+        <div class="trip-route-dot">
+          <div class="route-line">
+            <div class="dot-green-sm"></div>
+            <div class="route-vline"></div>
+            <div class="dot-red-sm"></div>
+          </div>
+          <div>
+            <div style="margin-bottom:18px;">Centro de Convenções Rebouças</div>
+            <div>Aeroporto Internacional GRU</div>
+          </div>
+        </div>
+      </div>
+      <div class="trip-meta">
+        <span>👥 4 pax</span><span>✈️ LA3201</span><span>📍 32 km · 45 min</span>
+      </div>
+      <div class="trip-actions">
+        <button class="btn btn-secondary btn-sm" style="flex:1;"
+          onclick="showDetail('conf1')">👁️ Detalhes</button>
+        <button class="btn btn-primary btn-sm" style="flex:1;"
+          onclick="startTrip()">▶️ Iniciar</button>
+      </div>
+    </div>
+
+    <div class="trip-card confirmed" id="cardConf2">
+      <div class="trip-card-top">
+        <div>
+          <h4>Transfer VIP</h4>
+          <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">Amanhã · 09:00h</div>
+        </div>
+        <span class="badge badge-info">Confirmada</span>
+      </div>
+      <div class="trip-route">
+        <div class="trip-route-dot">
+          <div class="route-line">
+            <div class="dot-green-sm"></div>
+            <div class="route-vline"></div>
+            <div class="dot-red-sm"></div>
+          </div>
+          <div>
+            <div style="margin-bottom:18px;">Hotel Emiliano — R. Oscar Freire, 384</div>
+            <div>Aeroporto de Congonhas — CGH</div>
+          </div>
+        </div>
+      </div>
+      <div class="trip-meta">
+        <span>👥 2 pax</span><span>✈️ G3-1450</span><span>📍 12 km · 28 min</span>
+      </div>
+      <div class="trip-actions">
+        <button class="btn btn-secondary btn-sm" style="flex:1;"
+          onclick="showDetail('conf2')">👁️ Detalhes</button>
+        <button class="btn btn-secondary btn-sm" style="flex:1;" disabled>▶️ Iniciar</button>
+      </div>
+    </div>
+
+    <div class="trip-card confirmed" id="cardConf3">
+      <div class="trip-card-top">
+        <div>
+          <h4>Transfer Executivo</h4>
+          <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">28/04/2025 · 07:30h</div>
+        </div>
+        <span class="badge badge-info">Confirmada</span>
+      </div>
+      <div class="trip-route">
+        <div class="trip-route-dot">
+          <div class="route-line">
+            <div class="dot-green-sm"></div>
+            <div class="route-vline"></div>
+            <div class="dot-red-sm"></div>
+          </div>
+          <div>
+            <div style="margin-bottom:18px;">Hotel Fasano — R. Vittorio Fasano, 88</div>
+            <div>Aeroporto de Congonhas — CGH</div>
+          </div>
+        </div>
+      </div>
+      <div class="trip-meta">
+        <span>👥 1 pax</span><span>✈️ AD-2110</span><span>📍 9 km · 25 min</span>
+      </div>
+      <div class="trip-actions">
+        <button class="btn btn-secondary btn-sm" style="flex:1;"
+          onclick="showDetail('conf3')">👁️ Detalhes</button>
+        <button class="btn btn-secondary btn-sm" style="flex:1;" disabled>▶️ Iniciar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     PAGE: EM ANDAMENTO
+     ================================================== -->
+<div class="mob-page" id="page-andamento">
+  <div class="section-title" style="margin-bottom:14px;">🔄 Viagem em Andamento</div>
+
+  <!-- Progress -->
+  <div class="progress-steps">
+    <div class="step done" id="step1">
+      <div class="step-circle">✓</div>
+      <div class="step-label">Iniciado</div>
+    </div>
+    <div class="step-line done" id="line1"></div>
+    <div class="step active" id="step2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Chegou no Local</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="step3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Embarcou</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step" id="step4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Finalizado</div>
+    </div>
+  </div>
+
+  <!-- GPS live -->
+  <div class="gps-panel">
+    <div class="gps-icon">📡</div>
+    <div class="gps-info">
+      <p>GPS Ativo · Rastreando</p>
+      <h4 id="liveSpeed">0 km/h</h4>
+      <small id="liveCoords">Obtendo localização...</small>
+    </div>
+  </div>
+
+  <!-- Info resumida -->
+  <div class="detail-section">
+    <h4>Viagem Atual</h4>
+    <div class="detail-row"><span>Embarque</span><span id="andEmbarque">Centro de Convenções Rebouças</span></div>
+    <div class="detail-row"><span>Destino</span><span id="andDestino">Aeroporto GRU</span></div>
+    <div class="detail-row"><span>Horário</span><span id="andHorario">14:00h</span></div>
+    <div class="detail-row"><span>Passageiros</span><span id="andPax">4 pax</span></div>
+    <div class="detail-row"><span>Voo</span><span id="andVoo">LA3201</span></div>
+  </div>
+
+  <!-- Botões de evento -->
+  <div class="section-title">Registrar Evento</div>
+  <div class="event-btn-grid">
+    <button class="event-btn" id="evChegou" onclick="fireEvent(this,'Chegou no local','step2','line2')">
+      <span class="ev-icon">📍</span><span>Chegou no Local</span>
+    </button>
+    <button class="event-btn" id="evEmbarcou" onclick="fireEvent(this,'Passageiro embarcou','step3','line3')">
+      <span class="ev-icon">🧳</span><span>Embarcou Passageiro</span>
+    </button>
+    <button class="event-btn multi-use" id="evParou" onclick="fireToggle('evParou','evRetomou','Parou')">
+      <span class="ev-icon">⏸️</span><span>Parou</span>
+    </button>
+    <button class="event-btn multi-use" id="evRetomou" onclick="fireToggle('evRetomou','evParou','Retomou viagem')">
+      <span class="ev-icon">▶️</span><span>Retomou</span>
+    </button>
+  </div>
+
+  <button class="btn btn-success btn-block btn-lg" id="btnFinalizar" onclick="finalizeTrip()">
+    🏁 Finalizar Viagem
+  </button>
+
+  <!-- Log -->
+  <div class="detail-section mt-2">
+    <h4>Log de Eventos</h4>
+    <div id="eventLog" style="font-size:13px;color:#6B6B6B;display:flex;flex-direction:column;gap:8px;">
+      <div>▶️ <strong id="logStartTime">--:--</strong> — Viagem iniciada</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     PAGE: DETALHE
+     ================================================== -->
+<div class="mob-page" id="page-detail">
+  <button class="btn btn-secondary btn-sm" style="margin-bottom:16px;" onclick="goBack()">← Voltar</button>
+
+  <div class="detail-header">
+    <h3 id="detTitle">Transfer Corporativo</h3>
+    <p id="detDate">26/04/2025 · 08:30h</p>
+  </div>
+
+  <div class="confirm-band" id="detBand">
+    <span id="detBandText">⏳ Aguardando confirmação</span>
+    <span class="badge" id="detBandBadge" style="background:rgba(255,255,255,0.25);color:#fff;font-size:10px;">Pendente</span>
+  </div>
+
+  <div class="detail-section">
+    <h4>Rota</h4>
+    <div class="detail-row"><span>📍 Embarque</span><span id="detEmbarque">—</span></div>
+    <div class="detail-row"><span>🏁 Destino</span><span id="detDestino">—</span></div>
+    <div class="detail-row"><span>📏 Distância</span><span id="detDist">—</span></div>
+  </div>
+
+  <div class="detail-section">
+    <h4>Informações</h4>
+    <div class="detail-row"><span>📅 Data</span><span id="detData">—</span></div>
+    <div class="detail-row"><span>🕐 Horário</span><span id="detHorario">—</span></div>
+    <div class="detail-row"><span>✈️ Voo</span><span id="detVoo">—</span></div>
+    <div class="detail-row"><span>👥 Passageiros</span><span id="detPax">—</span></div>
+    <div class="detail-row"><span>🚗 Veículo</span><span id="detVeiculo">Toyota Corolla · Prata · ABC-1234</span></div>
+  </div>
+
+  <div class="detail-section">
+    <h4>Passageiros</h4>
+    <div id="detPassengers">
+      <div class="passenger-item">
+        <div class="passenger-avatar">RA</div>
+        <div>
+          <strong>Roberto Alves</strong>
+          <div><a href="https://wa.me/5511991234567" target="_blank">📱 Abrir WhatsApp</a></div>
+        </div>
+      </div>
+      <div class="passenger-item">
+        <div class="passenger-avatar" style="background:#2980B9">FL</div>
+        <div>
+          <strong>Fernanda Lima</strong>
+          <div><a href="https://wa.me/5511987654321" target="_blank">📱 Abrir WhatsApp</a></div>
+        </div>
+      </div>
+      <div class="passenger-item">
+        <div class="passenger-avatar" style="background:#27AE60">CM</div>
+        <div>
+          <strong>Carlos Mota</strong>
+          <div><a href="https://wa.me/5511977778888" target="_blank">📱 Abrir WhatsApp</a></div>
+        </div>
+      </div>
+      <div class="passenger-item">
+        <div class="passenger-avatar" style="background:#8e44ad">AS</div>
+        <div>
+          <strong>Ana Souza</strong>
+          <div><a href="https://wa.me/5511966665555" target="_blank">📱 Abrir WhatsApp</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-section">
+    <h4>Documentos</h4>
+    <a href="#" class="btn btn-secondary btn-block"
+      onclick="showToastMot('Download iniciado — placa_receptivo.pdf','success');return false;">
+      📥 Baixar Placa Receptivo (PDF)
+    </a>
+  </div>
+
+  <div class="detail-section">
+    <h4>Observações</h4>
+    <p style="font-size:13px;color:#6B6B6B;" id="detObs">—</p>
+  </div>
+
+  <div id="detActions" style="display:flex;gap:10px;margin-top:4px;"></div>
+</div>
+
+<!-- ==================================================
+     PAGE: CONCLUÍDAS
+     ================================================== -->
+<div class="mob-page" id="page-concluidas">
+  <div class="section-title" style="margin-bottom:16px;">📋 Histórico de Viagens</div>
+
+  <div class="trip-card done">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Corporativo</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">25/04/2025 · 16:00h</div>
+      </div>
+      <span class="badge badge-gray">Concluída</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Shopping JK — Av. JK, 2041</div>
+          <div>Hotel Emiliano — R. Oscar Freire, 384</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 3 pax</span><span>✈️ LA3050</span><span>⏱️ 47 min</span>
+    </div>
+  </div>
+
+  <div class="trip-card done">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Executivo</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">24/04/2025 · 09:00h</div>
+      </div>
+      <span class="badge badge-gray">Concluída</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Aeroporto GRU — Terminal 2</div>
+          <div>WTC — World Trade Center SP</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 5 pax</span><span>📍 28 km</span><span>⏱️ 52 min</span>
+    </div>
+  </div>
+
+  <div class="trip-card done">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Hotel</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">23/04/2025 · 14:30h</div>
+      </div>
+      <span class="badge badge-gray">Concluída</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Hotel Fasano — R. Vittorio Fasano, 88</div>
+          <div>Aeroporto de Congonhas — CGH</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 2 pax</span><span>📍 9 km</span><span>⏱️ 32 min</span>
+    </div>
+  </div>
+
+  <div class="trip-card done">
+    <div class="trip-card-top">
+      <div>
+        <h4>Transfer Aeroporto VIP</h4>
+        <div style="font-size:11px;color:#6B6B6B;margin-top:2px;">22/04/2025 · 11:00h</div>
+      </div>
+      <span class="badge badge-gray">Concluída</span>
+    </div>
+    <div class="trip-route">
+      <div class="trip-route-dot">
+        <div class="route-line">
+          <div class="dot-green-sm"></div>
+          <div class="route-vline"></div>
+          <div class="dot-red-sm"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:18px;">Hotel Unique — R. Oscar Freire, 440</div>
+          <div>Aeroporto GRU — Terminal 3</div>
+        </div>
+      </div>
+    </div>
+    <div class="trip-meta">
+      <span>👥 2 pax</span><span>✈️ G3-880</span><span>⏱️ 55 min</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     PAGE: PERFIL
+     ================================================== -->
+<div class="mob-page" id="page-perfil">
+  <div class="profile-cover">
+  <div class="profile-avatar-lg" id="profileAvatar">JS</div>
+</div>
+  <div class="detail-section">
+  <h4>Dados Pessoais</h4>
+
+  <div class="detail-row">
+    <span>Nome</span>
+    <span id="detailNome">João Silva</span>
+  </div>
+
+  <div class="detail-row">
+    <span>Data de Nasc.</span>
+    <span id="detailNascimento">12/03/1986</span>
+  </div>
+
+  <div class="detail-row">
+    <span>WhatsApp</span>
+    <span id="detailWhatsapp">(11) 99123-4567</span>
+  </div>
+</div>
+  <div class="detail-section">
+    <h4>Documentos</h4>
+    <a href="#" class="btn btn-secondary btn-block"
+      onclick="showToastMot('Abrindo CNH...','success');return false;">
+      📄 Visualizar CNH
+    </a>
+  </div>
+  <div class="detail-section">
+    <h4>Estatísticas</h4>
+    <div class="detail-row"><span>Total de Viagens</span><span style="color:#27AE60;font-weight:800;">127</span></div>
+    <div class="detail-row"><span>Este Mês</span><span style="color:#F5A623;font-weight:800;">18</span></div>
+    <div class="detail-row"><span>Esta Semana</span><span style="color:#2980B9;font-weight:800;">5</span></div>
+  </div>
+</div>
+
+<!-- ==================================================
+     PAGE: VEÍCULOS
+     ================================================== -->
+<div class="mob-page" id="page-veiculos">
+  <div class="section-title" style="margin-bottom:16px;">🚗 Meus Veículos</div>
+
+  <div class="vehicle-card-mob">
+    <div class="vehicle-icon-lg">🚗</div>
+    <div class="vehicle-info">
+      <h4>Toyota Corolla</h4>
+      <p>Prata · <strong>ABC-1234</strong> · 2022</p>
+      <p style="margin-top:6px;">
+        <a href="#" onclick="showToastMot('Abrindo documento...','success');return false;">📄 Documento</a>
+        &nbsp;&nbsp;
+        <a href="#" onclick="showToastMot('Abrindo apólice...','success');return false;">🛡️ Apólice</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="vehicle-card-mob">
+    <div class="vehicle-icon-lg">🚙</div>
+    <div class="vehicle-info">
+      <h4>Honda CR-V</h4>
+      <p>Preto · <strong>XYZ-5678</strong> · 2023</p>
+      <p style="margin-top:6px;">
+        <a href="#" onclick="showToastMot('Abrindo documento...','success');return false;">📄 Documento</a>
+        &nbsp;&nbsp;
+        <a href="#" onclick="showToastMot('Abrindo apólice...','success');return false;">🛡️ Apólice</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bn-item active" id="bn-home" onclick="showMobPage('home')">
+    <span class="bn-icon">🏠</span><span>Início</span>
+  </div>
+  <div class="bn-item" id="bn-pendentes" onclick="showMobPage('pendentes')">
+    <div class="bn-badge" id="badgePendNav">2</div>
+    <span class="bn-icon">⏳</span><span>Pendentes</span>
+  </div>
+  <div class="bn-item" id="bn-confirmadas" onclick="showMobPage('confirmadas')">
+    <div class="bn-badge" id="badgeConfNav">3</div>
+    <span class="bn-icon">✅</span><span>Confirmadas</span>
+  </div>
+  <div class="bn-item" id="bn-concluidas" onclick="showMobPage('concluidas')">
+    <span class="bn-icon">📋</span><span>Histórico</span>
+  </div>
+  <div class="bn-item" id="bn-perfil" onclick="showMobPage('perfil')">
+    <span class="bn-icon">👤</span><span>Perfil</span>
+  </div>
+</nav>
+
+<!-- ================================================================
+     SCRIPTS
+     ================================================================ -->
+<script>
+/* ---- DADOS DAS DEMANDAS ---- */
+const demandas = {
+  pend1: {
+    title: 'Transfer Corporativo', date: '26/04/2025 · 08:30h',
+    embarque: 'Aeroporto de Guarulhos — GRU, Terminal 2',
+    destino: 'Hotel Maksoud Plaza — Alameda Campinas, 150',
+    dist: '28,4 km · 38 min',
+    data: '26/04/2025', horario: '08:30h', voo: 'LA3050', pax: '4 pax',
+    obs: 'Aguardar no Terminal 2 de chegadas com placa receptiva. Passageiros VIP.',
+    status: 'pending'
+  },
+  pend2: {
+    title: 'Transfer Evento — Congresso TI', date: '27/04/2025 · 10:00h',
+    embarque: 'Hotel Unique — R. Oscar Freire, 440',
+    destino: 'Centro de Convenções Rebouças',
+    dist: '8 km · 20 min',
+    data: '27/04/2025', horario: '10:00h', voo: '—', pax: '2 pax',
+    obs: 'Passageiros estarão no lobby do hotel às 09:45h.',
+    status: 'pending'
+  },
+  conf1: {
+    title: 'Transfer Aeroporto', date: 'Hoje · 14:00h',
+    embarque: 'Centro de Convenções Rebouças — R. Constantino de Sousa, 737',
+    destino: 'Aeroporto Internacional de Guarulhos — GRU, Terminal 3',
+    dist: '32 km · 45 min',
+    data: '26/04/2025', horario: '14:00h', voo: 'LA3201', pax: '4 pax',
+    obs: 'Check-in às 16h. Saída com antecedência mínima de 2h. Passageiros no hall principal.',
+    status: 'confirmed'
+  },
+    conf2: {
+    title: 'Transfer VIP', date: 'Amanhã · 09:00h',
+    embarque: 'Hotel Emiliano — R. Oscar Freire, 384',
+    destino: 'Aeroporto de Congonhas — CGH',
+    dist: '12 km · 28 min',
+    data: '27/04/2025', horario: '09:00h', voo: 'G3-1450', pax: '2 pax',
+    obs: 'Passageiro VIP. Atendimento diferenciado. Água e jornal no veículo.',
+    status: 'confirmed'
+  },
+  conf3: {
+    title: 'Transfer Executivo', date: '28/04/2025 · 07:30h',
+    embarque: 'Hotel Fasano — R. Vittorio Fasano, 88',
+    destino: 'Aeroporto de Congonhas — CGH',
+    dist: '9 km · 25 min',
+    data: '28/04/2025', horario: '07:30h', voo: 'AD-2110', pax: '1 pax',
+    obs: 'Embarque antecipado. Passageiro solicita silêncio durante o trajeto.',
+    status: 'confirmed'
+  }
+};
+
+/* ---- ESTADO DA APP ---- */
+let pendCount = 2;
+let confCount = 3;
+let prevPage  = 'home';
+let currentDetailKey = null;
+let gpsInterval = null;
+let tripActive = false;
+
+/* ---- INIT ---- */
+/* ---- DADOS DO MOTORISTA (VINDO DO LOGIN) ---- */
+  /* ---- DADOS DO MOTORISTA (VINDO DO LOGIN) ---- */
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('[MOTORISTA] DOMContentLoaded disparou');
+
+  const token = localStorage.getItem('sixstar_motorista_token');
+  const motoristaStr = localStorage.getItem('sixstar_motorista');
+
+  console.log('[MOTORISTA] token:', token);
+  console.log('[MOTORISTA] motoristaStr:', motoristaStr);
+
+  if (!token || !motoristaStr) {
+    console.log('[MOTORISTA] Sem token ou motorista, redirecionando para login...');
+    window.location.href = 'login-motorista.html';
+    return;
+  }
+
+  let motorista;
+  try {
+    motorista = JSON.parse(motoristaStr);
+    console.log('[MOTORISTA] Objeto motorista:', motorista);
+  } catch (e) {
+    console.error('Erro ao ler sixstar_motorista do localStorage:', e);
+    localStorage.removeItem('sixstar_motorista_token');
+    localStorage.removeItem('sixstar_motorista');
+    window.location.href = 'login-motorista.html';
+    return;
+  }
+
+  window.motorista = motorista;
+  console.log('[MOTORISTA] window.motorista definido');
+
+  const initials = motorista.nome
+    ? motorista.nome.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+    : 'M';
+
+  const drawerAvatar  = document.getElementById('drawerAvatar');
+  const drawerName    = document.getElementById('drawerName');
+  const drawerLogin   = document.getElementById('drawerLogin');
+  const profileAvatar = document.getElementById('profileAvatar');
+
+if (profileAvatar) {
+  if (motorista.foto_url) {
+    console.log('[MOTORISTA] usando foto_url:', motorista.foto_url);
+    profileAvatar.style.backgroundImage    = `url("${motorista.foto_url}")`;
+    profileAvatar.style.backgroundSize     = 'cover';
+    profileAvatar.style.backgroundPosition = 'center';
+    profileAvatar.style.backgroundRepeat   = 'no-repeat';
+    profileAvatar.style.borderRadius       = '50%';
+
+    // 🔴 ESSA LINHA É FUNDAMENTAL
+    profileAvatar.textContent = '';
+  } else {
+    console.log('[MOTORISTA] sem foto_url, usando iniciais:', initials);
+    profileAvatar.style.backgroundImage = '';
+    profileAvatar.textContent = initials;
+  }
+}
+  const profileName   = document.getElementById('profileName');
+  const profileLogin  = document.getElementById('profileLogin');
+  const greetNameEl   = document.getElementById('greetName');
+
+  console.log('[MOTORISTA] detail spans:', {
+    detailNome: document.getElementById('detailNome'),
+    detailWhatsapp: document.getElementById('detailWhatsapp')
+  });
+
+  if (drawerAvatar)  drawerAvatar.textContent  = initials;
+  if (drawerName)    drawerName.textContent    = motorista.nome || '';
+  if (drawerLogin)   drawerLogin.textContent   = motorista.whatsapp || '';
+  
+  if (profileName)   profileName.textContent   = motorista.nome || '';
+  if (profileLogin)  profileLogin.textContent  = 'WhatsApp: ' + (motorista.whatsapp || '');
+  if (greetNameEl)   greetNameEl.textContent   = (motorista.nome || '').split(' ')[0];
+
+  // ---- Detalhes do perfil (Dados Pessoais) ----
+  const detailNome       = document.getElementById('detailNome');
+  const detailNascimento = document.getElementById('detailNascimento');
+  const detailWhatsapp   = document.getElementById('detailWhatsapp');
+
+  console.log('[MOTORISTA] detailNome:', detailNome);
+  console.log('[MOTORISTA] detailWhatsapp:', detailWhatsapp);
+
+  if (detailNome) {
+    detailNome.textContent = motorista.nome || '';
+    console.log('[MOTORISTA] detailNome atualizado para:', detailNome.textContent);
+  }
+
+  if (detailWhatsapp) {
+    const wh = (motorista.whatsapp || '').replace(/\D/g, '');
+    if (wh.length >= 10) {
+      const ddd   = wh.slice(0, 2);
+      const meio  = wh.length === 11 ? wh.slice(2, 7) : wh.slice(2, 6);
+      const final = wh.length === 11 ? wh.slice(7) : wh.slice(6);
+      detailWhatsapp.textContent = `(${ddd}) ${meio}-${final}`;
+    } else {
+      detailWhatsapp.textContent = motorista.whatsapp || '';
+    }
+    console.log('[MOTORISTA] detailWhatsapp atualizado para:', detailWhatsapp.textContent);
+  }
+
+  // Saudação...
+  const now  = new Date();
+  const hour = now.getHours();
+  const saudacao =
+    hour < 12 ? 'Bom dia,' :
+    hour < 18 ? 'Boa tarde,' :
+    'Boa noite,';
+
+  const greetTimeEl2 = document.getElementById('greetTime');
+  const greetDateEl  = document.getElementById('greetDate');
+
+  if (greetTimeEl2) {
+    greetTimeEl2.textContent = saudacao;
+  }
+
+  if (greetDateEl) {
+    greetDateEl.textContent = now.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  updateBadges();
+  startGPS();
+});
+
+/* ---- LOGOUT ---- */
+function logout() {
+  if (gpsInterval) clearInterval(gpsInterval);
+  sessionStorage.clear();
+  window.location.href = 'login-motorista.html';
+}
+
+/* ---- DRAWER ---- */
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+
+/* ---- NAVEGAÇÃO ---- */
+const pageToNav = {
+  home: 'bn-home',
+  pendentes: 'bn-pendentes',
+  confirmadas: 'bn-confirmadas',
+  concluidas: 'bn-concluidas',
+  perfil: 'bn-perfil',
+  veiculos: 'bn-perfil',
+  andamento: null,
+  detail: null
+};
+
+const pageToDrawer = {
+  home: 'di-home',
+  pendentes: 'di-pendentes',
+  confirmadas: 'di-confirmadas',
+  concluidas: 'di-concluidas',
+  perfil: 'di-perfil',
+  veiculos: 'di-veiculos'
+};
+
+function showMobPage(id) {
+  if (id !== 'detail' && id !== 'andamento') {
+    prevPage = id;
+  }
+
+  document.querySelectorAll('.mob-page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + id);
+  if (target) target.classList.add('active');
+  window.scrollTo(0, 0);
+
+  /* Bottom nav */
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const bnId = pageToNav[id];
+  if (bnId) {
+    const bnEl = document.getElementById(bnId);
+    if (bnEl) bnEl.classList.add('active');
+  }
+
+  /* Drawer nav */
+  document.querySelectorAll('.drawer-item').forEach(d => d.classList.remove('active'));
+  const diId = pageToDrawer[id];
+  if (diId) {
+    const diEl = document.getElementById(diId);
+    if (diEl) diEl.classList.add('active');
+  }
+}
+
+function goBack() {
+  showMobPage(prevPage);
+}
+
+/* ---- BADGES ---- */
+function updateBadges() {
+  /* Nav */
+  const bpn = document.getElementById('badgePendNav');
+  const bcn = document.getElementById('badgeConfNav');
+  if (bpn) bpn.textContent = pendCount > 0 ? pendCount : '';
+  if (bcn) bcn.textContent = confCount > 0 ? confCount : '';
+  if (bpn) bpn.style.display = pendCount > 0 ? 'flex' : 'none';
+  if (bcn) bcn.style.display = confCount > 0 ? 'flex' : 'none';
+
+  /* Drawer */
+  const bpd = document.getElementById('badgePendDrawer');
+  const bcd = document.getElementById('badgeConfDrawer');
+  if (bpd) bpd.textContent = pendCount;
+  if (bcd) bcd.textContent = confCount;
+
+  /* Home counters */
+  const hcp = document.getElementById('homeCountPend');
+  const hcc = document.getElementById('homeCountConf');
+  if (hcp) hcp.textContent = pendCount;
+  if (hcc) hcc.textContent = confCount;
+
+  /* Remove alert dot dos botões home se zero */
+  const homeButtons = document.querySelectorAll('.home-big-btn');
+  if (homeButtons[0]) {
+    const dot = homeButtons[0].querySelector('.alert-dot');
+    if (dot) dot.style.display = pendCount > 0 ? 'block' : 'none';
+  }
+  if (homeButtons[1]) {
+    const dot = homeButtons[1].querySelector('.alert-dot');
+    if (dot) dot.style.display = confCount > 0 ? 'block' : 'none';
+  }
+}
+
+/* ---- ACEITAR VIAGEM ---- */
+function acceptTrip(cardId, demandaKey) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+
+  card.remove();
+  pendCount = Math.max(0, pendCount - 1);
+  confCount++;
+  updateBadges();
+
+  /* Verifica se ficou vazio */
+  const remaining = document.querySelectorAll('#page-pendentes .trip-card');
+  if (remaining.length === 0) {
+    const empty = document.getElementById('emptyPendentes');
+    if (empty) empty.style.display = 'block';
+  }
+
+  showToastMot('Viagem aceita! Aparece agora em Confirmadas.', 'success');
+}
+
+/* ---- RECUSAR VIAGEM ---- */
+function rejectTrip(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+
+  card.style.transition = 'opacity 0.3s, transform 0.3s';
+  card.style.opacity = '0';
+  card.style.transform = 'translateX(60px)';
+
+  setTimeout(() => {
+    card.remove();
+    pendCount = Math.max(0, pendCount - 1);
+    updateBadges();
+
+    const remaining = document.querySelectorAll('#page-pendentes .trip-card');
+    if (remaining.length === 0) {
+      const empty = document.getElementById('emptyPendentes');
+      if (empty) empty.style.display = 'block';
+    }
+  }, 300);
+
+  showToastMot('Viagem recusada.', 'warning');
+}
+
+/* ---- DETALHE ---- */
+function showDetail(key) {
+  const d = demandas[key];
+  if (!d) return;
+
+  currentDetailKey = key;
+
+  document.getElementById('detTitle').textContent   = d.title;
+  document.getElementById('detDate').textContent    = d.date;
+  document.getElementById('detEmbarque').textContent = d.embarque;
+  document.getElementById('detDestino').textContent  = d.destino;
+  document.getElementById('detDist').textContent     = d.dist;
+  document.getElementById('detData').textContent     = d.data;
+  document.getElementById('detHorario').textContent  = d.horario;
+  document.getElementById('detVoo').textContent      = d.voo;
+  document.getElementById('detPax').textContent      = d.pax;
+  document.getElementById('detObs').textContent      = d.obs;
+
+  /* Banda de status */
+  const band  = document.getElementById('detBand');
+  const bText = document.getElementById('detBandText');
+  const bBadge = document.getElementById('detBandBadge');
+
+  if (d.status === 'pending') {
+    band.style.background  = '#F5A623';
+    bText.textContent      = '⏳ Aguardando sua confirmação';
+    bBadge.textContent     = 'Pendente';
+  } else if (d.status === 'confirmed') {
+    band.style.background  = '#27AE60';
+    bText.textContent      = '✅ Viagem confirmada';
+    bBadge.textContent     = 'Confirmada';
+  }
+
+  /* Botões de ação */
+  const actions = document.getElementById('detActions');
+  actions.innerHTML = '';
+
+  if (d.status === 'pending') {
+    actions.innerHTML = `
+      <button class="btn btn-success" style="flex:1;"
+        onclick="acceptFromDetail()">✅ Aceitar Viagem</button>
+      <button class="btn btn-danger" style="flex:1;"
+        onclick="rejectFromDetail()">✕ Recusar</button>
+    `;
+  } else if (d.status === 'confirmed') {
+    actions.innerHTML = `
+      <button class="btn btn-secondary" style="flex:1;"
+        onclick="goBack()">← Voltar</button>
+      <button class="btn btn-primary" style="flex:1;"
+        onclick="startTrip()">▶️ Iniciar Viagem</button>
+    `;
+  }
+
+  showMobPage('detail');
+}
+
+function acceptFromDetail() {
+  if (!currentDetailKey) return;
+  demandas[currentDetailKey].status = 'confirmed';
+  pendCount = Math.max(0, pendCount - 1);
+  confCount++;
+  updateBadges();
+  showToastMot('Viagem aceita com sucesso!', 'success');
+
+  /* Atualiza banda */
+  document.getElementById('detBand').style.background = '#27AE60';
+  document.getElementById('detBandText').textContent  = '✅ Viagem confirmada';
+  document.getElementById('detBandBadge').textContent = 'Confirmada';
+
+  const actions = document.getElementById('detActions');
+  actions.innerHTML = `
+    <button class="btn btn-secondary" style="flex:1;" onclick="goBack()">← Voltar</button>
+    <button class="btn btn-primary" style="flex:1;" onclick="startTrip()">▶️ Iniciar Viagem</button>
+  `;
+}
+
+function rejectFromDetail() {
+  if (!currentDetailKey) return;
+  pendCount = Math.max(0, pendCount - 1);
+  updateBadges();
+  showToastMot('Viagem recusada.', 'warning');
+  showMobPage('pendentes');
+}
+
+/* ---- INICIAR VIAGEM ---- */
+function startTrip() {
+  tripActive = true;
+
+  /* Preenche dados na tela de andamento */
+  const key = currentDetailKey || 'conf1';
+  const d   = demandas[key] || demandas['conf1'];
+
+  document.getElementById('andEmbarque').textContent = d.embarque;
+  document.getElementById('andDestino').textContent  = d.destino;
+  document.getElementById('andHorario').textContent  = d.horario;
+  document.getElementById('andPax').textContent      = d.pax;
+  document.getElementById('andVoo').textContent      = d.voo;
+
+  /* Registra hora de início no log */
+  const now = new Date();
+  const hhmm = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('logStartTime').textContent = hhmm;
+
+  /* Reseta steps */
+  resetSteps();
+
+  /* Reseta botões de evento */
+  ['evChegou','evEmbarcou'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.classList.remove('done');
+    btn.disabled = false;
+  });
+  ['evParou','evRetomou'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.classList.remove('toggled','done');
+    btn.disabled = false;
+  });
+
+  /* Limpa log (mantém início) */
+  const log = document.getElementById('eventLog');
+  log.innerHTML = `<div>▶️ <strong>${hhmm}</strong> — Viagem iniciada</div>`;
+
+  showToastMot('Viagem iniciada! GPS ativo.', 'success');
+  showMobPage('andamento');
+}
+
+function resetSteps() {
+  [1,2,3,4].forEach(n => {
+    const step = document.getElementById('step' + n);
+    step.classList.remove('done','active');
+    if (n === 1) step.classList.add('done');
+    if (n === 2) step.classList.add('active');
+  });
+  [1,2,3].forEach(n => {
+    const line = document.getElementById('line' + n);
+    line.classList.remove('done');
+    if (n === 1) line.classList.add('done');
+  });
+}
+
+/* ---- EVENTOS DE VIAGEM (uso único) ---- */
+function fireEvent(btn, label, stepId, lineId) {
+  if (btn.classList.contains('done')) return;
+
+  btn.classList.add('done');
+  btn.disabled = true;
+
+  /* Avança step */
+  const step = document.getElementById(stepId);
+  if (step) {
+    step.classList.remove('active');
+    step.classList.add('done');
+    step.querySelector('.step-circle').textContent = '✓';
+  }
+  const line = document.getElementById(lineId);
+  if (line) line.classList.add('done');
+
+  /* Próximo step ativo */
+  const stepNum = parseInt(stepId.replace('step',''));
+  const nextStep = document.getElementById('step' + (stepNum + 1));
+  if (nextStep) nextStep.classList.add('active');
+
+  logEvent(label);
+  showToastMot(label + ' registrado!', 'success');
+}
+
+/* ---- EVENTOS MULTI-USO (Parou / Retomou) ---- */
+function fireToggle(selfId, otherId, label) {
+  const self  = document.getElementById(selfId);
+  const other = document.getElementById(otherId);
+
+  self.classList.add('toggled');
+  other.classList.remove('toggled');
+
+  logEvent(label);
+  showToastMot(label + ' registrado!', 'warning');
+}
+
+/* ---- FINALIZAR VIAGEM ---- */
+function finalizeTrip() {
+  /* Marca step 4 como done */
+  const step4 = document.getElementById('step4');
+  if (step4) {
+    step4.classList.remove('active');
+    step4.classList.add('done');
+    step4.querySelector('.step-circle').textContent = '✓';
+  }
+  const line3 = document.getElementById('line3');
+  if (line3) line3.classList.add('done');
+
+  logEvent('Viagem finalizada');
+
+  /* Desabilita botão */
+  const btn = document.getElementById('btnFinalizar');
+  btn.disabled = true;
+  btn.textContent = '✅ Viagem Finalizada';
+  btn.style.background = '#27AE60';
+
+  tripActive = false;
+  if (gpsInterval) clearInterval(gpsInterval);
+  document.getElementById('liveSpeed').textContent = '0 km/h';
+
+  showToastMot('Viagem finalizada com sucesso!', 'success');
+
+  setTimeout(() => showMobPage('concluidas'), 2000);
+}
+
+/* ---- LOG DE EVENTOS ---- */
+function logEvent(label) {
+  const log = document.getElementById('eventLog');
+  if (!log) return;
+  const now  = new Date();
+  const hhmm = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const icons = {
+    'Chegou no local': '📍',
+    'Passageiro embarcou': '🧳',
+    'Parou': '⏸️',
+    'Retomou viagem': '▶️',
+    'Viagem finalizada': '🏁',
+    'Viagem iniciada': '▶️'
+  };
+  const icon = icons[label] || '•';
+  const entry = document.createElement('div');
+  entry.innerHTML = `${icon} <strong>${hhmm}</strong> — ${label}`;
+  log.appendChild(entry);
+}
+
+/* ---- GPS SIMULADO ---- */
+function startGPS() {
+  if ('geolocation' in navigator) {
+    navigator.geolocation.watchPosition(
+      pos => {
+        const lat = pos.coords.latitude.toFixed(5);
+        const lng = pos.coords.longitude.toFixed(5);
+        const spd = pos.coords.speed
+          ? Math.round(pos.coords.speed * 3.6) + ' km/h'
+          : simSpeed() + ' km/h';
+        updateGPSDisplay(spd, lat + ', ' + lng);
+      },
+      () => startSimulatedGPS(),
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+  } else {
+    startSimulatedGPS();
+  }
+}
+
+function startSimulatedGPS() {
+  gpsInterval = setInterval(() => {
+    if (!tripActive) return;
+    const spd = simSpeed();
+    updateGPSDisplay(spd + ' km/h', 'GPS simulado ativo');
+  }, 3000);
+}
+
+function simSpeed() {
+  return Math.floor(Math.random() * 40 + 30);
+}
+
+function updateGPSDisplay(speed, coords) {
+  const speedEl  = document.getElementById('liveSpeed');
+  const coordsEl = document.getElementById('liveCoords');
+  if (speedEl)  speedEl.textContent  = speed;
+  if (coordsEl) coordsEl.textContent = coords;
+}
+
+/* ---- TOAST ---- */
+function showToastMot(msg, type) {
+  type = type || 'success';
+  const container = document.getElementById('toastMot');
+  if (!container) return;
+
+  const icons = { success: '✅', warning: '⚠️', danger: '❌' };
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = (icons[type] || 'ℹ️') + ' ' + msg;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.4s';
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 400);
+  }, 3000);
+}
+</script>
+
+<!--<script>
+  (function() {
+    const API_BASE = 'http://localhost:4000';
+
+    // 1. Recupera token e dados do motorista do localStorage
+    const token = localStorage.getItem('sixstar_motorista_token');
+    const motoristaStr = localStorage.getItem('sixstar_motorista');
+
+    // Se não tiver token ou dados, volta pro login do motorista
+    if (!token || !motoristaStr) {
+      window.location.href = 'login-motorista.html';
+      return;
+    }
+
+    let motorista;
+    try {
+      motorista = JSON.parse(motoristaStr);
+    } catch (e) {
+      // Se der erro ao ler, limpa e manda pro login
+      localStorage.removeItem('sixstar_motorista_token');
+      localStorage.removeItem('sixstar_motorista');
+      window.location.href = 'login-motorista.html';
+      return;
+    }
+
+    // 2. Preenche o nome no cabeçalho
+    const greetNameEl = document.getElementById('greetName');
+    if (greetNameEl && motorista && motorista.nome) {
+      greetNameEl.textContent = motorista.nome;
+    }
+
+    // 3. (Opcional) acerta "Bom dia / Boa tarde / Boa noite" e data
+    const greetTimeEl = document.getElementById('greetTime');
+    const greetDateEl = document.getElementById('greetDate');
+
+    const agora = new Date();
+    const hora = agora.getHours();
+
+    let saudacao = 'Olá,';
+    if (hora >= 5 && hora < 12) saudacao = 'Bom dia,';
+    else if (hora >= 12 && hora < 18) saudacao = 'Boa tarde,';
+    else saudacao = 'Boa noite,';
+
+    if (greetTimeEl) {
+      greetTimeEl.textContent = saudacao;
+    }
+
+    if (greetDateEl) {
+      const formatador = new Intl.DateTimeFormat('pt-BR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+      greetDateEl.textContent = formatador.format(agora);
+    }
+
+    // 4. (Importante) – se seu painel puxa mais dados do BD usando token,
+    // aqui você já tem o token pra mandar no header:
+    //   Authorization: Bearer <token>
+    //
+    // Exemplo genérico, se um dia tiver /api/motorista/me:
+    //
+    // fetch(`${API_BASE}/api/motorista/me`, {
+    //   headers: {
+    //     'Authorization': 'Bearer ' + token
+    //   }
+    // })
+    //   .then(r => r.json())
+    //   .then(dados => { ... preenche perfil, etc ... })
+    //   .catch(err => console.error('Erro ao carregar dados do motorista:', err));
+  })();
+</script>-->
+<script>
+  function logoutMotorista() {
+    localStorage.removeItem('sixstar_motorista_token');
+    localStorage.removeItem('sixstar_motorista');
+    window.location.href = 'login-motorista.html';
+  }
+</script>
+
+</body>
+</html>
+

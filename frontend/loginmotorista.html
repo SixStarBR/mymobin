@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login do Motorista - Six Star Mobin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="config.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 24px 20px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .logo img {
+      max-width: 120px;
+      height: auto;
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 4px;
+      font-size: 24px;
+    }
+    h2 {
+      text-align: center;
+      margin: 0 0 24px;
+      font-size: 18px;
+      font-weight: 400;
+      color: #aaa;
+    }
+    .alert {
+      display: none;
+      background: #330000;
+      color: #ff6666;
+      border: 1px solid #ff3333;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 6px;
+    }
+    .field small {
+      display: block;
+      font-size: 11px;
+      color: #777;
+      margin-top: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    input::placeholder {
+      color: #555;
+    }
+    input:focus {
+      border-color: #1db954;
+    }
+    button {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 6px;
+      border: none;
+      background: #1db954;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+      color: #aaa;
+    }
+    .footer a {
+      color: #1db954;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://sixstartrips.com/site_assets/img/logo.png" alt="Six Star Mobin">
+    </div>
+
+    <h1>Six Star Mobin</h1>
+    <h2>Login</h2>
+
+    <div id="alert-erro" class="alert">
+      ⚠️ WhatsApp ou senha incorretos. Tente novamente.
+    </div>
+
+    <form id="form-login-motorista" autocomplete="off">
+      <div class="field">
+        <label for="mot-whatsapp">WhatsApp (com DDD)</label>
+        <input
+          id="mot-whatsapp"
+          type="tel"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          placeholder="Ex: 11987654321"
+        />
+        <small>Digite apenas números (DDD + número).</small>
+      </div>
+
+      <div class="field">
+        <label for="mot-senha">Senha</label>
+        <input
+          id="mot-senha"
+          type="password"
+          placeholder="Senha"
+        />
+      </div>
+
+      <button type="submit" id="btn-entrar">Entrar</button>
+    </form>
+
+    <div class="footer">
+      Não tem conta? <a href="#">Cadastre-se</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:4000';
+
+    const form = document.getElementById('form-login-motorista');
+    const alertErro = document.getElementById('alert-erro');
+    const btnEntrar = document.getElementById('btn-entrar');
+
+    function normalizarWhatsapp(valor) {
+      return valor.replace(/\D/g, '');
+    }
+
+    function mostrarErro(msg) {
+      alertErro.textContent = msg;
+      alertErro.style.display = 'block';
+    }
+
+    function esconderErro() {
+      alertErro.style.display = 'none';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const whatsappInput = document.getElementById('mot-whatsapp');
+      const senhaInput = document.getElementById('mot-senha');
+
+      let whatsapp = whatsappInput.value.trim();
+      const senha = senhaInput.value;
+
+      whatsapp = normalizarWhatsapp(whatsapp);
+
+      if (!whatsapp || !senha) {
+        mostrarErro('⚠️ Informe WhatsApp e senha.');
+        return;
+      }
+
+      esconderErro();
+      btnEntrar.disabled = true;
+      const textoOriginal = btnEntrar.textContent;
+      btnEntrar.textContent = 'Entrando...';
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/motorista/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ whatsapp, senha })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (!resp.ok) {
+          mostrarErro(data.erro || '⚠️ WhatsApp ou senha incorretos.');
+          return;
+        }
+
+        localStorage.setItem('sixstar_motorista_token', data.token);
+        localStorage.setItem('sixstar_motorista', JSON.stringify(data.motorista));
+
+        window.location.href = 'motorista.html';
+      } catch (err) {
+        console.error('Erro ao fazer login do motorista:', err);
+        mostrarErro('⚠️ Erro ao conectar ao servidor.');
+      } finally {
+        btnEntrar.disabled = false;
+        btnEntrar.textContent = textoOriginal;
+      }
+    });
+  </script>
+</body>
+</html>
