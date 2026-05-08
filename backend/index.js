@@ -10,6 +10,9 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 
+// Porta da aplicação (uma única vez, aqui em cima)
+const PORT = process.env.PORT || 4000;
+
 // 2) Middlewares globais
 app.use(cors());
 app.use(express.json());
@@ -35,7 +38,7 @@ const pool = new Pool({
   }
 });
 
-// 5) Teste de conexão
+// 5) Teste de conexão (primeiro teste simples, se quiser manter)
 pool.connect()
   .then(client => {
     return client
@@ -56,6 +59,7 @@ app.get('/', (req, res) => {
   res.send('API do Mobin está rodando 🚀');
 });
 
+// (primeira versão da rota /api/health)
 app.get('/api/health', async (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -97,11 +101,12 @@ app.post('/dev/create-admin', async (req, res) => {
 
 // 8) (aqui entram suas outras rotas normais: login, etc.)
 
-// 9) Start do servidor — APENAS UMA VEZ
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor API rodando na porta ${PORT}`);
-});
+// *** REMOVIDO: este bloco era o segundo app.listen e causava conflito ***
+// // 9) Start do servidor — APENAS UMA VEZ
+// const PORT = process.env.PORT || 4000;
+// app.listen(PORT, () => {
+//   console.log(`🚀 Servidor API rodando na porta ${PORT}`);
+// });
 
 // Função utilitária pra testar conexão na inicialização
 async function testDbConnection() {
@@ -162,6 +167,7 @@ function autenticarMotorista(req, res, next) {
 }
 
 // ---------- ROTA DE SAÚDE (TESTE) ----------
+// (segunda versão de /api/health; mantive mas poderia unificar se quiser)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API Six Star Mobin rodando' });
 });
@@ -338,7 +344,7 @@ app.post('/api/motorista/login', async (req, res) => {
 
 // ---------- MOTORISTAS (ADMIN) ----------
 
-// Listar motoristas (apenas uma vez, sem duplicar rota)
+// Listar motoristas
 app.get('/api/admin/motoristas', autenticarAdmin, async (req, res) => {
   try {
     const result = await pool.query(
@@ -370,7 +376,7 @@ app.get('/api/admin/motoristas', autenticarAdmin, async (req, res) => {
   }
 });
 
-// Criar novo motorista (com senha obrigatória)
+// Criar novo motorista
 app.post('/api/admin/motoristas', autenticarAdmin, async (req, res) => {
   try {
     const {
@@ -387,17 +393,14 @@ app.post('/api/admin/motoristas', autenticarAdmin, async (req, res) => {
       senha
     } = req.body;
 
-    // validações básicas
     if (!nome || !whatsapp || !senha) {
       return res.status(400).json({
         erro: 'Nome, WhatsApp e senha são obrigatórios'
       });
     }
 
-    // gerar hash da senha do motorista
     const senhaHash = await bcrypt.hash(senha, 10);
 
-    // Gera um código simples para login do motorista (ainda existe na tabela, mas você pode ignorar no app)
     const loginCodigo = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     const result = await pool.query(
@@ -444,11 +447,9 @@ app.post('/api/admin/motoristas', autenticarAdmin, async (req, res) => {
 // Atualizar motorista
 app.put('/api/admin/motoristas/:id', autenticarAdmin, async (req, res) => {
   try {
-    // GARANTIR que o id é número e não "S3XI28"
     const motoristaId = parseInt(req.params.id, 10);
 
     if (Number.isNaN(motoristaId)) {
-      // Se vier "S3XI28" ou qualquer coisa que não seja número, trava aqui
       return res.status(400).json({ erro: 'ID de motorista inválido' });
     }
 
@@ -464,7 +465,6 @@ app.put('/api/admin/motoristas/:id', autenticarAdmin, async (req, res) => {
       uf,
       tipo_vinculo,
       status
-      // ... outros campos que você já tinha
     } = req.body;
 
     const campos = [];
@@ -520,7 +520,6 @@ app.put('/api/admin/motoristas/:id', autenticarAdmin, async (req, res) => {
       return res.status(400).json({ erro: 'Nenhum campo para atualizar' });
     }
 
-    // ID numérico como último parâmetro
     valores.push(motoristaId);
 
     const query = `
@@ -572,7 +571,7 @@ app.patch('/api/admin/motoristas/:id/status', autenticarAdmin, async (req, res) 
   }
 });
 
-// Resetar código de acesso do app (a coluna continua existindo, mas o app do motorista não precisa usar)
+// Resetar código de acesso do app
 app.post('/api/admin/motoristas/:id/reset-codigo', autenticarAdmin, async (req, res) => {
   try {
     const { id } = req.params;
@@ -604,7 +603,7 @@ app.post('/api/admin/motoristas/:id/reset-codigo', autenticarAdmin, async (req, 
 // ---------- ROTA: DADOS DO MOTORISTA LOGADO ----------
 app.get('/api/motorista/me', autenticarMotorista, async (req, res) => {
   try {
-    const id = req.motoristaId; // veio do token
+    const id = req.motoristaId;
 
     const result = await pool.query(
       `SELECT
@@ -639,8 +638,6 @@ app.get('/api/motorista/me', autenticarMotorista, async (req, res) => {
 });
 
 // ---------- INICIALIZAÇÃO ----------
-
-
 testDbConnection().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Servidor API rodando na porta ${PORT}`);
