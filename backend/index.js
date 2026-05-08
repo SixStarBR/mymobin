@@ -65,7 +65,6 @@ app.post('/dev/create-admin', async (req, res) => {
   try {
     const { secret, nome_completo, login, senha } = req.body;
 
-    // proteção simples
     if (secret !== process.env.ADMIN_SETUP_SECRET) {
       return res.status(403).json({ error: 'Não autorizado' });
     }
@@ -103,7 +102,6 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor API rodando na porta ${PORT}`);
 });
-
 
 // Função utilitária pra testar conexão na inicialização
 async function testDbConnection() {
