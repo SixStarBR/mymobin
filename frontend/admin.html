@@ -3474,6 +3474,8 @@ function renderizarBusca(codigo) {
     });
   }
 
+  
+
   // Abre o modal para criar um novo usuário admin
   function novoUsuarioAdmin() {
     document.getElementById('usuario-id').value = '';
@@ -3487,6 +3489,72 @@ function renderizarBusca(codigo) {
 
     openModal('modalUsuario');
   }
+
+  
+  function setPermPreset(nivel) {
+    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+
+    // primeiro zera tudo
+    checks.forEach(c => { c.checked = false; });
+
+    // mapa rápido para acessar por módulo/tipo
+    const marcar = (modulo, tipo) => {
+      const el = document.querySelector(
+        '#modalUsuario .perm-check[data-modulo="' + modulo + '"][data-tipo="' + tipo + '"]'
+      );
+      if (el) el.checked = true;
+    };
+
+    if (nivel === 'super_admin') {
+      // tudo ver + tudo editar
+      checks.forEach(c => { c.checked = true; });
+      return;
+    }
+
+    if (nivel === 'admin') {
+      // pode ver e editar tudo, exceto talvez algo mais sensível
+      checks.forEach(c => { c.checked = true; });
+      return;
+    }
+
+    if (nivel === 'operador') {
+      // pode ver tudo
+      marcar('dashboard', 'ver');
+      marcar('mapa', 'ver');
+      marcar('motoristas', 'ver');
+      marcar('clientes', 'ver');
+      marcar('transfers', 'ver');
+      marcar('eventos', 'ver');
+      marcar('historico', 'ver');
+      marcar('usuarios_admin', 'ver'); // se não quiser, é só remover esta linha
+
+      // pode editar “operacional”
+      marcar('motoristas', 'editar');
+      marcar('clientes', 'editar');
+      marcar('transfers', 'editar');
+      marcar('eventos', 'editar');
+      marcar('historico', 'editar');
+
+      // NÃO edita dashboard, mapa e usuários admin
+      return;
+    }
+
+    if (nivel === 'viewer') {
+      // só ver tudo, nada de editar
+      marcar('dashboard', 'ver');
+      marcar('mapa', 'ver');
+      marcar('motoristas', 'ver');
+      marcar('clientes', 'ver');
+      marcar('transfers', 'ver');
+      marcar('eventos', 'ver');
+      marcar('historico', 'ver');
+      marcar('usuarios_admin', 'ver'); // ou não, se quiser esconder
+      return;
+    }
+
+    // nivel === '' (Personalizado): deixa tudo zerado para o usuário marcar manualmente
+  }
+
 
   // Abre o modal para editar um usuário admin existente
   async function editarUsuarioAdmin(adminId) {
