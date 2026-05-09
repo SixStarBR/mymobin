@@ -3342,7 +3342,7 @@ function renderizarBusca(codigo) {
 <script>
   async function carregarUsuariosAdmin() {
     // Usa a mesma chave que você já usa no login
-    const token = localStorage.getItem('sixstar_admin');
+    const token = localStorage.getItem('sixstar_token');
 
     if (!token) {
       console.error('Token de admin não encontrado no localStorage (sixstar_token).');
