@@ -3340,11 +3340,11 @@ function renderizarBusca(codigo) {
   }
 <script>
   async function carregarUsuariosAdmin() {
-    // ajuste o nome da chave de token abaixo conforme seu login
-    const token = localStorage.getItem('sixstar_token'); // ou 'adminToken', etc.
+    // Usa a mesma chave que você já usa no login
+    const token = localStorage.getItem('sixstar_token');
 
     if (!token) {
-      console.error('Token de admin não encontrado no localStorage');
+      console.error('Token de admin não encontrado no localStorage (sixstar_token).');
       return;
     }
 
@@ -3362,6 +3362,11 @@ function renderizarBusca(codigo) {
 
     const usuarios = await resp.json();
     const tbody = document.getElementById('usuarios-tbody');
+    if (!tbody) {
+      console.error('Elemento #usuarios-tbody não encontrado no HTML.');
+      return;
+    }
+
     tbody.innerHTML = '';
 
     usuarios.forEach((u) => {
@@ -3406,7 +3411,7 @@ function renderizarBusca(codigo) {
     });
   }
 
-  // Chamar quando a página carregar
+  // Quando o HTML inteiro estiver carregado, busca os admins
   document.addEventListener('DOMContentLoaded', function () {
     carregarUsuariosAdmin();
   });
