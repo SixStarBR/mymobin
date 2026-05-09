@@ -148,7 +148,7 @@ app.get('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
     const { id } = req.params;
 
     const result = await pool.query(
-      `SELECT id, nome_completo, login, nivel_acesso, status
+      `SELECT id, nome_completo, login, nivel_acesso, status, permissoes
          FROM admin_users
         WHERE id = $1`,
       [id]
@@ -169,7 +169,7 @@ app.get('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
 app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome_completo, login, nivel_acesso, nova_senha } = req.body;
+    const { nome_completo, login, nivel_acesso, nova_senha, permissoes } = req.body;
 
     console.log('PUT /api/admin/usuarios/:id body:', req.body);
 
@@ -223,8 +223,10 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
                 login        = $2,
                 nivel_acesso = $3,
                 senha_hash   = $4
-          WHERE id = $5`,
-        [nome_completo, login, nivel, senha_hash, id]
+                permissoes   = $5
+                
+          WHERE id = $6`,
+        [nome_completo, login, nivel, senha_hash, permissoes || null, id]
       );
     } else {
       await pool.query(
@@ -247,7 +249,7 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
 // ---------- CRIAR NOVO ADMIN ----------
 app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
   try {
-    const { nome_completo, login, senha, nivel_acesso } = req.body;
+    const { nome_completo, login, senha, nivel_acesso, permissoes } = req.body;
 
     if (!nome_completo || !login || !senha) {
       return res.status(400).json({ erro: 'Nome, login e senha são obrigatórios.' });
@@ -280,10 +282,10 @@ app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
     const senha_hash = await bcrypt.hash(senha, 10);
 
     const result = await pool.query(
-      `INSERT INTO admin_users (nome_completo, login, senha_hash, nivel_acesso, status)
-       VALUES ($1, $2, $3, $4, 'ativo')
-       RETURNING id, nome_completo, login, nivel_acesso, status`,
-      [nome_completo, login, senha_hash, nivel]
+      `INSERT INTO admin_users (nome_completo, login, senha_hash, nivel_acesso, status, permissoes)
+       VALUES ($1, $2, $3, $4, 'ativo', $5)
+       RETURNING id, nome_completo, login, nivel_acesso, status, permissoes`,
+      [nome_completo, login, senha_hash, nivel, permissoes || null]
     );
 
     return res.status(201).json(result.rows[0]);
