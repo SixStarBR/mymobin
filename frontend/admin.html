@@ -3558,63 +3558,93 @@ function renderizarBusca(codigo) {
 
   // Abre o modal para editar um usuário admin existente
   async function editarUsuarioAdmin(adminId) {
-    const token = localStorage.getItem('sixstar_token');
-    if (!token) {
-      alert('Sessão expirada. Faça login novamente.');
+  const token = localStorage.getItem('sixstar_token');
+  if (!token) {
+    alert('Sessão expirada. Faça login novamente.');
+    return;
+  }
+
+  try {
+    const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!resp.ok) {
+      const txt = await resp.text();
+      console.error('Erro ao carregar admin para edição:', resp.status, txt);
+      alert('Erro ao carregar dados do usuário.');
       return;
     }
 
-    try {
-      const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
+    const admin = await resp.json();
+
+    document.getElementById('usuario-id').value = admin.id;
+    document.getElementById('usuario-nome').value = admin.nome_completo || '';
+    document.getElementById('usuario-login').value = admin.login || '';
+    document.getElementById('usuario-senha').value = '';
+    document.getElementById('usuario-nivel-acesso').value = admin.nivel_acesso || '';
+
+    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+
+    // 1) zera tudo
+    checks.forEach((c) => {
+      c.checked = false;
+    });
+
+    // 2) se tiver permissoes no backend, aplica exatamente o que veio
+    if (admin.permissoes) {
+      checks.forEach((c) => {
+        const modulo = c.getAttribute('data-modulo');
+        const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+        if (!modulo || !tipo) return;
+
+        if (
+          admin.permissoes[modulo] &&
+          admin.permissoes[modulo][tipo] === true
+        ) {
+          c.checked = true;
         }
       });
 
-      if (!resp.ok) {
-        const txt = await resp.text();
-        console.error('Erro ao carregar admin para edição:', resp.status, txt);
-        alert('Erro ao carregar dados do usuário.');
-        return;
+      // se quiser que, ao existir permissoes, o select fique em "Personalizado",
+      // basta deixar o value vazio:
+      // document.getElementById('usuario-nivel-acesso').value = '';
+    } else {
+      // se não houver permissoes salvas (usuário antigo), aplica preset pelo nível
+      if (typeof setPermPreset === 'function') {
+        setPermPreset(admin.nivel_acesso || '');
       }
-
-      const admin = await resp.json();
-
-      document.getElementById('usuario-id').value = admin.id;
-      document.getElementById('usuario-nome').value = admin.nome_completo || '';
-      document.getElementById('usuario-login').value = admin.login || '';
-      document.getElementById('usuario-senha').value = '';
-      document.getElementById('usuario-nivel-acesso').value = admin.nivel_acesso || '';
-
-      const checks = document.querySelectorAll('#modalUsuario .perm-check');
-      checks.forEach(c => { c.checked = true; });
-
-      openModal('modalUsuario');
-    } catch (err) {
-      console.error('Erro inesperado em editarUsuarioAdmin:', err);
-      alert('Erro inesperado ao carregar dados do usuário.');
     }
+
+    openModal('modalUsuario');
+  } catch (err) {
+    console.error('Erro inesperado em editarUsuarioAdmin:', err);
+    alert('Erro inesperado ao carregar dados do usuário.');
   }
+}
 
-  function coletarPermissoesDoModal() {
-    const checks = document.querySelectorAll('#modalUsuario .perm-check');
-    const permissoes = {};
+function coletarPermissoesDoModal() {
+  const checks = document.querySelectorAll('#modalUsuario .perm-check');
+  const permissoes = {};
 
-    checks.forEach((c) => {
-      const modulo = c.getAttribute('data-modulo');
-      const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
-      if (!modulo || !tipo) return;
+  checks.forEach((c) => {
+    const modulo = c.getAttribute('data-modulo');
+    const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+    if (!modulo || !tipo) return;
 
-      if (!permissoes[modulo]) {
-        permissoes[modulo] = { ver: false, editar: false };
-      }
+    if (!permissoes[modulo]) {
+      // aqui o false deve ficar: é o estado padrão (nenhuma permissão marcada)
+      permissoes[modulo] = { ver: false, editar: false };
+    }
 
-      permissoes[modulo][tipo] = c.checked;
-    });
+    permissoes[modulo][tipo] = c.checked;
+  });
 
-    return permissoes;
-  }
+  return permissoes;
+}
 
   // Cria ou atualiza um usuário admin a partir do formulário do modal
   async function saveUsuario() {
