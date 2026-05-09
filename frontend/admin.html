@@ -3338,10 +3338,11 @@ function renderizarBusca(codigo) {
       document.getElementById('modalMotorista')?.classList.remove('hidden');
     }
   }
+</script>
 <script>
   async function carregarUsuariosAdmin() {
     // Usa a mesma chave que você já usa no login
-    const token = localStorage.getItem('sixstar_token');
+    const token = localStorage.getItem('sixstar_admin');
 
     if (!token) {
       console.error('Token de admin não encontrado no localStorage (sixstar_token).');
