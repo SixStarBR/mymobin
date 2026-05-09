@@ -1597,46 +1597,108 @@
       <button class="modal-close" onclick="closeModal('modalUsuario')">✕</button>
     </div>
     <div class="modal-body">
+      <!-- ID oculto para saber se é criação ou edição -->
+      <input type="hidden" id="usuario-id">
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Nome Completo *</label>
-          <input type="text" class="form-control" placeholder="Nome do usuário">
+          <input
+            type="text"
+            class="form-control"
+            id="usuario-nome"
+            placeholder="Nome do usuário"
+          >
         </div>
         <div class="form-group">
           <label class="form-label">Login *</label>
-          <input type="text" class="form-control" placeholder="Ex: operador2">
+          <input
+            type="text"
+            class="form-control"
+            id="usuario-login"
+            placeholder="Ex: operador2"
+          >
         </div>
       </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Senha *</label>
-          <input type="password" class="form-control" placeholder="Mínimo 6 caracteres">
+          <input
+            type="password"
+            class="form-control"
+            id="usuario-senha"
+            placeholder="Mínimo 6 caracteres"
+          >
         </div>
         <div class="form-group">
           <label class="form-label">Nível de Acesso *</label>
-          <select class="form-control" onchange="setPermPreset(this.value)">
+          <select
+            class="form-control"
+            id="usuario-nivel-acesso"
+            onchange="setPermPreset(this.value)"
+          >
             <option value="">Personalizado</option>
-            <option value="admin">Super Admin</option>
+            <option value="super_admin">Super Admin</option>
+            <option value="admin">Admin</option>
             <option value="operador">Operador</option>
             <option value="viewer">Viewer (só visualização)</option>
           </select>
         </div>
       </div>
+
       <div style="border-top:1px solid var(--border);margin:16px 0;"></div>
+
       <h4 style="margin-bottom:12px;font-size:14px;">🔐 Permissões Individuais</h4>
       <table class="perm-table" style="width:100%;">
         <thead>
-          <tr><th style="text-align:left;">Módulo</th><th>Visualizar</th><th>Editar</th></tr>
+          <tr>
+            <th style="text-align:left;">Módulo</th>
+            <th>Visualizar</th>
+            <th>Editar</th>
+          </tr>
         </thead>
         <tbody>
-          <tr><td>Dashboard</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check" checked></td></tr>
-          <tr><td>Mapa ao Vivo</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check"></td></tr>
-          <tr><td>Motoristas</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check"></td></tr>
-          <tr><td>Clientes</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check"></td></tr>
-          <tr><td>Transfers</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check"></td></tr>
-          <tr><td>Eventos</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check"></td></tr>
-          <tr><td>Histórico</td><td><input type="checkbox" class="perm-check" checked></td><td><input type="checkbox" class="perm-check"></td></tr>
-          <tr><td>Usuários Admin</td><td><input type="checkbox" class="perm-check"></td><td><input type="checkbox" class="perm-check"></td></tr>
+          <tr>
+            <td>Dashboard</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="editar" checked></td>
+          </tr>
+          <tr>
+            <td>Mapa ao Vivo</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="editar"></td>
+          </tr>
+          <tr>
+            <td>Motoristas</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="editar"></td>
+          </tr>
+          <tr>
+            <td>Clientes</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="editar"></td>
+          </tr>
+          <tr>
+            <td>Transfers</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="editar"></td>
+          </tr>
+          <tr>
+            <td>Eventos</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="editar"></td>
+          </tr>
+          <tr>
+            <td>Histórico</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="ver" checked></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="editar"></td>
+          </tr>
+          <tr>
+            <td>Usuários Admin</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="usuarios_admin" data-tipo="ver"></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="usuarios_admin" data-tipo="editar"></td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -3340,8 +3402,8 @@ function renderizarBusca(codigo) {
   }
 </script>
 <script>
+  // Carrega a lista de usuários administrativos e monta a tabela
   async function carregarUsuariosAdmin() {
-    // Usa a mesma chave que você já usa no login
     const token = localStorage.getItem('sixstar_token');
 
     if (!token) {
@@ -3404,12 +3466,152 @@ function renderizarBusca(codigo) {
         <td>✅</td>
         <td>${statusBadge}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" onclick="openModal('modalUsuario', ${u.id})">✏️</button>
+          <button class="btn btn-secondary btn-sm" onclick="editarUsuarioAdmin(${u.id})">✏️</button>
           <button class="btn btn-danger btn-sm" onclick="toggleBlock(${u.id})">🚫 Bloquear</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  // Abre o modal para criar um novo usuário admin
+  function novoUsuarioAdmin() {
+    document.getElementById('usuario-id').value = '';
+    document.getElementById('usuario-nome').value = '';
+    document.getElementById('usuario-login').value = '';
+    document.getElementById('usuario-senha').value = '';
+    document.getElementById('usuario-nivel-acesso').value = '';
+
+    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+    checks.forEach(c => { c.checked = false; });
+
+    openModal('modalUsuario');
+  }
+
+  // Abre o modal para editar um usuário admin existente
+  async function editarUsuarioAdmin(adminId) {
+    const token = localStorage.getItem('sixstar_token');
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
+    }
+
+    try {
+      const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text();
+        console.error('Erro ao carregar admin para edição:', resp.status, txt);
+        alert('Erro ao carregar dados do usuário.');
+        return;
+      }
+
+      const admin = await resp.json();
+
+      document.getElementById('usuario-id').value = admin.id;
+      document.getElementById('usuario-nome').value = admin.nome_completo || '';
+      document.getElementById('usuario-login').value = admin.login || '';
+      document.getElementById('usuario-senha').value = '';
+      document.getElementById('usuario-nivel-acesso').value = admin.nivel_acesso || '';
+
+      const checks = document.querySelectorAll('#modalUsuario .perm-check');
+      checks.forEach(c => { c.checked = true; });
+
+      openModal('modalUsuario');
+    } catch (err) {
+      console.error('Erro inesperado em editarUsuarioAdmin:', err);
+      alert('Erro inesperado ao carregar dados do usuário.');
+    }
+  }
+
+  // Cria ou atualiza um usuário admin a partir do formulário do modal
+  async function saveUsuario() {
+    const token = localStorage.getItem('sixstar_token');
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
+    }
+
+    const id = document.getElementById('usuario-id').value;
+    const nome = document.getElementById('usuario-nome').value.trim();
+    const login = document.getElementById('usuario-login').value.trim();
+    const senha = document.getElementById('usuario-senha').value;
+    const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
+
+    if (!nome || !login || !nivelAcesso) {
+      alert('Nome, login e nível de acesso são obrigatórios.');
+      return;
+    }
+
+    const isEditando = id !== '';
+
+    try {
+      let url;
+      let method;
+      let body;
+
+      if (isEditando) {
+        url = `https://mymobin.onrender.com/api/admin/usuarios/${id}`;
+        method = 'PUT';
+
+        body = {
+          nome_completo: nome,
+          login: login,
+          nivel_acesso: nivelAcesso
+        };
+
+        if (senha && senha.trim() !== '') {
+          if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres.');
+            return;
+          }
+          body.nova_senha = senha;
+        }
+      } else {
+        url = 'https://mymobin.onrender.com/api/admin/usuarios';
+        method = 'POST';
+
+        if (!senha || senha.length < 6) {
+          alert('A senha deve ter pelo menos 6 caracteres.');
+          return;
+        }
+
+        body = {
+          nome_completo: nome,
+          login: login,
+          senha: senha,
+          nivel_acesso: nivelAcesso
+        };
+      }
+
+      const resp = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text();
+        console.error('Erro ao salvar usuário admin:', resp.status, txt);
+        alert('Erro ao salvar usuário admin: ' + txt);
+        return;
+      }
+
+      alert('Usuário admin salvo com sucesso.');
+      closeModal('modalUsuario');
+      carregarUsuariosAdmin();
+    } catch (err) {
+      console.error('Erro inesperado ao salvar usuário admin:', err);
+      alert('Erro inesperado ao salvar usuário admin.');
+    }
   }
 
   // Quando o HTML inteiro estiver carregado, busca os admins
@@ -3418,8 +3620,7 @@ function renderizarBusca(codigo) {
   });
 </script>
 </body>
-</html>
-</body>
+
 
 
 </html>
