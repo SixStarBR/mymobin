@@ -171,25 +171,28 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
     const { id } = req.params;
     const { nome_completo, login, nivel_acesso, nova_senha, permissoes } = req.body;
 
+    
+
     console.log('PUT /api/admin/usuarios/:id body:', req.body);
 
     if (!nome_completo || !login) {
       return res.status(400).json({ erro: 'Nome e login são obrigatórios.' });
     }
 
-    // normalizar nivel_acesso
-    let nivel = nivel_acesso;
-    if (!nivel || nivel.trim() === '') {
-      // aqui você decide o padrão quando o select está em "Personalizado"
-      // se tiver ENUM no banco, esse valor PRECISA existir no ENUM
-      nivel = 'admin'; // por exemplo
-    }
+   // normalizar nivel_acesso
+let nivel = nivel_acesso;
 
-    // (opcional, mas recomendável) garantir que o valor é um dos aceitos
-    const niveisValidos = ['super_admin', 'admin', 'operador', 'viewer'];
-    if (!niveisValidos.includes(nivel)) {
-      return res.status(400).json({ erro: 'Nível de acesso inválido.' });
-    }
+// Se vier vazio (caso "Personalizado" no select), vamos salvar como 'personalizado',
+// que é exatamente o valor aceito pela constraint do banco.
+if (!nivel || nivel.toString().trim() === '') {
+  nivel = 'personalizado';
+}
+
+// garantir que o valor é um dos aceitos pela constraint do banco
+const niveisValidos = ['super_admin', 'operador', 'viewer', 'personalizado'];
+if (!niveisValidos.includes(nivel)) {
+  return res.status(400).json({ erro: 'Nível de acesso inválido.' });
+}
 
     // verificar se o usuário existe
     const busca = await pool.query(
@@ -222,7 +225,7 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
             SET nome_completo = $1,
                 login        = $2,
                 nivel_acesso = $3,
-                senha_hash   = $4
+                senha_hash   = $4,
                 permissoes   = $5
                 
           WHERE id = $6`,
@@ -260,15 +263,18 @@ app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
     }
 
     // normalizar nivel_acesso
-    let nivel = nivel_acesso;
-    if (!nivel || nivel.trim() === '') {
-      nivel = 'admin'; // padrão para "Personalizado", se não quiser salvar custom
-    }
+let nivel = nivel_acesso;
 
-    const niveisValidos = ['super_admin', 'admin', 'operador', 'viewer'];
-    if (!niveisValidos.includes(nivel)) {
-      return res.status(400).json({ erro: 'Nível de acesso inválido.' });
-    }
+// Se vier vazio (caso "Personalizado" no select), salvar como 'personalizado'
+if (!nivel || nivel.toString().trim() === '') {
+  nivel = 'personalizado';
+}
+
+// Níveis aceitos pela constraint do banco
+const niveisValidos = ['super_admin', 'operador', 'viewer', 'personalizado'];
+if (!niveisValidos.includes(nivel)) {
+  return res.status(400).json({ erro: 'Nível de acesso inválido.' });
+}
 
     // checar login duplicado
     const verifica = await pool.query(
