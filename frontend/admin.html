@@ -3526,14 +3526,14 @@ function renderizarBusca(codigo) {
       marcar('transfers', 'ver');
       marcar('eventos', 'ver');
       marcar('historico', 'ver');
-      marcar('usuarios_admin', 'ver'); // se não quiser, é só remover esta linha
+     // marcar('usuarios_admin', 'ver'); // se não quiser, é só remover esta linha
 
       // pode editar “operacional”
       marcar('motoristas', 'editar');
       marcar('clientes', 'editar');
       marcar('transfers', 'editar');
       marcar('eventos', 'editar');
-      marcar('historico', 'editar');
+    //  marcar('historico', 'editar');
 
       // NÃO edita dashboard, mapa e usuários admin
       return;
@@ -3541,14 +3541,14 @@ function renderizarBusca(codigo) {
 
     if (nivel === 'viewer') {
       // só ver tudo, nada de editar
-      marcar('dashboard', 'ver');
+      // marcar('dashboard', 'ver');
       marcar('mapa', 'ver');
-      marcar('motoristas', 'ver');
-      marcar('clientes', 'ver');
-      marcar('transfers', 'ver');
+      // marcar('motoristas', 'ver');
+      // marcar('clientes', 'ver');
+      // marcar('transfers', 'ver');
       marcar('eventos', 'ver');
-      marcar('historico', 'ver');
-      marcar('usuarios_admin', 'ver'); // ou não, se quiser esconder
+      // marcar('historico', 'ver');
+      // marcar('usuarios_admin', 'ver'); // ou não, se quiser esconder
       return;
     }
 
