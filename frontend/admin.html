@@ -596,7 +596,7 @@
         </div>
       </div>
 
-      <!-- ========== USUÁRIOS ========== -->
+<!-- ========== USUÁRIOS ========== -->
 <div id="page-usuarios" class="page hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
     <h3>Usuários Administrativos</h3>
@@ -623,8 +623,7 @@
           </tr>
         </thead>
         <tbody id="usuarios-tbody">
-          <!-- As linhas de usuários reais serão inseridas aqui via JavaScript,
-               usando os dados retornados de /api/admin/usuarios -->
+          <!-- Linhas serão preenchidas via JavaScript -->
         </tbody>
       </table>
     </div>
@@ -3341,7 +3340,13 @@ function renderizarBusca(codigo) {
   }
 <script>
   async function carregarUsuariosAdmin() {
-    const token = localStorage.getItem('token_admin'); // ou o nome que você usa
+    // ajuste o nome da chave de token abaixo conforme seu login
+    const token = localStorage.getItem('sixstar_token'); // ou 'adminToken', etc.
+
+    if (!token) {
+      console.error('Token de admin não encontrado no localStorage');
+      return;
+    }
 
     const resp = await fetch('https://mymobin.onrender.com/api/admin/usuarios', {
       headers: {
@@ -3351,7 +3356,7 @@ function renderizarBusca(codigo) {
     });
 
     if (!resp.ok) {
-      console.error('Erro ao carregar usuários admin', await resp.text());
+      console.error('Erro ao carregar usuários admin:', resp.status, await resp.text());
       return;
     }
 
@@ -3401,11 +3406,13 @@ function renderizarBusca(codigo) {
     });
   }
 
-  // Carrega a lista assim que a página terminar de carregar
+  // Chamar quando a página carregar
   document.addEventListener('DOMContentLoaded', function () {
     carregarUsuariosAdmin();
   });
 </script>
+</body>
+</html>
 </body>
 
 
