@@ -122,7 +122,7 @@ app.post('/dev/create-admin', async (req, res) => {
 // *** REMOVIDO: este bloco era o segundo app.listen e causava conflito ***
 // // 9) Start do servidor — APENAS UMA VEZ
 // const PORT = process.env.PORT || 4000;
-// app.listen(PORT, () => {
+// 
 //   console.log(`🚀 Servidor API rodando na porta ${PORT}`);
 // });
 
@@ -814,7 +814,7 @@ app.get('/api/motorista/me', autenticarMotorista, async (req, res) => {
 });
 
 // ---------- INICIALIZAÇÃO ----------
-testDbConnection().then(() => {
+
   app.listen(PORT, () => {
     console.log(`🚀 Servidor API rodando na porta ${PORT}`);
   });
