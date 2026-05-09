@@ -3597,6 +3597,25 @@ function renderizarBusca(codigo) {
     }
   }
 
+  function coletarPermissoesDoModal() {
+    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+    const permissoes = {};
+
+    checks.forEach((c) => {
+      const modulo = c.getAttribute('data-modulo');
+      const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+      if (!modulo || !tipo) return;
+
+      if (!permissoes[modulo]) {
+        permissoes[modulo] = { ver: false, editar: false };
+      }
+
+      permissoes[modulo][tipo] = c.checked;
+    });
+
+    return permissoes;
+  }
+
   // Cria ou atualiza um usuário admin a partir do formulário do modal
   async function saveUsuario() {
     const token = localStorage.getItem('sixstar_token');
@@ -3610,6 +3629,8 @@ function renderizarBusca(codigo) {
     const login = document.getElementById('usuario-login').value.trim();
     const senha = document.getElementById('usuario-senha').value;
     const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
+    const permissoes = coletarPermissoesDoModal();
+
 
     if (!nome || !login || !nivelAcesso) {
       alert('Nome, login e nível de acesso são obrigatórios.');
@@ -3630,7 +3651,8 @@ function renderizarBusca(codigo) {
         body = {
           nome_completo: nome,
           login: login,
-          nivel_acesso: nivelAcesso
+          nivel_acesso: nivelAcesso,
+          permissoes: permissoes
         };
 
         if (senha && senha.trim() !== '') {
@@ -3653,7 +3675,8 @@ function renderizarBusca(codigo) {
           nome_completo: nome,
           login: login,
           senha: senha,
-          nivel_acesso: nivelAcesso
+          nivel_acesso: nivelAcesso,
+          permissoes: permissoes
         };
       }
 
