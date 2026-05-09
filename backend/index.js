@@ -171,11 +171,27 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
     const { id } = req.params;
     const { nome_completo, login, nivel_acesso, nova_senha } = req.body;
 
-    if (!nome_completo || !login || !nivel_acesso) {
-      return res.status(400).json({ erro: 'Nome, login e nível de acesso são obrigatórios.' });
+    console.log('PUT /api/admin/usuarios/:id body:', req.body);
+
+    if (!nome_completo || !login) {
+      return res.status(400).json({ erro: 'Nome e login são obrigatórios.' });
     }
 
-    // verifica se o admin existe
+    // normalizar nivel_acesso
+    let nivel = nivel_acesso;
+    if (!nivel || nivel.trim() === '') {
+      // aqui você decide o padrão quando o select está em "Personalizado"
+      // se tiver ENUM no banco, esse valor PRECISA existir no ENUM
+      nivel = 'admin'; // por exemplo
+    }
+
+    // (opcional, mas recomendável) garantir que o valor é um dos aceitos
+    const niveisValidos = ['super_admin', 'admin', 'operador', 'viewer'];
+    if (!niveisValidos.includes(nivel)) {
+      return res.status(400).json({ erro: 'Nível de acesso inválido.' });
+    }
+
+    // verificar se o usuário existe
     const busca = await pool.query(
       'SELECT id FROM admin_users WHERE id = $1',
       [id]
@@ -184,7 +200,16 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
       return res.status(404).json({ erro: 'Usuário admin não encontrado.' });
     }
 
-    // monta query dependendo se tem nova_senha ou não
+    // verificar se já existe outro usuário com o mesmo login
+    const existeLogin = await pool.query(
+      'SELECT id FROM admin_users WHERE login = $1 AND id <> $2',
+      [login, id]
+    );
+    if (existeLogin.rows.length > 0) {
+      return res.status(400).json({ erro: 'Já existe um usuário admin com esse login.' });
+    }
+
+    // atualizar com ou sem nova senha
     if (nova_senha && nova_senha.trim() !== '') {
       if (nova_senha.length < 6) {
         return res.status(400).json({ erro: 'A nova senha deve ter pelo menos 6 caracteres.' });
@@ -199,24 +224,23 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
                 nivel_acesso = $3,
                 senha_hash   = $4
           WHERE id = $5`,
-        [nome_completo, login, nivel_acesso, senha_hash, id]
+        [nome_completo, login, nivel, senha_hash, id]
       );
     } else {
-      // sem alterar senha
       await pool.query(
         `UPDATE admin_users
             SET nome_completo = $1,
                 login        = $2,
                 nivel_acesso = $3
           WHERE id = $4`,
-        [nome_completo, login, nivel_acesso, id]
+        [nome_completo, login, nivel, id]
       );
     }
 
-    res.json({ mensagem: 'Usuário admin atualizado com sucesso.' });
+    return res.json({ mensagem: 'Usuário admin atualizado com sucesso.' });
   } catch (error) {
     console.error('Erro em PUT /api/admin/usuarios/:id:', error);
-    res.status(500).json({ erro: 'Erro ao atualizar usuário admin.' });
+    return res.status(500).json({ erro: 'Erro ao atualizar usuário admin.' });
   }
 });
 
@@ -225,15 +249,26 @@ app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
   try {
     const { nome_completo, login, senha, nivel_acesso } = req.body;
 
-    if (!nome_completo || !login || !senha || !nivel_acesso) {
-      return res.status(400).json({ erro: 'Nome, login, senha e nível de acesso são obrigatórios.' });
+    if (!nome_completo || !login || !senha) {
+      return res.status(400).json({ erro: 'Nome, login e senha são obrigatórios.' });
     }
 
     if (senha.length < 6) {
       return res.status(400).json({ erro: 'A senha deve ter pelo menos 6 caracteres.' });
     }
 
-    // verifica se login já existe
+    // normalizar nivel_acesso
+    let nivel = nivel_acesso;
+    if (!nivel || nivel.trim() === '') {
+      nivel = 'admin'; // padrão para "Personalizado", se não quiser salvar custom
+    }
+
+    const niveisValidos = ['super_admin', 'admin', 'operador', 'viewer'];
+    if (!niveisValidos.includes(nivel)) {
+      return res.status(400).json({ erro: 'Nível de acesso inválido.' });
+    }
+
+    // checar login duplicado
     const verifica = await pool.query(
       'SELECT id FROM admin_users WHERE login = $1',
       [login]
@@ -248,26 +283,15 @@ app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
       `INSERT INTO admin_users (nome_completo, login, senha_hash, nivel_acesso, status)
        VALUES ($1, $2, $3, $4, 'ativo')
        RETURNING id, nome_completo, login, nivel_acesso, status`,
-      [nome_completo, login, senha_hash, nivel_acesso]
+      [nome_completo, login, senha_hash, nivel]
     );
 
-    res.status(201).json(result.rows[0]);
+    return res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Erro em POST /api/admin/usuarios:', error);
-    res.status(500).json({ erro: 'Erro ao criar usuário admin.' });
+    return res.status(500).json({ erro: 'Erro ao criar usuário admin.' });
   }
 });
-
-// Função utilitária pra testar conexão na inicialização
-async function testDbConnection() {
-  try {
-    const result = await pool.query('SELECT NOW() as now');
-    console.log('✅ Conectado ao banco Supabase. Hora do servidor:', result.rows[0].now);
-  } catch (error) {
-    console.error('❌ Erro ao conectar no banco:', error.message);
-    process.exit(1);
-  }
-}
 
 
 
