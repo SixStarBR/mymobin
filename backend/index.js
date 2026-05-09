@@ -814,8 +814,14 @@ app.get('/api/motorista/me', autenticarMotorista, async (req, res) => {
 });
 
 // ---------- INICIALIZAÇÃO ----------
+console.log('=== ENV NO RENDER ===');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('JWT_SECRET definido?', !!process.env.JWT_SECRET);
+console.log('======================');
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Servidor API rodando na porta ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
