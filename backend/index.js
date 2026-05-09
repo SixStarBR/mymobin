@@ -33,6 +33,8 @@ app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
   }
 });
 
+
+
 // 3) Logs de ambiente (opcional, mas útil)
 console.log('=== ENV NO RENDER ===');
 console.log('DB_HOST:', process.env.DB_HOST);
@@ -140,6 +142,122 @@ app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
   }
 });
 
+// ---------- DETALHES DE UM ADMIN (PARA EDIÇÃO) ----------
+app.get('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT id, nome_completo, login, nivel_acesso, status
+         FROM admin_users
+        WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Usuário admin não encontrado.' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro em GET /api/admin/usuarios/:id:', error);
+    res.status(500).json({ erro: 'Erro ao obter dados do admin.' });
+  }
+});
+
+// ---------- ATUALIZAR DADOS DE UM ADMIN ----------
+app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome_completo, login, nivel_acesso, nova_senha } = req.body;
+
+    if (!nome_completo || !login || !nivel_acesso) {
+      return res.status(400).json({ erro: 'Nome, login e nível de acesso são obrigatórios.' });
+    }
+
+    // verifica se o admin existe
+    const busca = await pool.query(
+      'SELECT id FROM admin_users WHERE id = $1',
+      [id]
+    );
+    if (busca.rows.length === 0) {
+      return res.status(404).json({ erro: 'Usuário admin não encontrado.' });
+    }
+
+    // monta query dependendo se tem nova_senha ou não
+    if (nova_senha && nova_senha.trim() !== '') {
+      if (nova_senha.length < 6) {
+        return res.status(400).json({ erro: 'A nova senha deve ter pelo menos 6 caracteres.' });
+      }
+
+      const senha_hash = await bcrypt.hash(nova_senha, 10);
+
+      await pool.query(
+        `UPDATE admin_users
+            SET nome_completo = $1,
+                login        = $2,
+                nivel_acesso = $3,
+                senha_hash   = $4
+          WHERE id = $5`,
+        [nome_completo, login, nivel_acesso, senha_hash, id]
+      );
+    } else {
+      // sem alterar senha
+      await pool.query(
+        `UPDATE admin_users
+            SET nome_completo = $1,
+                login        = $2,
+                nivel_acesso = $3
+          WHERE id = $4`,
+        [nome_completo, login, nivel_acesso, id]
+      );
+    }
+
+    res.json({ mensagem: 'Usuário admin atualizado com sucesso.' });
+  } catch (error) {
+    console.error('Erro em PUT /api/admin/usuarios/:id:', error);
+    res.status(500).json({ erro: 'Erro ao atualizar usuário admin.' });
+  }
+});
+
+// ---------- CRIAR NOVO ADMIN ----------
+app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
+  try {
+    const { nome_completo, login, senha, nivel_acesso } = req.body;
+
+    if (!nome_completo || !login || !senha || !nivel_acesso) {
+      return res.status(400).json({ erro: 'Nome, login, senha e nível de acesso são obrigatórios.' });
+    }
+
+    if (senha.length < 6) {
+      return res.status(400).json({ erro: 'A senha deve ter pelo menos 6 caracteres.' });
+    }
+
+    // verifica se login já existe
+    const verifica = await pool.query(
+      'SELECT id FROM admin_users WHERE login = $1',
+      [login]
+    );
+    if (verifica.rows.length > 0) {
+      return res.status(400).json({ erro: 'Já existe um usuário admin com esse login.' });
+    }
+
+    const senha_hash = await bcrypt.hash(senha, 10);
+
+    const result = await pool.query(
+      `INSERT INTO admin_users (nome_completo, login, senha_hash, nivel_acesso, status)
+       VALUES ($1, $2, $3, $4, 'ativo')
+       RETURNING id, nome_completo, login, nivel_acesso, status`,
+      [nome_completo, login, senha_hash, nivel_acesso]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro em POST /api/admin/usuarios:', error);
+    res.status(500).json({ erro: 'Erro ao criar usuário admin.' });
+  }
+});
+
 // Função utilitária pra testar conexão na inicialização
 async function testDbConnection() {
   try {
@@ -150,6 +268,8 @@ async function testDbConnection() {
     process.exit(1);
   }
 }
+
+
 
 // ---------- MIDDLEWARE DE AUTENTICAÇÃO ADMIN ----------
 function autenticarAdmin(req, res, next) {
