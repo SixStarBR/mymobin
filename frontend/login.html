@@ -167,7 +167,7 @@
 
       // Salva token e dados do admin para o painel usar
       localStorage.setItem('sixstar_token', data.token);
-      localStorage.setItem('sixstar_admin', JSON.stringify(data.usuario));
+      localStorage.setItem('ssm_user', JSON.stringify(data.usuario)); // Altera a chave para 'ssm_user'
 
       // Vai para o painel administrativo
       window.location.href = 'admin.html';
