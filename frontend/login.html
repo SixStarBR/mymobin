@@ -108,13 +108,13 @@
     <form id="login-form">
       <div class="form-group">
         <label class="form-label" for="login">Login</label>
-        <input type="email" id="login" class="form-control" placeholder="Digite seu login" required>
+        <input type="text" id="loginInput" placeholder="Login" required>
         
       </div>
 
       <div class="form-group">
         <label class="form-label" for="senha">Senha</label>
-        <input type="password" id="senha" class="form-control" placeholder="Digite sua senha" required>
+        <input type="password" id="senhaInput" placeholder="Senha" required>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block mt-2">
@@ -133,9 +133,9 @@
     const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
     const form = document.querySelector('form'); // Seleciona o formulário
-    const inputLogin = document.querySelector('input[placeholder="Login"]'); // Seleciona o input de login pelo placeholder
-const inputSenha = document.querySelector('input[placeholder="Senha"]'); // Seleciona o input de senha pelo placeholder
-const erroBox = document.querySelector('p[style*="color: #e74c3c"]'); // Seleciona o parágrafo de erro pela cor, que é única no seu HTML
+    const inputLogin = document.getElementById('loginInput'); // Seleciona o input de login pelo placeholder
+const inputSenha = document.getElementById('senhaInput'); // Seleciona o input de senha pelo placeholder
+const erroBox = document.getElementById('loginErro'); // Seleciona o parágrafo de erro pela cor, que é única no seu HTML
 
     // Garante que os elementos foram encontrados
     if (!form) console.error("Formulário de login não encontrado.");
