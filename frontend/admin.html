@@ -3,103 +3,828 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Six Star Mobin</title>
+    <title>Six Star Mobin - Painel Administrativo</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .login-container { background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; width: 350px; }
-        .login-container img { max-width: 150px; margin-bottom: 20px; }
-        .login-container h1 { font-size: 24px; margin-bottom: 10px; color: #333; }
-        .login-container p { font-size: 14px; color: #666; margin-bottom: 20px; }
-        .login-container form { display: flex; flex-direction: column; }
-        .login-container input[type="email"],
-        .login-container input[type="password"] { padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
-        .login-container button { background-color: #007bff; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease; }
-        .login-container button:hover { background-color: #0056b3; }
-        .login-container .error-message { color: #e74c3c; margin-top: 10px; display: none; } /* Estilo para a mensagem de erro */
-        .footer { margin-top: 30px; font-size: 12px; color: #999; }
+        /* Adicione esta regra CSS para esconder elementos */
+        .hidden {
+            display: none !important;
+        }
+        /* Estilos para o botão de logout, se você não tiver um CSS externo */
+        #logoutButton {
+            background-color: #e74c3c; /* Vermelho */
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%; /* Ajuste conforme seu layout */
+            text-align: center;
+        }
+        #logoutButton:hover {
+            background-color: #c0392b;
+        }
+        /* Estilos para o user-info-box, se não tiver */
+        .user-info-box {
+            background-color: #555;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <img src="https://sixstartrips.com/site_assets/img/logo.png" alt="Six Star Mobin">
-        <h1>Six Star Mobin</h1>
-        <p>Sistema de Gestão de Transfers & Mobilidade</p>
 
-        <p id="loginErro" class="error-message" style="display: none;">⚠️ Login ou senha incorretos. Tente novamente.</p>
+    <!-- Seu HTML existente começa aqui -->
+    <img src="logo_icon.png" alt="Six Star Mobin">
 
-        <form>
-            <input type="email" id="loginInput" placeholder="Login" required>
-            <input type="password" id="senhaInput" placeholder="Senha" required>
-            <button type="submit">Entrar no Sistema</button>
-        </form>
+    <h2>SIX STAR MOBIN</h2>
 
-        <p class="footer">© 2025 Six Star Mobin. Todos os direitos reservados.</p>
+    <p>Painel Administrativo</p>
+
+    <!-- Box de informações do usuário logado -->
+    <div class="user-info-box">
+        <p>Bem-vindo, <span id="loggedInUserName">Carregando...</span></p>
+        <p><span id="loggedInUserRole">Carregando...</span></p>
+        <button id="logoutButton">Sair</button>
     </div>
 
+    <nav>
+        <ul>
+            <li><a href="#">Principal</a></li>
+            <li><a href="#">📊 Dashboard</a></li>
+            <li><a href="#">🗺️ Mapa ao Vivo 3</a></li>
+            <li><a href="#">Gestão</a></li>
+            <li><a href="#">👨‍✈️ Motoristas</a></li>
+            <li><a href="#">🏢 Clientes / Empresas</a></li>
+            <li><a href="#">🚗 Transfers 2</a></li>
+            <li><a href="#">📅 Eventos</a></li>
+            <li><a href="#">Relatórios</a></li>
+            <li><a href="#">🔎 Busca por Código</a></li>
+            <li><a href="#">📋 Histórico</a></li>
+            <li><a href="#">Configurações</a></li>
+            <!-- AQUI ESTÁ A ALTERAÇÃO: Adicionado id="adminUsersMenuItem" e class="hidden" -->
+            <li id="adminUsersMenuItem" class="hidden"><a href="#">👥 Usuários Admin</a></li>
+        </ul>
+    </nav>
+
+    <!-- O restante do seu conteúdo principal -->
+    ☰
+
+    <h1>Dashboard</h1>
+
+    <!-- Seus cards de resumo -->
+    <div class="summary-cards">
+        <div class="card">
+            <h3>👨‍✈️ Motoristas</h3>
+            <p>### 12</p>
+            <p>▲ 2 este mês</p>
+        </div>
+        <div class="card">
+            <h3>✅ Transfers Realizados</h3>
+            <p>### 348</p>
+            <p>▲ 18 esta semana</p>
+        </div>
+        <div class="card">
+            <h3>🔄 Em Andamento</h3>
+            <p>### 3</p>
+            <p>● Ao vivo</p>
+        </div>
+        <div class="card">
+            <h3>📅 Transfers este Mês</h3>
+            <p>### 47</p>
+            <p>▲ 5 vs mês anterior</p>
+        </div>
+        <div class="card">
+            <h3>⏳ Pendentes s/ Motorista</h3>
+            <p>### 2</p>
+            <p>Requer atenção</p>
+        </div>
+        <div class="card">
+            <h3>🏢 Clientes Ativos</h3>
+            <p>### 28</p>
+            <p>▲ 3 este mês</p>
+        </div>
+    </div>
+
+    <h3>🚗 Transfers de Hoje</h3>
+    <button>Ver Todos</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Horário</th><th>Código</th><th>Embarque → Destino</th><th>Cliente</th><th>Motorista</th><th>Status</th><th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>**08:30**</td><td>IT145874</td><td>Aeroporto POA → Hotel Hilton Moinhos</td><td>Beira Rio S/A</td><td>João Silva</td><td>Em andamento</td><td>🗺️ Rastrear</td></tr>
+            <tr><td>**10:00**</td><td>PU548741</td><td>Laghetto Stilo Centro → Aeroporto CXJ</td><td>Beta Corp</td><td>Pedro Oliveira</td><td>A caminho</td><td>🗺️ Rastrear</td></tr>
+            <tr><td>**14:00**</td><td>GR837463</td></td><td>Centro → Aeroporto POA</td><td>Gamma Ltda</td><td>*Sem motorista*</td><td>Pendente</td><td>Atribuir</td></tr>
+            <tr><td>**16:30**</td><td>BQ587412</td></td><td>Hotel Double Tree Pontal → Aeroporto FNP</td><td>Delta S.A.</td><td>Maria Santos</td><td>Confirmado</td><td>🗺️ Rastrear</td></tr>
+        </tbody>
+    </table>
+
+    <h3>📅 Eventos Ativos</h3>
+    <button>Gerenciar</button>
+    <div class="event-card">
+        <h4>**Congresso Nacional de TI**</h4>
+        <p>📍 Centro de Convenções FIERGS POA - RS</p>
+        <p>Ativo</p>
+        <p>📆 25/04/2025 – 28/04/2025 &nbsp;|&nbsp; 🚗 3 transfers &nbsp;|&nbsp; ✅ 2 com motorista</p>
+    </div>
+    <div class="event-card">
+        <h4>**Fórum de Investimentos RS**</h4>
+        <p>📍 WTC – World Trade Center RS</p>
+        <p>Próximo</p>
+        <p>📆 30/04/2025 – 02/05/2025 &nbsp;|&nbsp; 🚗 2 transfers &nbsp;|&nbsp; ⏳ 2 pendentes</p>
+    </div>
+
+    🔄 Atualizar Posições
+    Última atualização: nunca
+
+    <div class="driver-status">
+        <span>Em viagem</span>
+        <span>A caminho</span>
+        <span>Disponível</span>
+    </div>
+
+    <h3>👨‍✈️ Motoristas Ativos</h3>
+    <p>Clique em 🗺️ para destacar no mapa</p>
+    <table>
+        <thead>
+            <tr>
+                <th></th><th>Motorista</th><th>Veículo</th><th>Status</th><th>Vel.</th><th>Código</th><th>Pax Principal</th><th>Evento</th><th>Restante</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><img src="foto_joao.jpg" alt="João Silva"></td><td>**João Silva**</td><td>Toyota Corolla · ABC-1234</td><td>Em viagem</td><td>62 km/h</td><td>IT145874</td><td>👤 Roberto Alves</td><td>Congresso TI</td><td>8 min · 4,2 km</td></tr>
+            <tr><td><img src="foto_pedro.jpg" alt="Pedro Oliveira"></td><td>**Pedro Oliveira**</td><td>Honda HR-V · DEF-5678</td><td>A caminho</td><td>45 km/h</td><td>UH874525</td><td>👤 Marcos Pereira</td><td>Congresso TI</td><td>22 min · 11,8 km</td></tr>
+            <tr><td><img src="foto_maria.jpg" alt="Maria Santos"></td><td>**Maria Santos**</td><td>VW Passat · GHI-9012</td><td>Disponível</td><td>0 km/h</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        </tbody>
+    </table>
+
+    <button>🔍</button>
+    <button>+ Novo Motorista</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Motorista</th><th>WhatsApp</th><th>Veículos</th><th>Status</th><th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ... (linhas da tabela de motoristas) ... -->
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th><th>WhatsApp</th><th>Código/App</th><th>Status</th><th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ... (linhas da tabela de motoristas) ... -->
+        </tbody>
+    </table>
+
+    <button>🔍</button>
+    <button>+ Novo Cliente</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Empresa</th><th>CNPJ</th><th>Responsável</th><th>Contato</th><th>Status</th><th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>**Beira Rio S/A Ltda** alpha@email.com</td><td>12.345.678/0001-90</td><td>Roberto Alves</td><td>📱 (11) 3333-4444</td><td>Ativo</td><td>✏️ Editar 🚫 Bloquear</td></tr>
+            <tr><td>**Beta Corp S.A.** contato@betacorp.com.br</td><td>98.765.432/0001-10</td><td>Fernanda Lima</td><td>📱 (11) 5555-6666</td><td>Ativo</td><td>✏️ Editar 🚫 Bloquear</td></tr>
+            <tr><td>**Gamma Logística** gamma@gamma.com</td><td>11.222.333/0001-44</td><td>Carlos Mota</td><td>📱 (11) 7777-8888</td><td>Ativo</td><td>✏️ Editar 🚫 Bloquear</td></tr>
+        </tbody>
+    </table>
+
+    <div class="filter-options">
+        <span>Todos</span>
+        <span>⚠️ Pendentes</span>
+        <span>🔄 Em Andamento</span>
+        <span>✅ Concluídos</span>
+    </div>
+
+    <button>+ Nova Demanda</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Data/Hora</th><th>Código</th><th>Embarque → Destino</th><th>Cliente</th><th>Pax</th><th>Motorista(s)</th><th>Status</th><th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>**26/04 08:30**</td><td>IT145874</td><td>📍 Aeroporto POA  → Hotel Hilton Moinhos</td><td>Beira Rio S/A</td><td>4 pax</td><td>João Silva</td><td>Em andamento</td><td>✏️ 👨‍✈️ 🗺️</td></tr>
+            <tr><td>**26/04 14:00**</td><td>GR837463</td><td>📍 Residência: Rua Ipê, 235 - POA  → Aeroporto POA</td><td>Gamma Ltda</td><td>2 pax</td><td>*Sem motorista*</td><td>Pendente</td><td>✏️ 👨‍✈️ Atribuir</td></tr>
+            <tr><td>**27/04 10:00**</td><td>TF587458</td><td>📍 Aeroporto FNP  → Aeroporto POA</td><td>Beta Corp</td><td>6 pax</td><td>*Sem motorista*</td><td>Pendente (2 veíc.)</td><td>✏️ 👨‍✈️ Atribuir</td></tr>
+            <tr><td>**25/04 16:00**</td><td>KT587458</td><td>📍 Hotel Double Tree Pontal  → Hotel Swan NH</td><td>Delta S.A.</td><td>3 pax</td><td>Pedro Oliveira</td><td>Concluído</td><td>👁️ Ver</td></tr>
+        </tbody>
+    </table>
+
+    <h3>📅 Eventos</h3>
+    <button>+ Novo Evento</button>
+
+    <div class="event-details">
+        <div class="event-card">
+            <h4>Congresso Nacional de TI</h4>
+            <p>📍 Centro de Convenções FIERGS POA - RS</p>
+            <p>📆 25/04/2025 – 28/04/2025</p>
+            <p>Ativo</p>
+            <p>🚗 **3** ✅ **2** ⏳ **1**</p>
+            <button>✏️</button>
+            <button>🗑️</button>
+            <button>▼</button>
+            <p>Demandas deste evento</p>
+            <button>+ Nova Demanda</button>
+            <div class="demand-item">
+                <p>IT145874</p>
+                <p>**Chegada VIP — Delegação Brasil/Suíça**</p>
+                <p>Com motorista</p>
+                <p>**Aeroporto POA**→**Centro de Eventos Gramado**</p>
+                <p>📅 25/04/2025🕐 09:00h✈️ LA3050👥 4 pax👤 Roberto Alves🚗 João Silva · ABC-1234</p>
+                <button>👁️ Ver</button>
+                <button>✏️ Editar</button>
+                <button>👨‍✈️ Trocar</button>
+                <button>🗑️</button>
+            </div>
+            <div class="demand-item">
+                <p>UH874525</p>
+                <p>**Traslado Dia 1 — Manhã**</p>
+                <p>Com motorista</p>
+                <p>**Aeroporto FNP**→**Centro de Eventos Gramado**</p>
+                <p>📅 25/04/2025🕐 08:00h👥 6 pax👤 Marcos Pereira🚗 Pedro Oliveira · DEF-5678</p>
+                <button>👁️ Ver</button>
+                <button>✏️ Editar</button>
+                <button>👨‍✈️ Trocar</button>
+                <button>🗑️</button>
+            </div>
+            <div class="demand-item">
+                <p>GT254125</p>
+                <p>**Encerramento — Retorno Delegação**</p>
+                <p>Sem motorista</p>
+                <p>**Centro de Eventos Gramado**→**Aeroporto POA**</p>
+                <p>📅 28/04/2025🕐 18:00h✈️ LA3201👥 4 pax👤 Roberto Alves⚠️ Aguardando atribuição</p>
+                <button>👁️ Ver</button>
+                <button>✏️ Editar</button>
+                <button>👨‍✈️ Atribuir</button>
+                <button>🗑️</button>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <h4>Fórum de Investimentos RS</h4>
+            <p>📍 WTC – World Trade Center RS</p>
+            <p>📆 30/04/2025 – 02/05/2025</p>
+            <p>Próximo</p>
+            <p>🚗 **2** ✅ **0** ⏳ **2**</p>
+            <button>✏️</button>
+            <button>🗑️</button>
+            <button>▼</button>
+            <p>Demandas deste evento</p>
+            <button>+ Nova Demanda</button>
+            <div class="demand-item">
+                <p>TS874592</p>
+                <p>**Chegada Palestrantes**</p>
+                <p>Sem motorista</p>
+                <p>**Aeroporto POA**→**FIERGS POA**</p>
+                <p>📅 30/04/2025🕐 14:00h👥 3 pax👤 John Smith⚠️ Aguardando atribuição</p>
+                <button>👁️ Ver</button>
+                <button>✏️ Editar</button>
+                <button>👨‍✈️ Atribuir</button>
+                <button>🗑️</button>
+            </div>
+            <div class="demand-item">
+                <p>TS874593</p>
+                <p>**Encerramento — Retorno VIPs**</p>
+                <p>Sem motorista</p>
+                <p>**FIERGS POA**→**Aeroporto POA**</p>
+                <p>📅 02/05/2025🕐 20:00h👥 5 pax👤 John Smith🚗 2 veículos⚠️ Aguardando atribuição</p>
+                <button>👁️ Ver</button>
+                <button>✏️ Editar</button>
+                <button>👨‍✈️ Atribuir</button>
+                <button>🗑️</button>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <h3>Nenhum evento cadastrado</h3>
+            <button>+ Criar Primeiro Evento</button>
+        </div>
+    </div>
+
+    <h3>🔍 Filtros</h3>
+    <button>Limpar</button>
+    <p>Código da Demanda</p>
+    <p>Empresa / Cliente</p>
+    <select>
+        <option>Todas</option>
+        <option>Beira Rio S/A Ltda</option>
+        <option>Beta Corp S.A.</option>
+        <option>Gamma Logística</option>
+    </select>
+    <p>Data Início</p>
+    <p>Data Fim</p>
+    <p>Motorista</p>
+    <select>
+        <option>Todos</option>
+        <option>João Silva</option>
+        <option>Pedro Oliveira</option>
+        <option>Maria Santos</option>
+    </select>
+    <p>Status</p>
+    <select>
+        <option>Todos</option>
+        <option>Concluído</option>
+        <option>Cancelado</option>
+    </select>
+    <button>🔍 Filtrar</button>
+
+    <h3>📋 Histórico de Demandas</h3>
+    <p>127 registros</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Data/Hora</th><th>Código</th><th>Embarque → Destino</th><th>Cliente</th><th>Motorista</th><th>Pax</th><th>Status</th><th>Detalhes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>25/04/2025 16:00</td><td>KT587458</td><td>Hotel Double Tree Pontal → Hotel Swan NH</td><td>Delta S.A.</td><td>Pedro Oliveira</td><td>3</td><td>Concluído</td><td>👁️ Ver</td></tr>
+            <tr><td>24/04/2025 09:00</td><td>IT145874</td><td>Aeroporto POA → WTC SP</td><td>Beta Corp S.A.</td><td>João Silva</td><td>5</td><td>Concluído</td><td>👁️ Ver</td></tr>
+            <tr><td>23/04/2025 14:30</td><td>XC587458</td><td>Laghetto Stilo Centro → Aeroporto POA</td><td>Beira Rio S/A</td><td>Maria Santos</td><td>2</td><td>Concluído</td><td>👁️ Ver</td></tr>
+        </tbody>
+    </table>
+
+    <!-- AQUI ESTÁ A ALTERAÇÃO: Adicionado id="adminUsersSection" e class="hidden" -->
+    <div id="adminUsersSection" class="hidden">
+        <h3>Usuários Administrativos</h3>
+        <button>+ Novo Usuário</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuário</th><th>Nível</th><th>Dashboard</th><th>Mapa</th><th>Motoristas</th><th>Clientes</th><th>Transfers</th><th>Eventos</th><th>Histórico</th><th>Usuários</th><th>Status</th><th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Linhas da tabela de usuários admin -->
+            </tbody>
+        </table>
+        <button>🔎</button>
+    </div>
+
+    <h2>Busca por Código de Demanda</h2>
+    <p>Digite o código alfanumérico para ver o status completo do serviço em tempo real.</p>
+    <button>🔖</button>
+    <button>Buscar</button>
+    <p>Exemplos rápidos: IT145874 UH874525 GT254125 TS874592</p>
+    <p>Código</p>
+    <p>—</p>
+    <p>—</p>
+    <p>—</p>
+    <p>Progresso da Demanda 0%</p>
+    <p>Cadastrada Motorista Atribuído Em Viagem Concluída</p>
+    <p>Rota</p>
+    <p>—</p>
+    <p>—</p>
+    <p>**—**</p>
+    <p>**—**</p>
+    <p>Data</p>
+    <p>—</p>
+    <p>Horário</p>
+    <p>—</p>
+    <p>Voo</p>
+    <p>—</p>
+    <p>Passageiros</p>
+    <p>—</p>
+    <p>Veículos</p>
+    <p>—</p>
+    <p>Cliente</p>
+    <p>—</p>
+    <p>Motorista / Veículo</p>
+    <p>Lista de Passageiros</p>
+    <p>Observações —</p>
+    <button>⚡ Ações Rápidas</button>
+    <button>👨‍✈️ Atribuir Motorista</button>
+    <button>🗺️ Ver no Mapa</button>
+    <button>✏️ Editar Demanda</button>
+    <button>🔄 Nova Busca</button>
+
+    <div class="code-not-found hidden">
+        <h3>🔍 Código não encontrado</h3>
+        <p>Nenhuma demanda encontrada para o código.</p>
+        <p>Verifique se o código está correto e tente novamente.</p>
+        <button>🔄 Tentar novamente</button>
+    </div>
+
+    <!-- Modais (Cadastrar Motorista, Veículos, Cliente, etc.) -->
+    <div class="modal hidden">
+        <h3>👨‍✈️ Cadastrar / Editar Motorista</h3>
+        <button>✕</button>
+        <p>Nome Completo *</p>
+        <p>Data de Nascimento *</p>
+        <p>WhatsApp *</p>
+        <p>Login (código) *</p>
+        <p>Código é gerado automaticamente pela plataforma</p>
+        <p>Senha *</p>
+        <p>Foto do Motorista</p>
+        <p>Em breve: upload de foto (JPG, PNG, GIF, WebP)</p>
+        <p>CNH (PDF) *</p>
+        <p>Em breve: upload de CNH em PDF</p>
+        <button>Cancelar</button>
+        <button>💾 Salvar Motorista</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>🚗 Veículos — João Silva</h3>
+        <button>✕</button>
+        <p>**Toyota Corolla** · Prata · 2022 ABC-1234</p>
+        <button>📄 Documento</button>
+        <button>🛡️ Apólice</button>
+        <button>🗑️</button>
+        <p>**Honda CR-V** · Preto · 2023 XYZ-5678</p>
+        <button>📄 Documento</button>
+        <button>🛡️ Apólice</button>
+        <button>🗑️</button>
+        <h4>+ Adicionar Veículo</h4>
+        <p>Placa *</p>
+        <p>Marca *</p>
+        <p>Modelo *</p>
+        <p>Cor *</p>
+        <p>Documento do Veículo (PDF/Imagem)</p>
+        <p>Apólice de Seguro (PDF)</p>
+        <button>Fechar</button>
+        <button>💾 Adicionar Veículo</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>🏢 Cadastrar / Editar Cliente</h3>
+        <button>✕</button>
+        <p>Nome da Empresa *</p>
+        <p>CNPJ *</p>
+        <p>E-mail *</p>
+        <p>Telefone *</p>
+        <p>Responsável *</p>
+        <p>Telefone do Responsável</p>
+        <p>Endereço</p>
+        <p>Observações (somente admins visualizam)</p>
+        <button>Cancelar</button>
+        <button>💾 Salvar Cliente</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>🚗 Nova Demanda / Transfer</h3>
+        <button>✕</button>
+        <p>Código da Demanda *</p>
+        <p>Código alfanumérico único — usado para busca no sistema e no mapa.</p>
+        <p>Cliente / Empresa *</p>
+        <select>
+            <option>Selecione...</option>
+            <option>Beira Rio S/A Ltda</option>
+            <option>Beta Corp S.A.</option>
+            <option>Gamma Logística</option>
+            <option>Delta S.A.</option>
+        </select>
+        <p>Data *</p>
+        <p>Horário *</p>
+        <p>Nº do Voo</p>
+        <p>Embarque *</p>
+        <p>Desembarque *</p>
+        <p>📍 **—** &nbsp;· ⏱️ **—** (estimativa)</p>
+        <p>Passageiros</p>
+        <button>✕</button>
+        <button>+ Passageiro</button>
+        <p>Nº de Veículos *</p>
+        <p>Placa Receptivo (PDF)</p>
+        <p>Observações</p>
+        <button>Cancelar</button>
+        <button>💾 Salvar Demanda</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>📅 Novo Evento</h3>
+        <button>✕</button>
+        <p>Nome do Evento *</p>
+        <p>Data de Início *</p>
+        <p>Data de Término *</p>
+        <p>Local do Evento *</p>
+        <button>Cancelar</button>
+        <button>💾 Salvar Evento</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>🚗 Nova Demanda</h3>
+        <button>✕</button>
+        <p>Código da Demanda *</p>
+        <p>Código alfanumérico único — usado para busca no sistema e no mapa.</p>
+        <p>Nome / Descrição da Demanda *</p>
+        <p>Data *</p>
+        <p>Horário *</p>
+        <p>Voo (opcional)</p>
+        <p>Embarque *</p>
+        <p>Desembarque *</p>
+        <p>📍 **—** &nbsp;· ⏱️ **—** (estimativa)</p>
+        <p>Passageiros</p>
+        <button>✕</button>
+        <button>+ Passageiro</button>
+        <p>Nº de Veículos *</p>
+        <p>Nº de Passageiros *</p>
+        <p>Observações</p>
+        <button>Cancelar</button>
+        <button>💾 Salvar Demanda</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>—</h3>
+        <button>✕</button>
+        <p>🔖</p>
+        <p>Código da Demanda</p>
+        <p>—</p>
+        <p>—</p>
+        <p>—</p>
+        <p>**—**</p>
+        <p>**—**</p>
+        <p>Data</p>
+        <p>—</p>
+        <p>Horário</p>
+        <p>—</p>
+        <p>Voo</p>
+        <p>—</p>
+        <p>Passageiros</p>
+        <p>—</p>
+        <p>Veículos</p>
+        <p>—</p>
+        <p>Motorista</p>
+        <p>—</p>
+        <p>Passageiros</p>
+        <p>Observações</p>
+        <p>—</p>
+        <button>Fechar</button>
+        <button>👨‍✈️ Atribuir Motorista</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>🗺️ Motoristas em Campo</h3>
+        <button>✕</button>
+        <p>O motorista em destaque é o selecionado no mapa.</p>
+        <img src="foto_joao.jpg" alt="João Silva">
+        <p>**João Silva**</p>
+        <p>Em viagem</p>
+        <p>62 km/h</p>
+        <p>🚗 Toyota Corolla · ABC-1234</p>
+        <p>⏱️ 8 min · 4,2 km</p>
+        <p>🏁 GRU → Rebouças</p>
+        <p>🔖 IT145874</p>
+        <p>👤 Roberto Alves</p>
+        <p>📅 Evento: **Congresso Nacional de TI**</p>
+        <img src="foto_pedro.jpg" alt="Pedro Oliveira">
+        <p>**Pedro Oliveira**</p>
+        <p>A caminho</p>
+        <p>45 km/h</p>
+        <p>🚗 Honda HR-V · DEF-5678</p>
+        <p>⏱️ 22 min · 11,8 km</p>
+        <p>🏁 Aeroporto FNP → Rebouças</p>
+        <p>🔖 UH874525</p>
+        <p>👤 Marcos Pereira</p>
+        <p>📅 Evento: **Congresso Nacional de TI**</p>
+        <img src="foto_maria.jpg" alt="Maria Santos">
+        <p>**Maria Santos**</p>
+        <p>Disponível</p>
+        <p>0 km/h</p>
+        <p>🚗 VW Passat · GHI-9012</p>
+        <p>⏱️ —🏁 —</p>
+        <button>Fechar</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>👨‍✈️ Atribuir Motorista / Veículo</h3>
+        <button>✕</button>
+        <p>⚠️ Esta demanda exige **2** motoristas/veículos. Selecione todos antes de salvar.</p>
+        <button>🔍</button>
+        <button>✕</button>
+        <img src="foto_joao.jpg" alt="João Silva">
+        <p>**João Silva**</p>
+        <p>📱 (11) 99123-4567</p>
+        <p>Disponível</p>
+        <input type="checkbox">
+        <p>ABC-1234 Toyota Corolla · Prata · 2022</p>
+        <input type="checkbox">
+        <p>XYZ-5678 Honda CR-V · Preto · 2023</p>
+        <img src="foto_pedro.jpg" alt="Pedro Oliveira">
+        <p>**Pedro Oliveira**</p>
+        <p>📱 (11) 98765-4321</p>
+        <p>Em viagem</p>
+        <input type="checkbox">
+        <p>DEF-5678 Honda HR-V · Azul · 2021</p>
+        <img src="foto_maria.jpg" alt="Maria Santos">
+        <p>**Maria Santos**</p>
+        <p>📱 (11) 97654-3210</p>
+        <p>Bloqueada</p>
+        <input type="checkbox">
+        <p>GHI-9012 VW Passat · Branco · 2020</p>
+        <button>🔍</button>
+        <p>Nenhum resultado para ""</p>
+        <button>Cancelar</button>
+        <button>✅ Confirmar Atribuição</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>👥 Usuário Admin</h3>
+        <button>✖</button>
+        <p>Nome Completo *</p>
+        <p>Login (Email) *</p>
+        <p>Senha (mín. 6 caracteres)</p>
+        <p>Nível de Acesso *</p>
+        <select>
+            <option>Selecione</option>
+            <option>Super Admin</option>
+            <option>Admin</option>
+            <option>Operador</option>
+        </select>
+        <p>Permissões de visualização e edição. Elas são definidas automaticamente pelo nível selecionado.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Módulo</th><th>Visualizar</th><th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Dashboard</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Mapa ao Vivo</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Motoristas</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Clientes / Empresas</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Transfers</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Eventos</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Histórico</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+                <tr><td>Usuários Admin</td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            </tbody>
+        </table>
+        <button>Cancelar</button>
+        <button>Salvar</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>📋 Detalhe da Demanda</h3>
+        <button>✕</button>
+        <p>🔖</p>
+        <p>Código</p>
+        <p>KT587458</p>
+        <p>Cliente</p>
+        <p>Delta S.A.</p>
+        <p>Data/Hora</p>
+        <p>25/04/2025 às 16:00</p>
+        <p>Embarque</p>
+        <p>Hotel Double Tree Pontal — Av. JK, 2041</p>
+        <p>Desembarque</p>
+        <p>Hotel Swan NH — R. Oscar Freire, 384</p>
+        <p>Motorista</p>
+        <p>Pedro Oliveira</p>
+        <p>Veículo</p>
+        <p>Honda HR-V · Azul · DEF-5678</p>
+        <p>Passageiros</p>
+        <p>3 pax</p>
+        <p>Voo</p>
+        <p>LA3050</p>
+        <p>Cadastrado por</p>
+        <p>William Admin</p>
+        <p>Status</p>
+        <p>Concluído</p>
+        <p>Linha do Tempo</p>
+        <p>✅ **15:45** — Motorista chegou ao local</p>
+        <p>✅ **16:03** — Passageiro embarcou</p>
+        <p>✅ **16:47** — Viagem finalizada</p>
+        <button>Fechar</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>—</h3>
+        <button>✕</button>
+        <p>🔖</p>
+        <p>Código da Demanda</p>
+        <p>—</p>
+        <p>—</p>
+        <p>—</p>
+        <p>**—**</p>
+        <p>**—**</p>
+        <p>Data</p>
+        <p>—</p>
+        <p>Horário</p>
+        <p>—</p>
+        <p>Voo</p>
+        <p>—</p>
+        <p>Passageiros</p>
+        <p>—</p>
+        <p>Veículos</p>
+        <p>—</p>
+        <p>Motorista</p>
+        <p>—</p>
+        <p>Passageiros</p>
+        <p>Observações</p>
+        <p>—</p>
+        <button>Fechar</button>
+        <button>👨‍✈️ Atribuir Motorista</button>
+    </div>
+
+    <div class="modal hidden">
+        <h3>🗺️ Motoristas em Campo</h3>
+        <button>✕</button>
+        <p>O motorista destacado em laranja é o selecionado no mapa.</p>
+        <img src="foto_joao.jpg" alt="João Silva">
+        <p>**João Silva**</p>
+        <p>Em viagem</p>
+        <p>62 km/h</p>
+        <p>🚗 Toyota Corolla · ABC-1234</p>
+        <p>⏱️ 8 min · 4,2 km</p>
+        <p>🏁 GRU → Rebouças</p>
+        <p>🔖 IT145874</p>
+        <p>👤 Roberto Alves</p>
+        <p>📅 Evento: **Congresso Nacional de TI**</p>
+        <img src="foto_pedro.jpg" alt="Pedro Oliveira">
+        <p>**Pedro Oliveira**</p>
+        <p>A caminho</p>
+        <p>45 km/h</p>
+        <p>🚗 Honda HR-V · DEF-5678</p>
+        <p>⏱️ 22 min · 11,8 km</p>
+        <p>🏁 Aeroporto FNP → Rebouço</p>
+        <p>🔖 UH874525</p>
+        <p>👤 Marcos Pereira</p>
+        <p>📅 Evento: **Congresso Nacional de TI**</p>
+        <img src="foto_maria.jpg" alt="Maria Santos">
+        <p>**Maria Santos**</p>
+        <p>Disponível</p>
+        <p>0 km/h</p>
+        <p>🚗 VW Passat · GHI-9012</p>
+        <p>⏱️ —🏁 —</p>
+        <button>Fechar</button>
+    </div>
+
+    <!-- O script DEVE vir antes do fechamento da tag </body> -->
     <script>
-        const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
+        document.addEventListener('DOMContentLoaded', () => {
+            const ssmUserString = localStorage.getItem('ssm_user');
+            const sixstarToken = localStorage.getItem('sixstar_token');
 
-        const form = document.querySelector('form'); // Seleciona o formulário
-        const inputLogin = document.getElementById('loginInput'); // Seleciona o input de login pelo ID
-        const inputSenha = document.getElementById('senhaInput'); // Seleciona o input de senha pelo ID
-        const erroBox = document.getElementById('loginErro'); // Seleciona o parágrafo de erro pelo ID
-
-        // Garante que os elementos foram encontrados
-        if (!form) console.error("Formulário de login não encontrado.");
-        if (!inputLogin) console.error("Input de login não encontrado.");
-        if (!inputSenha) console.error("Input de senha não encontrado.");
-        if (!erroBox) console.error("Parágrafo de erro não encontrado. Crie um <p> para mensagens de erro.");
-
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (erroBox) erroBox.style.display = 'none'; // Esconde a mensagem de erro anterior
-
-          const login = inputLogin.value;
-          const senha = inputSenha.value;
-
-          try {
-            const resp = await fetch(`${API_BASE}/api/admin/login`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ login, senha })
-            });
-
-            if (!resp.ok) {
-              const errorData = await resp.json();
-              if (erroBox) {
-                erroBox.textContent = errorData.message || 'Login ou senha incorretos. Tente novamente.';
-                erroBox.style.display = 'block';
-              }
-              console.error('Erro na resposta da API:', errorData);
-              return;
+            // Redireciona para login se não houver token ou dados do usuário
+            if (!ssmUserString || !sixstarToken) {
+                window.location.href = 'login.html';
+                return;
             }
 
-            const data = await resp.json();
-            console.log('Dados recebidos da API após login:', data);
+            let ssmUser;
+            try {
+                ssmUser = JSON.parse(ssmUserString);
+            } catch (e) {
+                console.error("Erro ao parsear ssm_user do localStorage:", e);
+                // Limpa dados inválidos e redireciona
+                localStorage.removeItem('ssm_user');
+                localStorage.removeItem('sixstar_token');
+                window.location.href = 'login.html';
+                return;
+            }
 
-            if (data && data.admin) {
-                console.log('Entrou no bloco if (data && data.admin). Objeto data.admin:', data.admin);
-                localStorage.setItem('sixstar_token', data.token);
-                localStorage.setItem('ssm_user', JSON.stringify(data.admin));
-                console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user'));
-                window.location.href = 'admin.html';
+            // 1. Atualizar informações do usuário logado
+            const loggedInUserNameElement = document.getElementById('loggedInUserName');
+            const loggedInUserRoleElement = document.getElementById('loggedInUserRole');
+
+            if (loggedInUserNameElement) {
+                loggedInUserNameElement.textContent = ssmUser.nome_completo || ssmUser.login;
+            }
+
+            if (loggedInUserRoleElement) {
+                // Formata o nível de acesso para exibição (ex: "super_admin" -> "Super Admin")
+                let roleText = ssmUser.nivel_acesso.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                loggedInUserRoleElement.textContent = roleText;
+            }
+
+            // 2. Controlar a visibilidade da seção "Usuários Admin" e seu item de menu
+            const adminUsersSection = document.getElementById('adminUsersSection');
+            const adminUsersMenuItem = document.getElementById('adminUsersMenuItem');
+
+            if (ssmUser.nivel_acesso === 'super_admin') {
+                if (adminUsersSection) adminUsersSection.classList.remove('hidden');
+                if (adminUsersMenuItem) adminUsersMenuItem.classList.remove('hidden');
             } else {
-                console.error('Erro: data.admin não encontrado na resposta da API. Conteúdo de data:', data);
-                if (erroBox) {
-                    erroBox.textContent = 'Erro: Dados do administrador não recebidos da API. Tente novamente.';
-                    erroBox.style.display = 'block';
-                }
+                // Para outros níveis, garanta que estejam escondidos
+                if (adminUsersSection) adminUsersSection.classList.add('hidden');
+                if (adminUsersMenuItem) adminUsersMenuItem.classList.add('hidden');
             }
 
-          } catch (err) {
-            console.error('Erro na chamada de login:', err);
-            if (erroBox) {
-              erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
-              erroBox.style.display = 'block';
+            // 3. Lógica para o botão de logout
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    localStorage.removeItem('sixstar_token');
+                    localStorage.removeItem('ssm_user');
+                    window.location.href = 'login.html';
+                });
             }
-          }
+
+            // Se você tiver elementos estáticos como "Usuário Padrão" e "Visualizador"
+            // que não devem aparecer para o super_admin, você precisará dar IDs a eles
+            // e adicionar lógica para escondê-los aqui. Exemplo:
+            // const usuarioPadraoElement = document.getElementById('usuarioPadraoDisplay');
+            // if (usuarioPadraoElement) usuarioPadraoElement.classList.add('hidden');
         });
     </script>
 </body>
