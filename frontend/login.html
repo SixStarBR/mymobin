@@ -144,39 +144,10 @@
     if (!erroBox) console.error("Parágrafo de erro não encontrado. Crie um <p> para mensagens de erro.");
 
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (erroBox) erroBox.style.display = 'none'; // Esconde a mensagem de erro anterior
-
-      const login = inputLogin.value;
-      const senha = inputSenha.value;
-
-      try {
-        const resp = await fetch(`${API_BASE}/api/admin/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ login, senha })
-        });
-
-        if (!resp.ok) {
-          const errorData = await resp.json();
-          if (erroBox) {
-            erroBox.textContent = errorData.message || 'Login ou senha incorretos. Tente novamente.';
-            erroBox.style.display = 'block';
-          }
-          console.error('Erro na resposta da API:', errorData); // Adicione esta linha
-          return;
-        }
-
-        const data = await resp.json();
-console.log('Dados recebidos da API após login:', data);
-
-// --- INÍCIO DA ALTERAÇÃO ---
+    // --- INÍCIO DA ALTERAÇÃO ---
 // A API retorna os dados do usuário dentro da propriedade 'admin'
 if (data && data.admin) { // Agora verificamos 'data.admin'
-    console.log('Objeto data.admin:', data.admin); // Log para 'data.admin'
+    console.log('Entrou no bloco if (data &amp;&amp; data.admin). Objeto data.admin:', data.admin);
 // Salva o token
 localStorage.setItem('sixstar_token', data.token);
 
@@ -188,12 +159,20 @@ console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user'))
 // Redireciona para o painel administrativo
 window.location.href = 'admin.html';
 } else {
-    console.error('Erro: data.admin não encontrado na resposta da API.'); // Mensagem de erro ajustada
+    console.error('Erro: data.admin não encontrado na resposta da API. Conteúdo de data:', data); // Mensagem de erro ajustada
     if (erroBox) {
         erroBox.textContent = 'Erro: Dados do administrador não recebidos da API. Tente novamente.';
         erroBox.style.display = 'block';
     }
 }
+
+} catch (err) {
+    console.error('Erro na chamada de login:', err);
+    if (erroBox) {
+      erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
+      erroBox.style.display = 'block';
+    }
+  }
     });
   </script>
 </body>
