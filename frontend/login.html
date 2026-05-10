@@ -133,9 +133,9 @@
     const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
     const form = document.querySelector('form'); // Seleciona o formulário
-    const inputLogin = document.querySelector('input[type="text"]'); // Seleciona o input de login
-    const inputSenha = document.querySelector('input[type="password"]'); // Seleciona o input de senha
-    const erroBox = document.querySelector('p[style*="display: none"]'); // Seleciona o parágrafo de erro
+    const inputLogin = document.querySelector('input[placeholder="Login"]'); // Seleciona o input de login pelo placeholder
+const inputSenha = document.querySelector('input[placeholder="Senha"]'); // Seleciona o input de senha pelo placeholder
+const erroBox = document.querySelector('p[style*="color: #e74c3c"]'); // Seleciona o parágrafo de erro pela cor, que é única no seu HTML
 
     // Garante que os elementos foram encontrados
     if (!form) console.error("Formulário de login não encontrado.");
