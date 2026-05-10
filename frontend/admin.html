@@ -3435,7 +3435,87 @@ function renderizarBusca(codigo) {
   }
 </script>
 <script>
-  // Carrega a lista de usuários administrativos e monta a tabela
+  // -------- PRESETS DE PERMISSÃO POR NÍVEL (SÓ VISUAL) --------
+  function permissoesPorNivel(nivel) {
+    const base = {
+      dashboard:   { ver: false, editar: false },
+      mapa:        { ver: false, editar: false },
+      motoristas:  { ver: false, editar: false },
+      clientes:    { ver: false, editar: false },
+      transfers:   { ver: false, editar: false },
+      eventos:     { ver: false, editar: false },
+      historico:   { ver: false, editar: false },
+      usuarios:    { ver: false, editar: false }
+    };
+
+    if (nivel === 'super_admin') {
+      Object.keys(base).forEach((m) => {
+        base[m].ver = true;
+        base[m].editar = true;
+      });
+    } else if (nivel === 'admin') {
+      Object.keys(base).forEach((m) => {
+        base[m].ver = true;
+        base[m].editar = true;
+      });
+      // se quiser que admin veja a lista de usuários mas não edite, ajuste aqui:
+      base.usuarios.ver = true;
+      base.usuarios.editar = false;
+    } else if (nivel === 'operador') {
+      base.dashboard.ver = true;
+
+      base.mapa.ver = true;
+
+      base.motoristas.ver = true;
+      base.motoristas.editar = true;
+
+      base.transfers.ver = true;
+      base.transfers.editar = true;
+
+      base.historico.ver = true;
+
+      base.eventos.ver = true;
+      base.eventos.editar = true;
+
+      base.clientes.ver = true;
+      base.clientes.editar = true;
+
+      base.usuarios.ver = false;
+      base.usuarios.editar = false;
+    }
+
+    return base;
+  }
+
+  function aplicarPresetNaTabela(nivel) {
+    const preset = permissoesPorNivel(nivel);
+    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+
+    checks.forEach((c) => {
+      const modulo = c.getAttribute('data-modulo');
+      const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+      if (!modulo || !tipo) return;
+
+      const ativo = preset[modulo] ? !!preset[modulo][tipo] : false;
+      c.checked = ativo;
+      c.disabled = true; // apenas visual, não editável
+    });
+  }
+
+  function onChangeNivelAcesso() {
+    const nivel = document.getElementById('usuario-nivel-acesso').value;
+    if (!nivel) {
+      const checks = document.querySelectorAll('#modalUsuario .perm-check');
+      checks.forEach((c) => {
+        c.checked = false;
+        c.disabled = true;
+      });
+      return;
+    }
+    aplicarPresetNaTabela(nivel);
+  }
+
+  // -------- LISTA DE USUÁRIOS ADMIN (TABELA) --------
   async function carregarUsuariosAdmin() {
     const token = localStorage.getItem('sixstar_token');
     if (!token) {
@@ -3445,7 +3525,7 @@ function renderizarBusca(codigo) {
 
     const resp = await fetch('https://mymobin.onrender.com/api/admin/usuarios', {
       headers: {
-        'Authorization': 'Bearer ' + token,
+        Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json'
       }
     });
@@ -3464,71 +3544,6 @@ function renderizarBusca(codigo) {
 
     tbody.innerHTML = '';
 
-    // Em vez de olhar JSON de permissoes, usamos só o nivel_acesso
-    function permissoesPorNivel(nivel) {
-      // estrutura: { dashboard:{ver,editar}, mapa:{...}, ... }
-      const base = {
-        dashboard:   { ver: false, editar: false },
-        mapa:        { ver: false, editar: false },
-        motoristas:  { ver: false, editar: false },
-        clientes:    { ver: false, editar: false },
-        transfers:   { ver: false, editar: false },
-        eventos:     { ver: false, editar: false },
-        historico:   { ver: false, editar: false },
-        usuarios:    { ver: false, editar: false }
-      };
-
-      if (nivel === 'super_admin') {
-        // Tudo liberado
-        Object.keys(base).forEach(m => {
-          base[m].ver = true;
-          base[m].editar = true;
-        });
-      } else if (nivel === 'admin') {
-        // Tudo liberado, exceto administração de usuários
-        Object.keys(base).forEach(m => {
-          base[m].ver = true;
-          base[m].editar = true;
-        });
-        base.usuarios.ver = true;   // se quiser que Admin VEJA a lista
-        base.usuarios.editar = false; // mas não edite/crie (ajuste se quiser)
-      } else if (nivel === 'operador') {
-        // Regras que você descreveu:
-        // Dashboard: ver
-        base.dashboard.ver = true;
-
-        // Mapa: ver
-        base.mapa.ver = true;
-
-        // Motoristas: ver, cadastrar, editar
-        base.motoristas.ver = true;
-        base.motoristas.editar = true;
-
-        // Transfers: ver, cadastrar, editar
-        base.transfers.ver = true;
-        base.transfers.editar = true;
-
-        // Histórico: ver
-        base.historico.ver = true;
-
-        // Eventos (apenas cadastrar transfer relacionado) -> consideramos editar aqui
-        base.eventos.ver = true;
-        base.eventos.editar = true;
-
-        // Clientes: se quiser liberar, ajuste aqui:
-        base.clientes.ver = true;
-        base.clientes.editar = true;
-
-        // Usuários: nada
-        base.usuarios.ver = false;
-        base.usuarios.editar = false;
-      } else {
-        // Qualquer outro nível desconhecido: tudo falso
-      }
-
-      return base;
-    }
-
     usuarios.forEach((u) => {
       const primeiraLetra = (u.nome_completo || '?').trim().charAt(0).toUpperCase();
 
@@ -3537,14 +3552,13 @@ function renderizarBusca(codigo) {
           ? '<span class="badge badge-danger">Super Admin</span>'
           : u.nivel_acesso === 'admin'
           ? '<span class="badge badge-primary">Admin</span>'
-          : '<span class="badge badge-info">' + (u.nivel_acesso || 'Operador') + '</span>';
+          : '<span class="badge badge-info">Operador</span>';
 
       const statusBadge =
         u.status === 'ativo'
           ? '<span class="badge badge-success">Ativo</span>'
           : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
 
-      // calcula permissões a partir apenas do nivel_acesso
       const perm = permissoesPorNivel(u.nivel_acesso);
 
       const podeDashboard = perm.dashboard.ver || perm.dashboard.editar;
@@ -3586,7 +3600,7 @@ function renderizarBusca(codigo) {
     });
   }
 
-  // Abre o modal para criar um novo usuário admin
+  // -------- NOVO USUÁRIO ADMIN (abrir modal vazio) --------
   function novoUsuarioAdmin() {
     document.getElementById('usuario-id').value = '';
     document.getElementById('usuario-nome').value = '';
@@ -3595,75 +3609,21 @@ function renderizarBusca(codigo) {
     document.getElementById('usuario-nivel-acesso').value = '';
 
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
-    checks.forEach((c) => { c.checked = false; });
+    checks.forEach((c) => {
+      c.checked = false;
+      c.disabled = true;
+    });
 
-    openModal('modalUsuario');
+    if (typeof openModal === 'function') {
+      openModal('modalUsuario');
+    } else {
+      // fallback simples, caso use display:block
+      const modal = document.getElementById('modalUsuario');
+      if (modal) modal.style.display = 'block';
+    }
   }
 
-  // Define presets de permissões conforme o nível (somente visual)
-  function setPermPreset(nivel) {
-    const checks = document.querySelectorAll('#modalUsuario .perm-check');
-
-    // zera tudo
-    checks.forEach((c) => { c.checked = false; });
-
-    const marcar = (modulo, tipo) => {
-      const el = document.querySelector(
-        '#modalUsuario .perm-check[data-modulo="' + modulo + '"][data-tipo="' + tipo + '"]'
-      );
-      if (el) el.checked = true;
-    };
-
-    if (nivel === 'super_admin') {
-      // tudo ver + tudo editar
-      checks.forEach((c) => { c.checked = true; });
-      return;
-    }
-
-    if (nivel === 'admin') {
-      // tudo ver + editar, exceto usuários (ajuste visual)
-      checks.forEach((c) => { c.checked = true; });
-      const usuariosVer = document.querySelector('#modalUsuario .perm-check[data-modulo="usuarios"][data-tipo="ver"]');
-      const usuariosEditar = document.querySelector('#modalUsuario .perm-check[data-modulo="usuarios"][data-tipo="editar"]');
-      if (usuariosEditar) usuariosEditar.checked = false;
-      // se quiser também tirar "ver", desmarque usuariosVer
-      return;
-    }
-
-    if (nivel === 'operador') {
-      // Dashboard: ver
-      marcar('dashboard', 'ver');
-
-      // Mapa: ver
-      marcar('mapa', 'ver');
-
-      // Motoristas: ver, editar
-      marcar('motoristas', 'ver');
-      marcar('motoristas', 'editar');
-
-      // Clientes: ver, editar (se quiser)
-      marcar('clientes', 'ver');
-      marcar('clientes', 'editar');
-
-      // Transfers: ver, editar
-      marcar('transfers', 'ver');
-      marcar('transfers', 'editar');
-
-      // Eventos: ver, editar (para cadastrar transfer relacionado)
-      marcar('eventos', 'ver');
-      marcar('eventos', 'editar');
-
-      // Histórico: ver
-      marcar('historico', 'ver');
-
-      // Usuários: nada
-      return;
-    }
-
-    // qualquer outro nível: tudo zerado
-  }
-
-  // Abre o modal para editar um usuário admin existente
+  // -------- EDITAR USUÁRIO ADMIN (abrir modal com dados) --------
   async function editarUsuarioAdmin(adminId) {
     const token = localStorage.getItem('sixstar_token');
     if (!token) {
@@ -3674,7 +3634,7 @@ function renderizarBusca(codigo) {
     try {
       const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json'
         }
       });
@@ -3696,37 +3656,21 @@ function renderizarBusca(codigo) {
       const selectNivel = document.getElementById('usuario-nivel-acesso');
       selectNivel.value = admin.nivel_acesso || '';
 
-      // aplica preset visual conforme nivel
-      setPermPreset(admin.nivel_acesso || '');
+      aplicarPresetNaTabela(selectNivel.value);
 
-      openModal('modalUsuario');
+      if (typeof openModal === 'function') {
+        openModal('modalUsuario');
+      } else {
+        const modal = document.getElementById('modalUsuario');
+        if (modal) modal.style.display = 'block';
+      }
     } catch (err) {
       console.error('Erro inesperado em editarUsuarioAdmin:', err);
       alert('Erro inesperado ao carregar dados do usuário.');
     }
   }
 
-  // Coleta as permissões do modal (AGORA APENAS VISUAL, MAS A FUNÇÃO PODE SER MANTIDA SE VOCÊ AINDA QUISER ENVIAR)
-  function coletarPermissoesDoModal() {
-    const checks = document.querySelectorAll('#modalUsuario .perm-check');
-    const permissoes = {};
-
-    checks.forEach((c) => {
-      const modulo = c.getAttribute('data-modulo');
-      const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
-      if (!modulo || !tipo) return;
-
-      if (!permissoes[modulo]) {
-        permissoes[modulo] = { ver: false, editar: false };
-      }
-
-      permissoes[modulo][tipo] = c.checked;
-    });
-
-    return permissoes;
-  }
-
-  // Cria ou atualiza um usuário admin a partir do formulário do modal
+  // -------- SALVAR (CRIAR / EDITAR) USUÁRIO ADMIN --------
   async function saveUsuario() {
     const token = localStorage.getItem('sixstar_token');
     if (!token) {
@@ -3765,7 +3709,6 @@ function renderizarBusca(codigo) {
           nome_completo: nome,
           login: login,
           nivel_acesso: nivelAcesso
-          // não usamos mais permissoes no backend
         };
 
         if (senha && senha.trim() !== '') {
@@ -3789,14 +3732,13 @@ function renderizarBusca(codigo) {
           login: login,
           senha: senha,
           nivel_acesso: nivelAcesso
-          // sem permissoes
         };
       }
 
       const resp = await fetch(url, {
         method,
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
@@ -3810,7 +3752,14 @@ function renderizarBusca(codigo) {
       }
 
       alert('Usuário admin salvo com sucesso.');
-      closeModal('modalUsuario');
+
+      if (typeof closeModal === 'function') {
+        closeModal('modalUsuario');
+      } else {
+        const modal = document.getElementById('modalUsuario');
+        if (modal) modal.style.display = 'none';
+      }
+
       carregarUsuariosAdmin();
     } catch (err) {
       console.error('Erro inesperado ao salvar usuário admin:', err);
@@ -3818,8 +3767,14 @@ function renderizarBusca(codigo) {
     }
   }
 
-  // Quando o HTML inteiro estiver carregado, busca os admins
+  // -------- INICIALIZAÇÃO --------
   document.addEventListener('DOMContentLoaded', function () {
+    // garante que mudar o select no modal aplica o preset
+    const selectNivel = document.getElementById('usuario-nivel-acesso');
+    if (selectNivel) {
+      selectNivel.addEventListener('change', onChangeNivelAcesso);
+    }
+
     carregarUsuariosAdmin();
   });
 </script>
