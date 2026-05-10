@@ -246,6 +246,11 @@
       <div>
         <h2>SIX STAR MOBIN</h2>
         <p>Painel Administrativo</p>
+        <div class="user-info-box">
+            <p>Bem-vindo, <span id="loggedInUserName"></span></p>
+            <p><span id="loggedInUserRole"></span></p>
+            <button id="logoutButton">Sair</button>
+        </div>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -262,6 +267,7 @@
       <div class="nav-item" onclick="showPage('historico')"><span class="icon">📋</span> Histórico</div>
       <div class="nav-section">Configurações</div>
       <div class="nav-item" onclick="showPage('usuarios')"><span class="icon">👥</span> Usuários Admin</div>
+      <li id="adminUsersMenuItem" class="hidden"><a href="#">👥 Usuários Admin</a></li>
     </nav>
     <div class="sidebar-user">
   <div class="avatar" id="sidebarAvatar">?</div> <!-- Vamos preencher isso via JS -->
@@ -688,38 +694,31 @@
       </div>
 
 <!-- ========== USUÁRIOS ========== -->
-<div id="page-usuarios" class="page hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-    <h3>Usuários Administrativos</h3>
-    <button class="btn btn-primary" onclick="openModal('modalUsuario')">+ Novo Usuário</button>
-  </div>
-
-  <div class="card">
-    <div class="table-wrapper">
-      <table class="perm-table">
-        <thead>
-          <tr>
-            <th style="text-align:left;">Usuário</th>
-            <th>Nível</th>
-            <th>Dashboard</th>
-            <th>Mapa</th>
-            <th>Motoristas</th>
-            <th>Clientes</th>
-            <th>Transfers</th>
-            <th>Eventos</th>
-            <th>Histórico</th>
-            <th>Usuários</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="usuarios-tbody">
-          <!-- Linhas serão preenchidas via JavaScript -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+<div id="adminUsersSection" class="hidden">
+            <h3>Usuários Administrativos</h3>
+            <button>+ Novo Usuário</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>Nível</th>
+                        <th>Dashboard</th>
+                        <th>Mapa</th>
+                        <th>Motoristas</th>
+                        <th>Clientes</th>
+                        <th>Transfers</th>
+                        <th>Eventos</th>
+                        <th>Histórico</th>
+                        <th>Usuários</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Linhas da tabela de usuários admin -->
+                </tbody>
+            </table>
+        </div>
 
       <!-- ========== BUSCA POR CÓDIGO ========== -->
 <div id="page-busca" class="page hidden">
@@ -4011,59 +4010,71 @@ function renderizarBusca(codigo) {
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ssmUserString = localStorage.getItem('ssm_user');
-        const sixstarToken = localStorage.getItem('sixstar_token');
-    if (!ssmUserString || !sixstarToken) {
-        // Se não houver usuário ou token, redireciona para o login
-        window.location.href = 'login.html';
-        return;
-    }
+            const ssmUserString = localStorage.getItem('ssm_user');
+            const sixstarToken = localStorage.getItem('sixstar_token');
 
-    let ssmUser;
-    try {
-        ssmUser = JSON.parse(ssmUserString);
-    } catch (e) {
-        console.error("Erro ao parsear ssm_user do localStorage:", e);
-        // Se houver erro, limpa e redireciona
-        localStorage.removeItem('ssm_user');
-        localStorage.removeItem('sixstar_token');
-        window.location.href = 'login.html';
-        return;
-    }
+            // Redireciona para login se não houver token ou dados do usuário
+            if (!ssmUserString || !sixstarToken) {
+                window.location.href = 'login.html';
+                return;
+            }
 
-    // 1. Exibir informações do usuário logado
-    // Você precisará de elementos HTML com IDs específicos para isso.
-    // Por exemplo, se você tiver um &lt;span id="userName"&gt;&lt;/span&gt; e &lt;span id="userRole"&gt;&lt;/span&gt;
-    const userNameElement = document.getElementById('userName');
-    const userRoleElement = document.getElementById('userRole');
+            let ssmUser;
+            try {
+                ssmUser = JSON.parse(ssmUserString);
+            } catch (e) {
+                console.error("Erro ao parsear ssm_user do localStorage:", e);
+                // Limpa dados inválidos e redireciona
+                localStorage.removeItem('ssm_user');
+                localStorage.removeItem('sixstar_token');
+                window.location.href = 'login.html';
+                return;
+            }
 
-    if (userNameElement) {
-        userNameElement.textContent = ssmUser.nome_completo || ssmUser.login;
-    }
-    if (userRoleElement) {
-        // Formata o nível de acesso para exibição
-        let roleText = ssmUser.nivel_acesso.replace('_', ' ').split(' ').map(word =&gt; word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        userRoleElement.textContent = roleText;
-    }
+            // 1. Atualizar informações do usuário logado
+            const loggedInUserNameElement = document.getElementById('loggedInUserName');
+            const loggedInUserRoleElement = document.getElementById('loggedInUserRole');
 
-    // 2. Controlar a visibilidade da lista de administradores
-    // Supondo que a seção de "Usuários Admin" tenha um ID, por exemplo, 'adminUsersSection'
-    const adminUsersSection = document.getElementById('adminUsersSection');
-    if (adminUsersSection) {
-        if (ssmUser.nivel_acesso === 'super_admin') {
-            adminUsersSection.style.display = 'block'; // Mostra a seção
-        } else {
-            adminUsersSection.style.display = 'none'; // Esconde a seção para outros níveis
-        }
-    }
+            if (loggedInUserNameElement) {
+                loggedInUserNameElement.textContent = ssmUser.nome_completo || ssmUser.login;
+            }
 
-    // 3. Outras permissões (ex: "usuário padrão" e "visualizador")
-    // Você precisará identificar quais elementos HTML correspondem a essas descrições
-    // e aplicar lógica semelhante baseada em ssmUser.nivel_acesso.
-    // Por exemplo, se houver um elemento que exibe "usuário padrão", você o esconderia
-    // ou alteraria seu texto se o usuário for 'super_admin'.
-    // Para isso, precisaria dos IDs ou classes desses elementos.
-});
+            if (loggedInUserRoleElement) {
+                // Formata o nível de acesso para exibição (ex: "super_admin" -> "Super Admin")
+                let roleText = ssmUser.nivel_acesso.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                loggedInUserRoleElement.textContent = roleText;
+            }
+
+            // 2. Controlar a visibilidade da seção "Usuários Admin"
+            const adminUsersSection = document.getElementById('adminUsersSection');
+            const adminUsersMenuItem = document.getElementById('adminUsersMenuItem');
+
+            if (ssmUser.nivel_acesso === 'super_admin') {
+                if (adminUsersSection) adminUsersSection.classList.remove('hidden');
+                if (adminUsersMenuItem) adminUsersMenuItem.classList.remove('hidden');
+            } else {
+                // Para outros níveis, garanta que esteja escondido
+                if (adminUsersSection) adminUsersSection.classList.add('hidden');
+                if (adminUsersMenuItem) adminUsersMenuItem.classList.add('hidden');
+            }
+
+            // 3. Lógica para o botão de logout
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    localStorage.removeItem('sixstar_token');
+                    localStorage.removeItem('ssm_user');
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // Você pode adicionar mais lógica aqui para outros elementos
+            // como "Usuário Padrão" e "Visualizador" se eles forem elementos separados
+            // e você quiser removê-los ou alterá-los.
+            // Exemplo:
+            // const usuarioPadraoElement = document.getElementById('usuarioPadraoDisplay');
+            // if (usuarioPadraoElement) usuarioPadraoElement.style.display = 'none';
+        });
 </script>
   
 </body>
