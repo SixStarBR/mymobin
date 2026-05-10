@@ -18,6 +18,36 @@
 </script>
 
   <style>
+
+  /* CSS para garantir que o modal apareça acima da sidebar */
+.modal-overlay { /* Se você tiver uma camada escura por trás do modal */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro */
+  z-index: 1000; /* Um valor bem alto para ficar acima de tudo */
+  display: none; /* Escondido por padrão */
+}
+
+.modal-custom { /* O seu modal principal, como #modalUsuario */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1001; /* MAIOR que o overlay e a sidebar */
+  display: none; /* Escondido por padrão */
+  max-width: 600px; /* Ajuste conforme necessário */
+  width: 90%; /* Ajuste conforme necessário */
+  max-height: 90vh; /* Para modais altos */
+  overflow-y: auto; /* Para modais altos */
+}
+    
     .admin-layout { display:flex; min-height:100vh; }
     .sidebar {
       width:260px; background:linear-gradient(180deg,#1a1a1a,#2a2a2a);
@@ -1590,155 +1620,95 @@
 </div>
 
 <!-- MODAL: Cadastrar / Editar Usuário Admin -->
-<div class="modal" id="modalUsuario" style="display:none;">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title">Cadastrar / Editar Usuário Admin</h5>
-        <button type="button" class="close" onclick="closeModal('modalUsuario')">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <input type="hidden" id="usuario-id" />
-
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="usuario-nome">NOME COMPLETO *</label>
-            <input type="text" class="form-control" id="usuario-nome" />
-          </div>
-          <div class="form-group col-md-6">
-            <label for="usuario-login">LOGIN *</label>
-            <input type="email" class="form-control" id="usuario-login" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="usuario-senha">SENHA *</label>
-            <input type="password" class="form-control" id="usuario-senha" placeholder="Mínimo 6 caracteres" />
-          </div>
-          <div class="form-group col-md-6">
-            <label for="usuario-nivel-acesso">NÍVEL DE ACESSO *</label>
-            <select class="form-control" id="usuario-nivel-acesso" onchange="onChangeNivelAcesso()">
-              <option value="">Selecione...</option>
-              <option value="super_admin">Super Admin</option>
-              <option value="admin">Admin</option>
-              <option value="operador">Operador</option>
-            </select>
-          </div>
-        </div>
-
-        <hr />
-
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div>
-            <strong>Permissões Individuais</strong>
-          </div>
-          <div class="text-muted" style="font-size: 0.85rem;">
-            As permissões abaixo são apenas para visualização.
-            Elas são definidas automaticamente pelo nível de acesso escolhido.
-          </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-sm" id="tabela-permissoes-admin">
-            <thead style="background-color:#f8f9fa;">
-              <tr>
-                <th>MÓDULO</th>
-                <th class="text-center">VISUALIZAR</th>
-                <th class="text-center">EDITAR</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Dashboard</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Mapa ao Vivo</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Motoristas</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Clientes</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Transfers</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Eventos</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Histórico</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="editar" disabled />
-                </td>
-              </tr>
-              <tr>
-                <td>Usuários Admin</td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="usuarios" data-tipo="ver" disabled />
-                </td>
-                <td class="text-center">
-                  <input type="checkbox" class="perm-check" data-modulo="usuarios" data-tipo="editar" disabled />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-light" onclick="closeModal('modalUsuario')">
-          Cancelar
-        </button>
-        <button type="button" class="btn btn-warning" onclick="saveUsuario()">
-          💾 Salvar Usuário
-        </button>
-      </div>
-
+<div class="modal-overlay" id="modalOverlayUsuario"></div> <!-- Adicione este overlay -->
+<div class="modal-custom" id="modalUsuario"> <!-- Adicione a classe modal-custom aqui -->
+  <div class="modal-header">
+    <h3>👥 Usuário Admin</h3>
+    <button type="button" class="btn-close" onclick="closeModal('modalUsuario')">✖</button>
+  </div>
+  <div class="modal-body">
+    <!-- Seu conteúdo do modal aqui -->
+    <input type="hidden" id="usuario-id">
+    <div class="form-group">
+      <label for="usuario-nome">Nome Completo *</label>
+      <input type="text" id="usuario-nome" class="form-control" required>
     </div>
+    <div class="form-group">
+      <label for="usuario-login">Login (Email) *</label>
+      <input type="email" id="usuario-login" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="usuario-senha">Senha (mín. 6 caracteres)</label>
+      <input type="password" id="usuario-senha" class="form-control" placeholder="Deixe em branco para não alterar">
+    </div>
+    <div class="form-group">
+      <label for="usuario-nivel-acesso">Nível de Acesso *</label>
+      <select id="usuario-nivel-acesso" class="form-control" required>
+        <option value="">Selecione</option>
+        <option value="super_admin">Super Admin</option>
+        <option value="admin">Admin</option>
+        <option value="operador">Operador</option>
+      </select>
+    </div>
+
+    <p class="text-muted small mt-3">Permissões de visualização e edição. Elas são definidas automaticamente pelo nível selecionado.</p>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm perm-table">
+        <thead>
+          <tr>
+            <th>Módulo</th>
+            <th>Visualizar</th>
+            <th>Editar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dashboard</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Mapa ao Vivo</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Motoristas</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Clientes / Empresas</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Transfers</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Eventos</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Histórico</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="editar" disabled></td>
+          </tr>
+          <tr>
+            <td>Usuários Admin</td>
+            <td><input type="checkbox" class="perm-check" data-modulo="usuarios" data-tipo="ver" disabled></td>
+            <td><input type="checkbox" class="perm-check" data-modulo="usuarios" data-tipo="editar" disabled></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="closeModal('modalUsuario')">Cancelar</button>
+    <button type="button" class="btn btn-primary" onclick="saveUsuario()">Salvar</button>
   </div>
 </div>
 
@@ -3609,11 +3579,11 @@ function renderizarBusca(codigo) {
 
   // -------- ABRIR MODAL PARA NOVO USUÁRIO --------
   function novoUsuarioAdmin() {
-    document.getElementById('usuario-id').value = '';
-    document.getElementById('usuario-nome').value = '';
-    document.getElementById('usuario-login').value = '';
-    document.getElementById('usuario-senha').value = '';
-    document.getElementById('usuario-nivel-acesso').value = ''; // Limpa o select
+  document.getElementById('usuario-id').value = '';
+  document.getElementById('usuario-nome').value = '';
+  document.getElementById('usuario-login').value = '';
+  document.getElementById('usuario-senha').value = '';
+  document.getElementById('usuario-nivel-acesso').value = ''; // Limpa o select
 
     // Limpa todos os checkboxes e desabilita
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
