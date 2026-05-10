@@ -3462,467 +3462,530 @@ function renderizarBusca(codigo) {
   }
 </script>
 <script>
-  // -------- PRESETS DE PERMISSÃO POR NÍVEL (SÓ VISUAL) --------
-  function permissoesPorNivel(nivel) {
-    const base = {
-      dashboard:   { ver: false, editar: false },
-      mapa:        { ver: false, editar: false },
-      motoristas:  { ver: false, editar: false },
-      clientes:    { ver: false, editar: false },
-      transfers:   { ver: false, editar: false },
-      eventos:     { ver: false, editar: false },
-      historico:   { ver: false, editar: false },
-      usuarios:    { ver: false, editar: false }
-    };
+    const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
-    if (nivel === 'super_admin') {
-      Object.keys(base).forEach((m) => {
-        base[m].ver = true;
-        base[m].editar = true;
-      });
-    } else if (nivel === 'admin') {
-      Object.keys(base).forEach((m) => {
-        base[m].ver = true;
-        base[m].editar = true;
-      });
-      // Admin pode ver a lista de usuários, mas não editar/criar
-      base.usuarios.ver = true;
-      base.usuarios.editar = false;
-    } else if (nivel === 'operador') {
-      base.dashboard.ver = true;
-      base.mapa.ver = true;
-      base.motoristas.ver = true;
-      base.motoristas.editar = true;
-      base.transfers.ver = true;
-      base.transfers.editar = true;
-      base.historico.ver = true;
-      base.eventos.ver = true;
-      base.eventos.editar = true;
-      base.clientes.ver = true;
-      base.clientes.editar = true;
-      base.usuarios.ver = false;
-      base.usuarios.editar = false;
+    // --- Verificação de Token e Redirecionamento ---
+    (function () {
+      const token = localStorage.getItem('sixstar_token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const userString = localStorage.getItem('ssm_user');
+      if (!userString) {
+          window.location.href = 'login.html';
+          return;
+      }
+      try {
+          const user = JSON.parse(userString);
+          if (!user || !user.id) {
+              window.location.href = 'login.html';
+              return;
+          }
+      } catch (e) {
+          console.error('Erro ao parsear dados do usuário do localStorage:', e);
+          window.location.href = 'login.html';
+          return;
+      }
+    })();
+
+    // --- Funções Globais ---
+
+    // Função para atualizar o relógio (exemplo)
+    function updateClock() {
+      const now = new Date();
+      const timeElement = document.getElementById('current-time'); // Adicione um ID ao elemento do relógio
+      if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString();
+      }
     }
 
-    return base;
-  }
+    // Função de Logout
+    function logout() {
+      localStorage.removeItem('sixstar_token');
+      localStorage.removeItem('ssm_user');
+      window.location.href = 'login.html';
+    }
 
-  function aplicarPresetNaTabela(nivel) {
-    const preset = permissoesPorNivel(nivel);
-    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+    // Função para mostrar/esconder páginas (exemplo)
+    function showPage(pageId) {
+      document.querySelectorAll('.page-content').forEach(page => {
+        page.style.display = 'none';
+      });
+      const currentPage = document.getElementById(pageId);
+      if (currentPage) {
+        currentPage.style.display = 'block';
+      }
+      // Atualiza o item ativo na sidebar
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      const activeItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
+    }
 
-    checks.forEach((c) => {
-      const modulo = c.getAttribute('data-modulo');
-      const tipo = c.getAttribute('data-tipo');
-      if (!modulo || !tipo) return;
+    // --- Funções de Modal (Baseadas nas suas imagens) ---
+    function openModal(modalId) {
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modal = document.getElementById(modalId);
+      if (modalOverlay && modal) {
+        modalOverlay.style.display = 'flex';
+        modal.style.display = 'block';
+      }
+    }
 
-      const ativo = preset[modulo] ? !!preset[modulo][tipo] : false;
-      c.checked = ativo;
-      c.disabled = true; // Apenas visual, não editável
-    });
-  }
+    function closeModal(modalId) {
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modal = document.getElementById(modalId);
+      if (modalOverlay && modal) {
+        modalOverlay.style.display = 'none';
+        modal.style.display = 'none';
+      }
+    }
 
-  function onChangeNivelAcesso() {
-    const nivel = document.getElementById('usuario-nivel-acesso').value;
-    if (!nivel) {
+    // --- Funções de Usuários Admin (Baseadas nas suas imagens) ---
+    function permissoesPorNivel(nivel) {
+      const base = {
+        dashboard:   { ver: false, editar: false },
+        mapa:        { ver: false, editar: false },
+        motoristas:  { ver: false, editar: false },
+        clientes:    { ver: false, editar: false },
+        transfers:   { ver: false, editar: false },
+        eventos:     { ver: false, editar: false },
+        historico:   { ver: false, editar: false },
+        usuarios:    { ver: false, editar: false }
+      };
+
+      if (nivel === 'super_admin') {
+        Object.keys(base).forEach((m) => {
+          base[m].ver = true;
+          base[m].editar = true;
+        });
+      } else if (nivel === 'admin') {
+        Object.keys(base).forEach((m) => {
+          base[m].ver = true;
+          base[m].editar = true;
+        });
+        base.usuarios.ver = true; // Admin pode ver a lista de usuários
+        base.usuarios.editar = false; // Mas não editar/criar outros usuários
+      } else if (nivel === 'operador') {
+        base.dashboard.ver = true;
+        base.mapa.ver = true;
+        base.motoristas.ver = true;
+        base.motoristas.editar = true;
+        base.transfers.ver = true;
+        base.transfers.editar = true;
+        base.historico.ver = true;
+        base.eventos.ver = true;
+        base.eventos.editar = true;
+        base.clientes.ver = true;
+        base.clientes.editar = true;
+        base.usuarios.ver = false;
+        base.usuarios.editar = false;
+      }
+
+      return base;
+    }
+
+    function aplicarPresetNaTabela(nivel) {
+      const preset = permissoesPorNivel(nivel);
+      const checks = document.querySelectorAll('#modalUsuario .perm-check');
+
+      checks.forEach((c) => {
+        const modulo = c.getAttribute('data-modulo');
+        const tipo = c.getAttribute('data-tipo');
+        if (!modulo || !tipo) return;
+
+        const ativo = preset[modulo] ? !!preset[modulo][tipo] : false;
+        c.checked = ativo;
+        c.disabled = true; // Apenas visual, não editável
+      });
+    }
+
+    function onChangeNivelAcesso() {
+      const nivel = document.getElementById('usuario-nivel-acesso').value;
+      if (!nivel) {
+        const checks = document.querySelectorAll('#modalUsuario .perm-check');
+        checks.forEach((c) => {
+          c.checked = false;
+          c.disabled = true;
+        });
+        return;
+      }
+      aplicarPresetNaTabela(nivel);
+    }
+
+    async function carregarUsuariosAdmin() {
+      const token = localStorage.getItem('sixstar_token');
+      if (!token) {
+        console.error('Token de admin não encontrado no localStorage.');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/admin/usuarios`, {
+          headers: {
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!resp.ok) {
+          console.error('Erro ao carregar usuários admin:', resp.status, await resp.text());
+          return;
+        }
+
+        const usuarios = await resp.json();
+        const tbody = document.getElementById('usuarios-tbody'); // Certifique-se que sua tabela tem um tbody com id="usuarios-tbody"
+        if (!tbody) {
+          console.error('Elemento #usuarios-tbody não encontrado no HTML.');
+          return;
+        }
+
+        tbody.innerHTML = '';
+
+        usuarios.forEach((u) => {
+          const primeiraLetra = (u.nome_completo || '?').trim().charAt(0).toUpperCase();
+
+          const nivelBadge =
+            u.nivel_acesso === 'super_admin'
+              ? '<span class="badge badge-danger">Super Admin</span>'
+              : u.nivel_acesso === 'admin'
+              ? '<span class="badge badge-primary">Admin</span>'
+              : '<span class="badge badge-info">' + (u.nivel_acesso || 'Operador') + '</span>';
+
+          const statusBadge =
+            u.status === 'ativo'
+              ? '<span class="badge badge-success">Ativo</span>'
+              : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
+
+          const permDoNivel = permissoesPorNivel(u.nivel_acesso);
+
+          const podeDashboard = permDoNivel.dashboard.ver || permDoNivel.dashboard.editar;
+          const podeMapa = permDoNivel.mapa.ver || permDoNivel.mapa.editar;
+          const podeMotoristas = permDoNivel.motoristas.ver || permDoNivel.motoristas.editar;
+          const podeClientes = permDoNivel.clientes.ver || permDoNivel.clientes.editar;
+          const podeTransfers = permDoNivel.transfers.ver || permDoNivel.transfers.editar;
+          const podeEventos = permDoNivel.eventos.ver || permDoNivel.eventos.editar;
+          const podeHistorico = permDoNivel.historico.ver || permDoNivel.historico.editar;
+          const podeUsuarios = permDoNivel.usuarios.ver || permDoNivel.usuarios.editar;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div class="flex-center gap-1">
+                <div class="avatar">${primeiraLetra}</div>
+                <div>
+                  <strong>${u.nome_completo || 'N/A'}</strong><br>
+                  <small class="text-muted">${u.login || 'N/A'}</small>
+                </div>
+              </div>
+            </td>
+            <td>${nivelBadge}</td>
+            <td>${podeDashboard ? '✅' : ''}</td>
+            <td>${podeMapa ? '✅' : ''}</td>
+            <td>${podeMotoristas ? '✅' : ''}</td>
+            <td>${podeClientes ? '✅' : ''}</td>
+            <td>${podeTransfers ? '✅' : ''}</td>
+            <td>${podeEventos ? '✅' : ''}</td>
+            <td>${podeHistorico ? '✅' : ''}</td>
+            <td>${podeUsuarios ? '✅' : ''}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="editarUsuarioAdmin(${u.id})">✏️</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="toggleBlock(${u.id})">🚫 Bloquear</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Erro inesperado ao carregar usuários admin:', err);
+      }
+    }
+
+    function clearUsuarioAdminForm() {
+      document.getElementById('usuario-id').value = '';
+      document.getElementById('usuario-nome').value = '';
+      document.getElementById('usuario-login').value = '';
+      document.getElementById('usuario-senha').value = '';
+      document.getElementById('usuario-nivel-acesso').value = '';
+
       const checks = document.querySelectorAll('#modalUsuario .perm-check');
       checks.forEach((c) => {
         c.checked = false;
         c.disabled = true;
       });
-      return;
-    }
-    aplicarPresetNaTabela(nivel);
-  }
-
-  // -------- LISTA DE USUÁRIOS ADMIN (TABELA) --------
-  async function carregarUsuariosAdmin() {
-    const token = localStorage.getItem('sixstar_token');
-    if (!token) {
-      console.error('Token de admin não encontrado no localStorage (sixstar_token).');
-      return;
     }
 
-    const resp = await fetch('https://mymobin.onrender.com/api/admin/usuarios', {
-      headers: {
-        Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!resp.ok) {
-      console.error('Erro ao carregar usuários admin:', resp.status, await resp.text());
-      return;
+    function novoUsuarioAdmin() {
+      clearUsuarioAdminForm();
+      document.getElementById('modalUsuarioTitle').textContent = 'Cadastrar / Editar Usuário Admin';
+      openModal('modalUsuario');
     }
 
-    const usuarios = await resp.json();
-    const tbody = document.getElementById('usuarios-tbody');
-    if (!tbody) {
-      console.error('Elemento #usuarios-tbody não encontrado no HTML.');
-      return;
-    }
-
-    tbody.innerHTML = '';
-
-    usuarios.forEach((u) => {
-      const primeiraLetra = (u.nome_completo || '?').trim().charAt(0).toUpperCase();
-
-      const nivelBadge =
-        u.nivel_acesso === 'super_admin'
-          ? '<span class="badge badge-danger">Super Admin</span>'
-          : u.nivel_acesso === 'admin'
-          ? '<span class="badge badge-primary">Admin</span>'
-          : '<span class="badge badge-info">' + (u.nivel_acesso || 'Operador') + '</span>';
-
-      const statusBadge =
-        u.status === 'ativo'
-          ? '<span class="badge badge-success">Ativo</span>'
-          : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
-
-      // As permissões na tabela são baseadas no nível, não no JSON 'permissoes'
-      const permDoNivel = permissoesPorNivel(u.nivel_acesso);
-
-      const podeDashboard = permDoNivel.dashboard.ver || permDoNivel.dashboard.editar;
-      const podeMapa = permDoNivel.mapa.ver || permDoNivel.mapa.editar;
-      const podeMotoristas = permDoNivel.motoristas.ver || permDoNivel.motoristas.editar;
-      const podeClientes = permDoNivel.clientes.ver || permDoNivel.clientes.editar;
-      const podeTransfers = permDoNivel.transfers.ver || permDoNivel.transfers.editar;
-      const podeEventos = permDoNivel.eventos.ver || permDoNivel.eventos.editar;
-      const podeHistorico = permDoNivel.historico.ver || permDoNivel.historico.editar;
-      const podeUsuarios = permDoNivel.usuarios.ver || permDoNivel.usuarios.editar;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>
-          <div class="flex-center gap-1">
-            <div class="avatar">${primeiraLetra}</div>
-            <div>
-              <strong>${u.nome_completo}</strong><br>
-              <small class="text-muted">${u.login}</small>
-            </div>
-          </div>
-        </td>
-        <td>${nivelBadge}</td>
-        <td>${podeDashboard ? '✅' : ''}</td>
-        <td>${podeMapa ? '✅' : ''}</td>
-        <td>${podeMotoristas ? '✅' : ''}</td>
-        <td>${podeClientes ? '✅' : ''}</td>
-        <td>${podeTransfers ? '✅' : ''}</td>
-        <td>${podeEventos ? '✅' : ''}</td>
-        <td>${podeHistorico ? '✅' : ''}</td>
-        <td>${podeUsuarios ? '✅' : ''}</td>
-        <td>${statusBadge}</td>
-        <td>
-          <button
-            type="button"
-            class="btn btn-secondary btn-sm"
-            onclick="editarUsuarioAdmin(${u.id})"
-          >
-            ✏️
-          </button>
-          <button
-            type="button"
-            class="btn btn-danger btn-sm"
-            onclick="toggleBlock(${u.id})"
-          >
-            🚫 Bloquear
-          </button>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  // -------- ABRIR MODAL PARA NOVO USUÁRIO --------
-function novoUsuarioAdmin() {
-  document.getElementById('usuario-id').value = '';
-  document.getElementById('usuario-nome').value = '';
-  document.getElementById('usuario-login').value = '';
-  document.getElementById('usuario-senha').value = '';
-  document.getElementById('usuario-nivel-acesso').value = ''; // Limpa o select
-
-  // Limpa todos os checkboxes e desabilita
-  const checks = document.querySelectorAll('#modalUsuario .perm-check');
-  checks.forEach((c) => {
-    c.checked = false;
-    c.disabled = true;
-  });
-
-  // Abre o modal manualmente
-  openModal('modalUsuario');
-}
-
-// -------- ABRIR MODAL PARA EDITAR USUÁRIO --------
-async function editarUsuarioAdmin(adminId) {
-  const token = localStorage.getItem('sixstar_token');
-  if (!token) {
-    alert('Sessão expirada. Faça login novamente.');
-    return;
-  }
-
-  try {
-    const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
-      headers: {
-        Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!resp.ok) {
-      const txt = await resp.text();
-      console.error('Erro ao carregar admin para edição:', resp.status, txt);
-      alert('Erro ao carregar dados do usuário.');
-      return;
-    }
-
-    const admin = await resp.json();
-
-    document.getElementById('usuario-id').value = admin.id;
-    document.getElementById('usuario-nome').value = admin.nome_completo || '';
-    document.getElementById('usuario-login').value = admin.login || '';
-    document.getElementById('usuario-senha').value = ''; // Senha nunca vem preenchida por segurança
-
-    const selectNivel = document.getElementById('usuario-nivel-acesso');
-    selectNivel.value = admin.nivel_acesso || '';
-
-    aplicarPresetNaTabela(selectNivel.value); // Aplica o preset visual conforme o nível
-
-    // Abre o modal manualmente
-    openModal('modalUsuario');
-  } catch (err) {
-    console.error('Erro inesperado em editarUsuarioAdmin:', err);
-    alert('Erro inesperado ao carregar dados do usuário.');
-  }
-}
-
-// -------- SALVAR (CRIAR / EDITAR) USUÁRIO ADMIN --------
-async function saveUsuario() {
-  const token = localStorage.getItem('sixstar_token');
-  if (!token) {
-    alert('Sessão expirada. Faça login novamente.');
-    return;
-  }
-
-  const id = document.getElementById('usuario-id').value;
-  const nome = document.getElementById('usuario-nome').value.trim();
-  const login = document.getElementById('usuario-login').value.trim();
-  const senha = document.getElementById('usuario-senha').value;
-  const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
-
-  if (!nome || !login) {
-    alert('Nome e login são obrigatórios.');
-    return;
-  }
-
-  if (!nivelAcesso) {
-    alert('Selecione um nível de acesso.');
-    return;
-  }
-
-  const isEditando = id !== '';
-
-  try {
-    let url;
-    let method;
-    let body;
-
-    if (isEditando) {
-      url = `https://mymobin.onrender.com/api/admin/usuarios/${id}`;
-      method = 'PUT';
-
-      body = {
-        nome_completo: nome,
-        login: login,
-        nivel_acesso: nivelAcesso
-      };
-
-      if (senha && senha.trim() !== '') {
-        if (senha.length < 6) {
-          alert('A senha deve ter pelo menos 6 caracteres.');
-          return;
-        }
-        body.nova_senha = senha;
-      }
-    } else {
-      url = 'https://mymobin.onrender.com/api/admin/usuarios';
-      method = 'POST';
-
-      if (!senha || senha.length < 6) {
-        alert('A senha deve ter pelo menos 6 caracteres.');
+    async function editarUsuarioAdmin(adminId) {
+      const token = localStorage.getItem('sixstar_token');
+      if (!token) {
+        alert('Sessão expirada. Faça login novamente.');
         return;
       }
 
-      body = {
-        nome_completo: nome,
-        login: login,
-        senha: senha,
-        nivel_acesso: nivelAcesso
-      };
+      try {
+        const resp = await fetch(`${API_BASE}/api/admin/usuarios/${adminId}`, {
+          headers: {
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!resp.ok) {
+          const txt = await resp.text();
+          console.error('Erro ao carregar admin para edição:', resp.status, txt);
+          alert('Erro ao carregar dados do usuário.');
+          return;
+        }
+
+        const admin = await resp.json();
+
+        document.getElementById('usuario-id').value = admin.id;
+        document.getElementById('usuario-nome').value = admin.nome_completo || '';
+        document.getElementById('usuario-login').value = admin.login || '';
+        document.getElementById('usuario-senha').value = ''; // Senha nunca vem preenchida por segurança
+
+        const selectNivel = document.getElementById('usuario-nivel-acesso');
+        selectNivel.value = admin.nivel_acesso || '';
+
+        aplicarPresetNaTabela(selectNivel.value);
+        document.getElementById('modalUsuarioTitle').textContent = 'Cadastrar / Editar Usuário Admin';
+        openModal('modalUsuario');
+      } catch (err) {
+        console.error('Erro inesperado em editarUsuarioAdmin:', err);
+        alert('Erro inesperado ao carregar dados do usuário.');
+      }
     }
 
-    const resp = await fetch(url, {
-      method,
-      headers: {
-        Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
+    async function saveUsuario() {
+      const token = localStorage.getItem('sixstar_token');
+      if (!token) {
+        alert('Sessão expirada. Faça login novamente.');
+        return;
+      }
+
+      const id = document.getElementById('usuario-id').value;
+      const nome = document.getElementById('usuario-nome').value.trim();
+      const login = document.getElementById('usuario-login').value.trim();
+      const senha = document.getElementById('usuario-senha').value;
+      const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
+
+      if (!nome || !login) {
+        alert('Nome e login são obrigatórios.');
+        return;
+      }
+
+      if (!nivelAcesso) {
+        alert('Selecione um nível de acesso.');
+        return;
+      }
+
+      const isEditando = id !== '';
+
+      try {
+        let url;
+        let method;
+        let body;
+
+        if (isEditando) {
+          url = `${API_BASE}/api/admin/usuarios/${id}`;
+          method = 'PUT';
+
+          body = {
+            nome_completo: nome,
+            login: login,
+            nivel_acesso: nivelAcesso
+          };
+
+          if (senha && senha.trim() !== '') {
+            if (senha.length < 6) {
+              alert('A senha deve ter pelo menos 6 caracteres.');
+              return;
+            }
+            body.nova_senha = senha;
+          }
+        } else {
+          url = `${API_BASE}/api/admin/usuarios`;
+          method = 'POST';
+
+          if (!senha || senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres.');
+            return;
+          }
+
+          body = {
+            nome_completo: nome,
+            login: login,
+            senha: senha,
+            nivel_acesso: nivelAcesso
+          };
+        }
+
+        const resp = await fetch(url, {
+          method,
+          headers: {
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (!resp.ok) {
+          const txt = await resp.text();
+          console.error('Erro ao salvar usuário admin:', resp.status, txt);
+          alert('Erro ao salvar usuário admin: ' + txt);
+          return;
+        }
+
+        alert('Usuário admin salvo com sucesso.');
+        closeModal('modalUsuario');
+        carregarUsuariosAdmin();
+      } catch (err) {
+        console.error('Erro inesperado ao salvar usuário admin:', err);
+        alert('Erro inesperado ao salvar usuário admin.');
+      }
+    }
+
+    // Função toggleBlock (exemplo, você precisará implementar a lógica de backend)
+    async function toggleBlock(userId) {
+      if (!confirm('Tem certeza que deseja alterar o status deste usuário?')) {
+        return;
+      }
+      alert(`Lógica para bloquear/desbloquear usuário ${userId} precisa ser implementada no backend.`);
+      // Exemplo de como seria a chamada API (ajuste conforme seu backend)
+      /*
+      const token = localStorage.getItem('sixstar_token');
+      try {
+        const resp = await fetch(`${API_BASE}/api/admin/usuarios/${userId}/toggle-status`, {
+          method: 'PUT', // Ou PATCH
+          headers: {
+            Authorization: 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (resp.ok) {
+          alert('Status do usuário alterado com sucesso.');
+          carregarUsuariosAdmin();
+        } else {
+          const txt = await resp.text();
+          alert('Erro ao alterar status: ' + txt);
+        }
+      } catch (err) {
+        console.error('Erro ao alterar status do usuário:', err);
+        alert('Erro inesperado ao alterar status do usuário.');
+      }
+      */
+    }
+
+    // --- Funções de Motoristas (Exemplo, você precisará implementar o restante) ---
+    async function carregarMotoristas() {
+      // Implemente a lógica para carregar motoristas aqui
+      console.log("Carregando motoristas...");
+      // Exemplo:
+      // const token = localStorage.getItem('sixstar_token');
+      // const resp = await fetch(`${API_BASE}/api/admin/motoristas`, { headers: { Authorization: 'Bearer ' + token } });
+      // const motoristas = await resp.json();
+      // ... preencher a tabela de motoristas
+    }
+
+
+    // --- Inicialização da Página ---
+    document.addEventListener('DOMContentLoaded', function () {
+      // Preenche informações do usuário na sidebar
+      const userString = localStorage.getItem('ssm_user');
+      let user = { nome_completo: 'Usuário Padrão', nivel_acesso: 'Visualizador', login: '' }; // Fallback padrão
+
+      if (userString) {
+          try {
+              user = JSON.parse(userString);
+          } catch (e) {
+              console.error('Erro ao parsear dados do usuário do localStorage:', e);
+          }
+      }
+
+      const sidebarName = document.getElementById('sidebarName'); // Adicione id="sidebarName" ao elemento do nome
+      const sidebarRole = document.getElementById('sidebarRole'); // Adicione id="sidebarRole" ao elemento do nível
+      const sidebarAvatar = document.getElementById('sidebarAvatar'); // Adicione id="sidebarAvatar" ao elemento do avatar
+      const usuariosAdminMenuItem = document.getElementById('usuariosAdminMenuItem'); // Adicione id="usuariosAdminMenuItem" ao item de menu
+
+      if (sidebarName) {
+        sidebarName.textContent = user.nome_completo || 'Usuário Padrão';
+      }
+      if (sidebarRole) {
+        sidebarRole.textContent = user.nivel_acesso || 'Visualizador';
+      }
+      if (sidebarAvatar) {
+        sidebarAvatar.textContent = (user.nome_completo ? user.nome_completo.charAt(0).toUpperCase() : 'U');
+      }
+
+      // Restringe o item "Usuários Admin"
+      if (usuariosAdminMenuItem) {
+        if (user.nivel_acesso !== 'super_admin') {
+          usuariosAdminMenuItem.style.display = 'none';
+        } else {
+          usuariosAdminMenuItem.style.display = 'flex';
+        }
+      }
+
+      // Garante que mudar o select no modal de usuário admin aplica o preset
+      const selectNivelUsuario = document.getElementById('usuario-nivel-acesso');
+      if (selectNivelUsuario) {
+        selectNivelUsuario.addEventListener('change', onChangeNivelAcesso);
+      }
+
+      // Inicializa o relógio
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // Carrega dados iniciais
+      carregarMotoristas(); // Carrega motoristas ao carregar a página
+      carregarUsuariosAdmin(); // Carrega usuários admin ao carregar a página
+      showPage('dashboard'); // Exibe o dashboard por padrão
+
+      // Adiciona event listener para o botão de logout
+      const logoutButton = document.getElementById('logoutButton'); // Adicione id="logoutButton" ao seu botão de logout
+      if (logoutButton) {
+        logoutButton.addEventListener('click', logout);
+      }
+
+      // Adiciona event listeners para os itens da sidebar (exemplo)
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const pageId = this.getAttribute('data-page');
+          if (pageId) {
+            showPage(pageId);
+          }
+        });
+      });
+
+      // Inicializa o mapa (se o elemento 'map' existir)
+      // initMap(); // Descomente se você tiver a função initMap e o elemento #map
     });
 
-    if (!resp.ok) {
-      const txt = await resp.text();
-      console.error('Erro ao salvar usuário admin:', resp.status, txt);
-      alert('Erro ao salvar usuário admin: ' + txt);
-      return;
-    }
+    // --- Funções para o mapa (se você tiver uma implementação Leaflet) ---
+    // function initMap() {
+    //   if (document.getElementById('map')) {
+    //     const map = L.map('map').setView([-23.55052, -46.633308], 13); // Coordenadas de São Paulo
 
-    alert('Usuário admin salvo com sucesso.');
+    //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    //     }).addTo(map);
 
-    // Fecha o modal manualmente
-    closeModal('modalUsuario');
-
-    carregarUsuariosAdmin();
-  } catch (err) {
-    console.error('Erro inesperado ao salvar usuário admin:', err);
-    alert('Erro inesperado ao salvar usuário admin.');
-  }
-}
-
-// Funções para abrir e fechar modais (genéricas, sem Bootstrap)
-function openModal(modalId) {
-  const modalElement = document.getElementById(modalId);
-  const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', '')); // Assumindo padrão modalOverlay[NomeDoModal]
-
-  if (modalElement) {
-    modalElement.style.display = 'block';
-    if (overlayElement) {
-      overlayElement.style.display = 'block';
-    }
-    document.body.style.overflow = 'hidden'; // Impede scroll do body
-  }
-}
-
-function closeModal(modalId) {
-  const modalElement = document.getElementById(modalId);
-  const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', ''));
-
-  if (modalElement) {
-    modalElement.style.display = 'none';
-    if (overlayElement) {
-      overlayElement.style.display = 'none';
-    }
-    document.body.style.overflow = ''; // Restaura scroll do body
-  }
-}
-
-  // -------- INICIALIZAÇÃO GERAL --------
-  document.addEventListener('DOMContentLoaded', function () {
-    // Garante que mudar o select no modal aplica o preset
-    const selectNivelUsuario = document.getElementById('usuario-nivel-acesso');
-    if (selectNivelUsuario) {
-      selectNivelUsuario.addEventListener('change', onChangeNivelAcesso);
-    }
-
-    carregarUsuariosAdmin();
-    carregarMotoristas(); // Carrega motoristas ao carregar a página
-    showPage('dashboard'); // Exibe o dashboard por padrão
-
-    // --- NOVA LÓGICA PARA ESCONDER ITEM DE MENU ---
-    const userNivelAcesso = localStorage.getItem('user_nivel_acesso');
-    const usuariosAdminMenuItem = document.querySelector('.nav-item[onclick="showPage(\'usuarios\')"]');
-
-    if (usuariosAdminMenuItem && userNivelAcesso !== 'super_admin') {
-      usuariosAdminMenuItem.style.display = 'none';
-    }
-    // --- FIM DA NOVA LÓGICA ---
-  });
-
-  // Funções para outros modais (ex: modalEvento)
-  function openModal(modalId) {
-    const modalElement = document.getElementById(modalId);
-    const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', ''));
-
-    if (modalElement) {
-      modalElement.style.display = 'block';
-      if (overlayElement) {
-        overlayElement.style.display = 'block';
-      }
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeModal(modalId) {
-    const modalElement = document.getElementById(modalId);
-    const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', ''));
-
-    if (modalElement) {
-      modalElement.style.display = 'none';
-      if (overlayElement) {
-        overlayElement.style.display = 'none';
-      }
-      document.body.style.overflow = '';
-    }
-  }
-
-  // Função toggleBlock (exemplo, você precisará implementar a lógica de backend)
-  function toggleBlock(userId) {
-    alert(`Bloquear/Desbloquear usuário ${userId}`);
-    // Implementar lógica de backend para bloquear/desbloquear
-  }
-</script>
-
-  <script>
-  /* ---- INICIALIZAÇÃO E FUNÇÕES GERAIS ---- */
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Recupera os dados do usuário do localStorage
-  // Usa 'sixstar_admin' como chave, que é o que o login.html está salvando.
-  // O fallback é um objeto com as propriedades corretas para evitar erros.
-  const user = JSON.parse(localStorage.getItem('sixstar_admin') || '{"nome_completo":"Usuário","nivel_acesso":"admin","login":"admin"}');
-
-  // 2. Preenche as informações do usuário na sidebar
-  const sidebarAvatar = document.getElementById('sidebarAvatar');
-  const sidebarName = document.getElementById('sidebarName');
-  const sidebarRole = document.getElementById('sidebarRole');
-
-  if (sidebarName) {
-    // Usa 'nome_completo' para o nome do usuário
-    sidebarName.textContent = user.nome_completo || 'Usuário';
-  }
-  if (sidebarRole) {
-    // Usa 'nivel_acesso' para o nível do usuário
-    sidebarRole.textContent = user.nivel_acesso || 'Visitante';
-  }
-  if (sidebarAvatar) {
-    // Pega a primeira letra do nome completo para o avatar
-    sidebarAvatar.textContent = (user.nome_completo ? user.nome_completo.charAt(0).toUpperCase() : 'U');
-  }
-
-  // 3. Restringe a visibilidade do item "Usuários Admin"
-  const usuariosAdminMenuItem = document.querySelector('.nav-item[onclick="showPage(\'usuarios\')"]');
-  if (usuariosAdminMenuItem) {
-    // Apenas super_admin pode ver o item "Usuários Admin"
-    if (user.nivel_acesso !== 'super_admin') {
-      usuariosAdminMenuItem.style.display = 'none';
-    } else {
-      usuariosAdminMenuItem.style.display = 'flex'; // Garante que esteja visível se for super_admin
-    }
-  }
-
-  // Funções de inicialização existentes
-  updateClock();
-  setInterval(updateClock, 1000);
-  initMap(); // Se você tiver uma função initMap
-});
-
-function logout() {
-  // Limpa o token e os dados do usuário do localStorage
-  localStorage.removeItem('sixstar_token');
-  localStorage.removeItem('sixstar_admin');
-  // Redireciona para a página de login
-  window.location.href = 'login.html';
-}
-</script>
+    //     // Exemplo de marcador
+    //     L.marker([-23.55052, -46.633308]).addTo(map)
+    //       .bindPopup('Um ponto de interesse.')
+    //       .openPopup();
+    //   }
+    // }
+  </script>
   
 </body>
 
