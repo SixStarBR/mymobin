@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Six Star Mobin</title>
-    <!-- Seus links CSS e estilos aqui -->
     <style>
         body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
         .login-container { background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; width: 350px; }
@@ -26,8 +25,7 @@
         <h1>Six Star Mobin</h1>
         <p>Sistema de Gestão de Transfers & Mobilidade</p>
 
-        <!-- AQUI ESTÁ A ALTERAÇÃO: ADICIONADO id="loginErro" e style="display: none;" -->
-        <p id="loginErro" class="error-message">⚠️ Login ou senha incorretos. Tente novamente.</p>
+        <p id="loginErro" class="error-message" style="display: none;">⚠️ Login ou senha incorretos. Tente novamente.</p>
 
         <form>
             <input type="email" id="loginInput" placeholder="Login" required>
@@ -81,18 +79,11 @@
             const data = await resp.json();
             console.log('Dados recebidos da API após login:', data);
 
-            // A API retorna os dados do usuário dentro da propriedade 'admin'
             if (data && data.admin) {
                 console.log('Entrou no bloco if (data && data.admin). Objeto data.admin:', data.admin);
-                // Salva o token
                 localStorage.setItem('sixstar_token', data.token);
-
-                // Salva o objeto 'admin' completo como 'ssm_user'
                 localStorage.setItem('ssm_user', JSON.stringify(data.admin));
-
                 console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user'));
-
-                // Redireciona para o painel administrativo
                 window.location.href = 'admin.html';
             } else {
                 console.error('Erro: data.admin não encontrado na resposta da API. Conteúdo de data:', data);
@@ -110,6 +101,6 @@
             }
           }
         });
-      </script>
+    </script>
 </body>
 </html>
