@@ -1810,8 +1810,8 @@
 <script>
 /* ---- INIT ---- */
 window.addEventListener('DOMContentLoaded', () => {
-  const user = JSON.parse(sessionStorage.getItem('ssm_user') ||
-    '{"nome":"William2 Admin","role":"admin","login":"admin"}');
+  const user = JSON.parse(localStorage.getItem('sixstar_admin') ||
+    '{"nome":"William Admin","role":"admin","login":"admin"}');
   document.getElementById('sidebarName').textContent =
     user.nome;
   document.getElementById('sidebarAvatar').textContent =
