@@ -171,40 +171,29 @@
         }
 
         const data = await resp.json();
-        console.log('Dados recebidos da API após login:', data); // Adicione esta linha
+console.log('Dados recebidos da API após login:', data);
 
-        // Verifique se 'data.usuario' existe antes de tentar acessá-lo
-if (data && data.usuario) { // Adicione esta verificação
-    console.log('Objeto data.usuario:', data.usuario); // Adicione esta linha
-
-        // Salva o token
+// --- INÍCIO DA ALTERAÇÃO ---
+// A API retorna os dados do usuário dentro da propriedade 'admin'
+if (data && data.admin) { // Agora verificamos 'data.admin'
+    console.log('Objeto data.admin:', data.admin); // Log para 'data.admin'
+// Salva o token
 localStorage.setItem('sixstar_token', data.token);
-  // Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
-localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
-  console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user')); // Adicione esta linha
 
-// Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
-        localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
-// --- FIM DA ALTERAÇÃO ---
+// Salva o objeto 'admin' completo como 'ssm_user'
+localStorage.setItem('ssm_user', JSON.stringify(data.admin));
 
-        // Redireciona para o painel administrativo
-        window.location.href = 'admin.html';
+console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user'));
 
-  } else {
-    console.error('Erro: data.usuario não encontrado na resposta da API.'); // Adicione esta linha
+// Redireciona para o painel administrativo
+window.location.href = 'admin.html';
+} else {
+    console.error('Erro: data.admin não encontrado na resposta da API.'); // Mensagem de erro ajustada
     if (erroBox) {
-        erroBox.textContent = 'Erro: Dados do usuário não recebidos da API. Tente novamente.';
+        erroBox.textContent = 'Erro: Dados do administrador não recebidos da API. Tente novamente.';
         erroBox.style.display = 'block';
     }
 }
-
-      } catch (err) {
-        console.error('Erro na chamada de login:', err);
-        if (erroBox) {
-          erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
-          erroBox.style.display = 'block';
-        }
-      }
     });
   </script>
 </body>
