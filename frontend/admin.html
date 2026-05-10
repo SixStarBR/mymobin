@@ -3405,7 +3405,6 @@ function renderizarBusca(codigo) {
   // Carrega a lista de usuários administrativos e monta a tabela
   async function carregarUsuariosAdmin() {
     const token = localStorage.getItem('sixstar_token');
-
     if (!token) {
       console.error('Token de admin não encontrado no localStorage (sixstar_token).');
       return;
@@ -3432,8 +3431,17 @@ function renderizarBusca(codigo) {
 
     tbody.innerHTML = '';
 
+    // Helper para verificar permissões
+    function temPerm(permissoes, modulo, tipo) {
+      if (!permissoes) return false;
+      const mod = permissoes[modulo];
+      if (!mod) return false;
+      return !!mod[tipo];
+    }
+
     usuarios.forEach((u) => {
       const primeiraLetra = (u.nome_completo || '?').trim().charAt(0).toUpperCase();
+
       const nivelBadge =
         u.nivel_acesso === 'super_admin'
           ? '<span class="badge badge-danger">Super Admin</span>'
@@ -3443,6 +3451,25 @@ function renderizarBusca(codigo) {
         u.status === 'ativo'
           ? '<span class="badge badge-success">Ativo</span>'
           : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
+
+      const perm = u.permissoes || {};
+
+      const podeDashboard =
+        temPerm(perm, 'dashboard', 'ver') || temPerm(perm, 'dashboard', 'editar');
+      const podeMapa =
+        temPerm(perm, 'mapa', 'ver') || temPerm(perm, 'mapa', 'editar');
+      const podeMotoristas =
+        temPerm(perm, 'motoristas', 'ver') || temPerm(perm, 'motoristas', 'editar');
+      const podeClientes =
+        temPerm(perm, 'clientes', 'ver') || temPerm(perm, 'clientes', 'editar');
+      const podeTransfers =
+        temPerm(perm, 'transfers', 'ver') || temPerm(perm, 'transfers', 'editar');
+      const podeEventos =
+        temPerm(perm, 'eventos', 'ver') || temPerm(perm, 'eventos', 'editar');
+      const podeHistorico =
+        temPerm(perm, 'historico', 'ver') || temPerm(perm, 'historico', 'editar');
+      const podeUsuarios =
+        temPerm(perm, 'usuarios', 'ver') || temPerm(perm, 'usuarios', 'editar');
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -3456,14 +3483,14 @@ function renderizarBusca(codigo) {
           </div>
         </td>
         <td>${nivelBadge}</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
+        <td>${podeDashboard ? '✅' : ''}</td>
+        <td>${podeMapa ? '✅' : ''}</td>
+        <td>${podeMotoristas ? '✅' : ''}</td>
+        <td>${podeClientes ? '✅' : ''}</td>
+        <td>${podeTransfers ? '✅' : ''}</td>
+        <td>${podeEventos ? '✅' : ''}</td>
+        <td>${podeHistorico ? '✅' : ''}</td>
+        <td>${podeUsuarios ? '✅' : ''}</td>
         <td>${statusBadge}</td>
         <td>
           <button class="btn btn-secondary btn-sm" onclick="editarUsuarioAdmin(${u.id})">✏️</button>
@@ -3474,8 +3501,6 @@ function renderizarBusca(codigo) {
     });
   }
 
-  
-
   // Abre o modal para criar um novo usuário admin
   function novoUsuarioAdmin() {
     document.getElementById('usuario-id').value = '';
@@ -3485,19 +3510,18 @@ function renderizarBusca(codigo) {
     document.getElementById('usuario-nivel-acesso').value = '';
 
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
-    checks.forEach(c => { c.checked = false; });
+    checks.forEach((c) => { c.checked = false; });
 
     openModal('modalUsuario');
   }
 
-  
+  // Define presets de permissões conforme o nível
   function setPermPreset(nivel) {
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
 
-    // primeiro zera tudo
-    checks.forEach(c => { c.checked = false; });
+    // zera tudo
+    checks.forEach((c) => { c.checked = false; });
 
-    // mapa rápido para acessar por módulo/tipo
     const marcar = (modulo, tipo) => {
       const el = document.querySelector(
         '#modalUsuario .perm-check[data-modulo="' + modulo + '"][data-tipo="' + tipo + '"]'
@@ -3507,13 +3531,13 @@ function renderizarBusca(codigo) {
 
     if (nivel === 'super_admin') {
       // tudo ver + tudo editar
-      checks.forEach(c => { c.checked = true; });
+      checks.forEach((c) => { c.checked = true; });
       return;
     }
 
     if (nivel === 'admin') {
-      // pode ver e editar tudo, exceto talvez algo mais sensível
-      checks.forEach(c => { c.checked = true; });
+      // pode ver e editar tudo
+      checks.forEach((c) => { c.checked = true; });
       return;
     }
 
@@ -3526,125 +3550,113 @@ function renderizarBusca(codigo) {
       marcar('transfers', 'ver');
       marcar('eventos', 'ver');
       marcar('historico', 'ver');
-     // marcar('usuarios_admin', 'ver'); // se não quiser, é só remover esta linha
 
       // pode editar “operacional”
       marcar('motoristas', 'editar');
       marcar('clientes', 'editar');
       marcar('transfers', 'editar');
       marcar('eventos', 'editar');
-    //  marcar('historico', 'editar');
-
-      // NÃO edita dashboard, mapa e usuários admin
       return;
     }
 
     if (nivel === 'viewer') {
-      // só ver tudo, nada de editar
-      // marcar('dashboard', 'ver');
+      // só ver alguns módulos
       marcar('mapa', 'ver');
-      // marcar('motoristas', 'ver');
-      // marcar('clientes', 'ver');
-      // marcar('transfers', 'ver');
       marcar('eventos', 'ver');
-      // marcar('historico', 'ver');
-      // marcar('usuarios_admin', 'ver'); // ou não, se quiser esconder
       return;
     }
 
     // nivel === '' (Personalizado): deixa tudo zerado para o usuário marcar manualmente
   }
 
-
   // Abre o modal para editar um usuário admin existente
   async function editarUsuarioAdmin(adminId) {
-  const token = localStorage.getItem('sixstar_token');
-  if (!token) {
-    alert('Sessão expirada. Faça login novamente.');
-    return;
-  }
-
-  try {
-    const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!resp.ok) {
-      const txt = await resp.text();
-      console.error('Erro ao carregar admin para edição:', resp.status, txt);
-      alert('Erro ao carregar dados do usuário.');
+    const token = localStorage.getItem('sixstar_token');
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
       return;
     }
 
-    const admin = await resp.json();
-
-    document.getElementById('usuario-id').value = admin.id;
-    document.getElementById('usuario-nome').value = admin.nome_completo || '';
-    document.getElementById('usuario-login').value = admin.login || '';
-    document.getElementById('usuario-senha').value = '';
-    document.getElementById('usuario-nivel-acesso').value = admin.nivel_acesso || '';
-
-    const checks = document.querySelectorAll('#modalUsuario .perm-check');
-
-    // 1) zera tudo
-    checks.forEach((c) => {
-      c.checked = false;
-    });
-
-    // 2) se tiver permissoes no backend, aplica exatamente o que veio
-    if (admin.permissoes) {
-      checks.forEach((c) => {
-        const modulo = c.getAttribute('data-modulo');
-        const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
-        if (!modulo || !tipo) return;
-
-        if (
-          admin.permissoes[modulo] &&
-          admin.permissoes[modulo][tipo] === true
-        ) {
-          c.checked = true;
+    try {
+      const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
         }
       });
 
-      // se quiser que, ao existir permissoes, o select fique em "Personalizado",
-      // basta deixar o value vazio:
-      // document.getElementById('usuario-nivel-acesso').value = '';
-    } else {
-      // se não houver permissoes salvas (usuário antigo), aplica preset pelo nível
-      if (typeof setPermPreset === 'function') {
-        setPermPreset(admin.nivel_acesso || '');
+      if (!resp.ok) {
+        const txt = await resp.text();
+        console.error('Erro ao carregar admin para edição:', resp.status, txt);
+        alert('Erro ao carregar dados do usuário.');
+        return;
       }
-    }
 
-    openModal('modalUsuario');
-  } catch (err) {
-    console.error('Erro inesperado em editarUsuarioAdmin:', err);
-    alert('Erro inesperado ao carregar dados do usuário.');
+      const admin = await resp.json();
+
+      document.getElementById('usuario-id').value = admin.id;
+      document.getElementById('usuario-nome').value = admin.nome_completo || '';
+      document.getElementById('usuario-login').value = admin.login || '';
+      document.getElementById('usuario-senha').value = '';
+      document.getElementById('usuario-nivel-acesso').value = admin.nivel_acesso || '';
+
+      const checks = document.querySelectorAll('#modalUsuario .perm-check');
+
+      // 1) zera tudo
+      checks.forEach((c) => {
+        c.checked = false;
+      });
+
+      // 2) se tiver permissoes no backend, aplica exatamente o que veio
+      if (admin.permissoes) {
+        checks.forEach((c) => {
+          const modulo = c.getAttribute('data-modulo');
+          const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+          if (!modulo || !tipo) return;
+
+          if (
+            admin.permissoes[modulo] &&
+            admin.permissoes[modulo][tipo] === true
+          ) {
+            c.checked = true;
+          }
+        });
+
+        // se quiser forçar o select em "Personalizado":
+        // document.getElementById('usuario-nivel-acesso').value = '';
+      } else {
+        // usuário antigo sem permissoes: aplica preset pelo nível
+        if (typeof setPermPreset === 'function') {
+          setPermPreset(admin.nivel_acesso || '');
+        }
+      }
+
+      openModal('modalUsuario');
+    } catch (err) {
+      console.error('Erro inesperado em editarUsuarioAdmin:', err);
+      alert('Erro inesperado ao carregar dados do usuário.');
+    }
   }
-}
 
-function coletarPermissoesDoModal() {
-  const checks = document.querySelectorAll('#modalUsuario .perm-check');
-  const permissoes = {};
+  // Coleta as permissões marcadas no modal e monta o JSON
+  function coletarPermissoesDoModal() {
+    const checks = document.querySelectorAll('#modalUsuario .perm-check');
+    const permissoes = {};
 
-  checks.forEach((c) => {
-    const modulo = c.getAttribute('data-modulo');
-    const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
-    if (!modulo || !tipo) return;
+    checks.forEach((c) => {
+      const modulo = c.getAttribute('data-modulo');
+      const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+      if (!modulo || !tipo) return;
 
-    if (!permissoes[modulo]) {
-      // aqui o false deve ficar: é o estado padrão (nenhuma permissão marcada)
-      permissoes[modulo] = { ver: false, editar: false };
-    }
+      if (!permissoes[modulo]) {
+        permissoes[modulo] = { ver: false, editar: false };
+      }
 
-    permissoes[modulo][tipo] = c.checked;
-  });
+      permissoes[modulo][tipo] = c.checked;
+    });
 
-  return permissoes;
-}
+    return permissoes;
+  }
 
   // Cria ou atualiza um usuário admin a partir do formulário do modal
   async function saveUsuario() {
@@ -3660,7 +3672,6 @@ function coletarPermissoesDoModal() {
     const senha = document.getElementById('usuario-senha').value;
     const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
     const permissoes = coletarPermissoesDoModal();
-
 
     if (!nome || !login) {
       alert('Nome e login são obrigatórios.');
