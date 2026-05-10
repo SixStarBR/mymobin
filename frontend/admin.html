@@ -3880,59 +3880,55 @@ function closeModal(modalId) {
 </script>
 
   <script>
-  // -------- FUNÇÕES DE INICIALIZAÇÃO DA INTERFACE --------
-  document.addEventListener('DOMContentLoaded', function () {
-    // 1. Preencher informações do usuário na sidebar
-    const userName = localStorage.getItem('user_name');
-    const userNivelAcesso = localStorage.getItem('user_nivel_acesso');
+  /* ---- INICIALIZAÇÃO E FUNÇÕES GERAIS ---- */
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Recupera os dados do usuário do localStorage
+  // Usa 'sixstar_admin' como chave, que é o que o login.html está salvando.
+  // O fallback é um objeto com as propriedades corretas para evitar erros.
+  const user = JSON.parse(localStorage.getItem('sixstar_admin') || '{"nome_completo":"Usuário","nivel_acesso":"admin","login":"admin"}');
 
-    const sidebarName = document.getElementById('sidebarName');
-    const sidebarRole = document.getElementById('sidebarRole');
-    const sidebarAvatar = document.getElementById('sidebarAvatar');
+  // 2. Preenche as informações do usuário na sidebar
+  const sidebarAvatar = document.getElementById('sidebarAvatar');
+  const sidebarName = document.getElementById('sidebarName');
+  const sidebarRole = document.getElementById('sidebarRole');
 
-    if (sidebarName) {
-      sidebarName.textContent = userName || 'Usuário Desconhecido';
-    }
-    if (sidebarRole) {
-      // Formata o nível de acesso para exibição (ex: 'super_admin' -> 'Super Administrador')
-      let roleText = 'Visitante';
-      if (userNivelAcesso === 'super_admin') {
-        roleText = 'Super Administrador';
-      } else if (userNivelAcesso === 'admin') {
-        roleText = 'Administrador';
-      } else if (userNivelAcesso === 'operador') {
-        roleText = 'Operador';
-      }
-      sidebarRole.textContent = roleText;
-    }
-    if (sidebarAvatar && userName) {
-      sidebarAvatar.textContent = userName.charAt(0).toUpperCase(); // Primeira letra do nome
-    }
-
-    // 2. Restringir o item "Usuários Admin" no menu
-    const usuariosAdminMenuItem = document.querySelector('.nav-item[onclick="showPage(\'usuarios\')"]');
-    if (usuariosAdminMenuItem) {
-      if (userNivelAcesso !== 'super_admin') {
-        usuariosAdminMenuItem.style.display = 'none'; // Esconde o item do menu
-      } else {
-        usuariosAdminMenuItem.style.display = 'flex'; // Garante que esteja visível se for super_admin
-      }
-    }
-
-    // ... (outras inicializações que você já tem, como carregarUsuariosAdmin(), etc.) ...
-    // Exemplo:
-    // carregarUsuariosAdmin();
-    // carregarMotoristas();
-    // showPage('dashboard');
-  });
-
-  // Função de logout (se ainda não tiver)
-  function logout() {
-    localStorage.removeItem('sixstar_token');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('user_nivel_acesso');
-    window.location.href = 'login.html';
+  if (sidebarName) {
+    // Usa 'nome_completo' para o nome do usuário
+    sidebarName.textContent = user.nome_completo || 'Usuário';
   }
+  if (sidebarRole) {
+    // Usa 'nivel_acesso' para o nível do usuário
+    sidebarRole.textContent = user.nivel_acesso || 'Visitante';
+  }
+  if (sidebarAvatar) {
+    // Pega a primeira letra do nome completo para o avatar
+    sidebarAvatar.textContent = (user.nome_completo ? user.nome_completo.charAt(0).toUpperCase() : 'U');
+  }
+
+  // 3. Restringe a visibilidade do item "Usuários Admin"
+  const usuariosAdminMenuItem = document.querySelector('.nav-item[onclick="showPage(\'usuarios\')"]');
+  if (usuariosAdminMenuItem) {
+    // Apenas super_admin pode ver o item "Usuários Admin"
+    if (user.nivel_acesso !== 'super_admin') {
+      usuariosAdminMenuItem.style.display = 'none';
+    } else {
+      usuariosAdminMenuItem.style.display = 'flex'; // Garante que esteja visível se for super_admin
+    }
+  }
+
+  // Funções de inicialização existentes
+  updateClock();
+  setInterval(updateClock, 1000);
+  initMap(); // Se você tiver uma função initMap
+});
+
+function logout() {
+  // Limpa o token e os dados do usuário do localStorage
+  localStorage.removeItem('sixstar_token');
+  localStorage.removeItem('sixstar_admin');
+  // Redireciona para a página de login
+  window.location.href = 'login.html';
+}
 </script>
   
 </body>
