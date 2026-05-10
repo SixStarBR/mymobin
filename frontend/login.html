@@ -124,60 +124,68 @@
       © 2025 Six Star Mobin. Todos os direitos reservados.
     </p>
   </div>
+
+
+  
   <script>
-  const API_BASE = 'https://mymobin.onrender.com';
+    const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
-  const form = document.getElementById('login-form');
-  const inputLogin = document.getElementById('login');
-  const inputSenha = document.getElementById('senha');
-  const erroBox = document.getElementById('login-erro');
+    const form = document.getElementById('login-form');
+    const inputLogin = document.getElementById('login');
+    const inputSenha = document.getElementById('senha');
+    const erroBox = document.getElementById('login-erro'); // Elemento para exibir mensagens de erro
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    erroBox.classList.add('hidden');
-
-    const login = inputLogin.value.trim();
-    const senha = inputSenha.value.trim();
-
-    if (!login || !senha) {
-      erroBox.textContent = 'Informe login e senha.';
-      erroBox.classList.remove('hidden');
-      return;
+    // Adiciona um ID ao seu formulário de login se ainda não tiver
+    // <form id="login-form">
+    if (!form) {
+        console.error("Elemento 'login-form' não encontrado. Certifique-se de que seu formulário tem id='login-form'.");
+    }
+    // Adiciona um ID ao seu elemento de erro se ainda não tiver
+    // <p id="login-erro" class="error-message"></p>
+    if (!erroBox) {
+        console.error("Elemento 'login-erro' não encontrado. Certifique-se de que você tem um <p id='login-erro'> para mensagens de erro.");
     }
 
-    try {
-      const resp = await fetch(`${API_BASE}/api/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login, senha })
-      });
 
-      if (!resp.ok) {
-        let msg = 'Login ou senha incorretos. Tente novamente.';
-        try {
-          const erroData = await resp.json();
-          if (erroData && erroData.erro) msg = erroData.erro;
-        } catch (_) {}
-        erroBox.textContent = msg;
-        erroBox.classList.remove('hidden');
-        return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      erroBox.style.display = 'none'; // Esconde a mensagem de erro anterior
+
+      const login = inputLogin.value;
+      const senha = inputSenha.value;
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/admin/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ login, senha })
+        });
+
+        if (!resp.ok) {
+          const errorData = await resp.json();
+          erroBox.textContent = errorData.message || 'Login ou senha incorretos.';
+          erroBox.style.display = 'block';
+          return;
+        }
+
+        const data = await resp.json();
+
+        // Salva o token
+        localStorage.setItem('sixstar_token', data.token);
+        // Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
+        localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
+
+        // Redireciona para o painel administrativo
+        window.location.href = 'admin.html';
+
+      } catch (err) {
+        console.error('Erro na chamada de login:', err);
+        erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
+        erroBox.style.display = 'block';
       }
-
-      const data = await resp.json();
-
-      // Salva token e dados do admin para o painel usar
-      localStorage.setItem('sixstar_token', data.token);
-      localStorage.setItem('ssm_user', JSON.stringify(data.usuario)); // Altera a chave para 'ssm_user'
-      console.log('Objeto de usuário salvo:', data.usuario);
-
-      // Vai para o painel administrativo
-      window.location.href = 'admin.html';
-    } catch (err) {
-      console.error('Erro na chamada de login:', err);
-      erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
-      erroBox.classList.remove('hidden');
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
