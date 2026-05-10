@@ -15,45 +15,45 @@
       window.location.href = 'login.html';
       return; // Importante para parar a execução aqui
     }
-// --- CÓDIGO ANTERIOR QUE VOCÊ TINHA E PERMITIA LOGIN ---
-try {
-  // Decodifica o token para obter as informações do usuário
-  // Assumimos que o token é um JWT e que o payload está na segunda parte
-  const payload = JSON.parse(atob(token.split('.')[1]));
 
-  // Armazena o nome e o nível de acesso para uso posterior
-  localStorage.setItem('user_name', payload.nome_completo || 'Usuário');
-  localStorage.setItem('user_nivel_acesso', payload.nivel_acesso || 'operador');
-} catch (e) {
-  console.error('Erro ao decodificar token:', e);
-  // Se o token for inválido, redireciona para login
-  localStorage.removeItem('sixstar_token');
-  window.location.href = 'login.html';
-}
-// --- FIM DO CÓDIGO ANTERIOR ---
+    // --- CÓDIGO CORRIGIDO PARA LER ssm_user E POPULAR user_name/user_nivel_acesso ---
+    try {
+      const ssmUserString = localStorage.getItem('ssm_user');
+      let user = null;
 
-try {
-  // Decodifica o token para obter as informações do usuário
-  const decodedPayload = JSON.parse(atob(token.split('.')[1]));
-  const userRole = decodedPayload.nivel_acesso || 'operador'; // Pega o nível de acesso do token
-  localStorage.setItem('user_nivel_acesso', userRole);
+      if (ssmUserString) {
+        user = JSON.parse(ssmUserString);
+      }
 
-  // Atualiza as informações do usuário na sidebar (se existirem)
-  const sidebarName = document.getElementById('sidebarName');
-  const sidebarRole = document.getElementById('sidebarRole');
-  const sidebarAvatar = document.getElementById('sidebarAvatar');
+      if (!user || !user.nome_completo || !user.nivel_acesso) {
+        // Se ssm_user não for válido, tenta decodificar do token como fallback
+        // Isso é uma medida de segurança caso o ssm_user esteja corrompido
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        user = {
+          nome_completo: payload.nome_completo || 'Usuário Padrão',
+          nivel_acesso: payload.nivel_acesso || 'visualizador' // Usando "visualizador" como fallback, mas será corrigido abaixo
+        };
+      }
 
-  if (sidebarName) sidebarName.textContent = decodedPayload.nome_completo || 'Usuário';
-  if (sidebarRole) sidebarRole.textContent = userRole.replace('_', ' ').toUpperCase() || 'Nível Desconhecido';
-  if (sidebarAvatar) sidebarAvatar.textContent = (decodedPayload.nome_completo || '?').trim().charAt(0).toUpperCase();
+      // Agora que temos um objeto 'user' válido, salvamos as variáveis esperadas
+      localStorage.setItem('user_name', user.nome_completo);
+      localStorage.setItem('user_nivel_acesso', user.nivel_acesso);
 
-} catch (error) {
-  console.error('Erro ao decodificar token ou obter nível de acesso:', error);
-  // Se o token for inválido ou der erro, redireciona para login
-  localStorage.removeItem('sixstar_token');
-  localStorage.removeItem('user_nivel_acesso');
-  window.location.href = 'login.html';
-}
+      // --- FIM DO CÓDIGO CORRIGIDO ---
+
+      // O restante do seu script de inicialização que atualiza a sidebar
+      // e verifica o menu de admin será executado no DOMContentLoaded
+      // e usará user_name e user_nivel_acesso do localStorage.
+
+    } catch (error) {
+      console.error('Erro ao processar informações do usuário:', error);
+      // Se houver qualquer erro, limpa e redireciona para login
+      localStorage.removeItem('sixstar_token');
+      localStorage.removeItem('ssm_user');
+      localStorage.removeItem('user_name');
+      localStorage.removeItem('user_nivel_acesso');
+      window.location.href = 'login.html';
+    }
   })();
 </script>
 
