@@ -22,17 +22,38 @@
       let user = null;
 
       if (ssmUserString) {
+            try {
+      const token = localStorage.getItem('sixstar_token');
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado.');
+      }
+
+      let user = null;
+      const ssmUserString = localStorage.getItem('ssm_user');
+
+      // Verifica se ssmUserString existe antes de tentar fazer JSON.parse
+      if (ssmUserString) {
         user = JSON.parse(ssmUserString);
       }
 
+      // Se user ainda for nulo ou inválido, tenta decodificar do token
       if (!user || !user.nome_completo || !user.nivel_acesso) {
-        // Se ssm_user não for válido, tenta decodificar do token como fallback
-        // Isso é uma medida de segurança caso o ssm_user esteja corrompido
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        user = {
-          nome_completo: payload.nome_completo || 'Usuário Padrão',
-          nivel_acesso: payload.nivel_acesso || 'visualizador' // Usando "visualizador" como fallback, mas será corrigido abaixo
-        };
+        // O token JWT tem 3 partes separadas por ponto. A segunda parte é o payload.
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          try {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            user = {
+              nome_completo: payload.nome_completo || 'Usuário Padrão',
+              nivel_acesso: payload.nivel_acesso || 'visualizador'
+            };
+          } catch (e) {
+            console.warn('Não foi possível decodificar o payload do token:', e);
+            throw new Error('Token de autenticação inválido ou corrompido.');
+          }
+        } else {
+          throw new Error('Formato de token inválido.');
+        }
       }
 
       // Agora que temos um objeto 'user' válido, salvamos as variáveis esperadas
@@ -54,7 +75,6 @@
       localStorage.removeItem('user_nivel_acesso');
       window.location.href = 'login.html';
     }
-  })();
 </script>
 
   <style>
