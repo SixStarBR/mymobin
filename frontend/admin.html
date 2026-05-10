@@ -3578,177 +3578,186 @@ function renderizarBusca(codigo) {
   }
 
   // -------- ABRIR MODAL PARA NOVO USUÁRIO --------
-  function novoUsuarioAdmin() {
+function novoUsuarioAdmin() {
   document.getElementById('usuario-id').value = '';
   document.getElementById('usuario-nome').value = '';
   document.getElementById('usuario-login').value = '';
   document.getElementById('usuario-senha').value = '';
   document.getElementById('usuario-nivel-acesso').value = ''; // Limpa o select
 
-    // Limpa todos os checkboxes e desabilita
-    const checks = document.querySelectorAll('#modalUsuario .perm-check');
-    checks.forEach((c) => {
-      c.checked = false;
-      c.disabled = true;
+  // Limpa todos os checkboxes e desabilita
+  const checks = document.querySelectorAll('#modalUsuario .perm-check');
+  checks.forEach((c) => {
+    c.checked = false;
+    c.disabled = true;
+  });
+
+  // Abre o modal manualmente
+  openModal('modalUsuario');
+}
+
+// -------- ABRIR MODAL PARA EDITAR USUÁRIO --------
+async function editarUsuarioAdmin(adminId) {
+  const token = localStorage.getItem('sixstar_token');
+  if (!token) {
+    alert('Sessão expirada. Faça login novamente.');
+    return;
+  }
+
+  try {
+    const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
     });
 
-    // Abre o modal usando a API do Bootstrap
-    const modalElement = document.getElementById('modalUsuario');
-    const bootstrapModal = new bootstrap.Modal(modalElement);
-    bootstrapModal.show();
+    if (!resp.ok) {
+      const txt = await resp.text();
+      console.error('Erro ao carregar admin para edição:', resp.status, txt);
+      alert('Erro ao carregar dados do usuário.');
+      return;
+    }
+
+    const admin = await resp.json();
+
+    document.getElementById('usuario-id').value = admin.id;
+    document.getElementById('usuario-nome').value = admin.nome_completo || '';
+    document.getElementById('usuario-login').value = admin.login || '';
+    document.getElementById('usuario-senha').value = ''; // Senha nunca vem preenchida por segurança
+
+    const selectNivel = document.getElementById('usuario-nivel-acesso');
+    selectNivel.value = admin.nivel_acesso || '';
+
+    aplicarPresetNaTabela(selectNivel.value); // Aplica o preset visual conforme o nível
+
+    // Abre o modal manualmente
+    openModal('modalUsuario');
+  } catch (err) {
+    console.error('Erro inesperado em editarUsuarioAdmin:', err);
+    alert('Erro inesperado ao carregar dados do usuário.');
+  }
+}
+
+// -------- SALVAR (CRIAR / EDITAR) USUÁRIO ADMIN --------
+async function saveUsuario() {
+  const token = localStorage.getItem('sixstar_token');
+  if (!token) {
+    alert('Sessão expirada. Faça login novamente.');
+    return;
   }
 
-  // -------- ABRIR MODAL PARA EDITAR USUÁRIO --------
-  async function editarUsuarioAdmin(adminId) {
-    const token = localStorage.getItem('sixstar_token');
-    if (!token) {
-      alert('Sessão expirada. Faça login novamente.');
-      return;
-    }
+  const id = document.getElementById('usuario-id').value;
+  const nome = document.getElementById('usuario-nome').value.trim();
+  const login = document.getElementById('usuario-login').value.trim();
+  const senha = document.getElementById('usuario-senha').value;
+  const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
 
-    try {
-      const resp = await fetch(`https://mymobin.onrender.com/api/admin/usuarios/${adminId}`, {
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!resp.ok) {
-        const txt = await resp.text();
-        console.error('Erro ao carregar admin para edição:', resp.status, txt);
-        alert('Erro ao carregar dados do usuário.');
-        return;
-      }
-
-      const admin = await resp.json();
-
-      document.getElementById('usuario-id').value = admin.id;
-      document.getElementById('usuario-nome').value = admin.nome_completo || '';
-      document.getElementById('usuario-login').value = admin.login || '';
-      document.getElementById('usuario-senha').value = ''; // Senha nunca vem preenchida por segurança
-
-      const selectNivel = document.getElementById('usuario-nivel-acesso');
-      selectNivel.value = admin.nivel_acesso || '';
-
-      aplicarPresetNaTabela(selectNivel.value); // Aplica o preset visual conforme o nível
-
-      // Abre o modal usando a API do Bootstrap
-      const modalElement = document.getElementById('modalUsuario');
-      const bootstrapModal = new bootstrap.Modal(modalElement);
-      bootstrapModal.show();
-    } catch (err) {
-      console.error('Erro inesperado em editarUsuarioAdmin:', err);
-      alert('Erro inesperado ao carregar dados do usuário.');
-    }
+  if (!nome || !login) {
+    alert('Nome e login são obrigatórios.');
+    return;
   }
 
-  // -------- SALVAR (CRIAR / EDITAR) USUÁRIO ADMIN --------
-  async function saveUsuario() {
-    const token = localStorage.getItem('sixstar_token');
-    if (!token) {
-      alert('Sessão expirada. Faça login novamente.');
-      return;
-    }
+  if (!nivelAcesso) {
+    alert('Selecione um nível de acesso.');
+    return;
+  }
 
-    const id = document.getElementById('usuario-id').value;
-    const nome = document.getElementById('usuario-nome').value.trim();
-    const login = document.getElementById('usuario-login').value.trim();
-    const senha = document.getElementById('usuario-senha').value;
-    const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
+  const isEditando = id !== '';
 
-    if (!nome || !login) {
-      alert('Nome e login são obrigatórios.');
-      return;
-    }
+  try {
+    let url;
+    let method;
+    let body;
 
-    if (!nivelAcesso) {
-      alert('Selecione um nível de acesso.');
-      return;
-    }
+    if (isEditando) {
+      url = `https://mymobin.onrender.com/api/admin/usuarios/${id}`;
+      method = 'PUT';
 
-    const isEditando = id !== '';
+      body = {
+        nome_completo: nome,
+        login: login,
+        nivel_acesso: nivelAcesso
+      };
 
-    try {
-      let url;
-      let method;
-      let body;
-
-      if (isEditando) {
-        url = `https://mymobin.onrender.com/api/admin/usuarios/${id}`;
-        method = 'PUT';
-
-        body = {
-          nome_completo: nome,
-          login: login,
-          nivel_acesso: nivelAcesso
-        };
-
-        if (senha && senha.trim() !== '') {
-          if (senha.length < 6) {
-            alert('A senha deve ter pelo menos 6 caracteres.');
-            return;
-          }
-          body.nova_senha = senha;
-        }
-      } else {
-        url = 'https://mymobin.onrender.com/api/admin/usuarios';
-        method = 'POST';
-
-        if (!senha || senha.length < 6) {
+      if (senha && senha.trim() !== '') {
+        if (senha.length < 6) {
           alert('A senha deve ter pelo menos 6 caracteres.');
           return;
         }
-
-        body = {
-          nome_completo: nome,
-          login: login,
-          senha: senha,
-          nivel_acesso: nivelAcesso
-        };
+        body.nova_senha = senha;
       }
+    } else {
+      url = 'https://mymobin.onrender.com/api/admin/usuarios';
+      method = 'POST';
 
-      const resp = await fetch(url, {
-        method,
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      });
-
-      if (!resp.ok) {
-        const txt = await resp.text();
-        console.error('Erro ao salvar usuário admin:', resp.status, txt);
-        alert('Erro ao salvar usuário admin: ' + txt);
+      if (!senha || senha.length < 6) {
+        alert('A senha deve ter pelo menos 6 caracteres.');
         return;
       }
 
-      alert('Usuário admin salvo com sucesso.');
-
-      // Fecha o modal usando a API do Bootstrap
-      const modalElement = document.getElementById('modalUsuario');
-      const bootstrapModal = bootstrap.Modal.getInstance(modalElement); // Pega a instância existente
-      if (bootstrapModal) {
-        bootstrapModal.hide();
-      } else {
-        // Fallback caso a instância não seja encontrada (pode acontecer se o modal foi aberto de outra forma)
-        modalElement.style.display = 'none';
-        modalElement.classList.remove('show');
-        modalElement.setAttribute('aria-hidden', 'true');
-        modalElement.removeAttribute('aria-modal');
-        modalElement.style.removeProperty('padding-right');
-        document.body.classList.remove('modal-open');
-        document.body.style.removeProperty('overflow');
-        document.body.style.removeProperty('padding-right');
-      }
-
-      carregarUsuariosAdmin();
-    } catch (err) {
-      console.error('Erro inesperado ao salvar usuário admin:', err);
-      alert('Erro inesperado ao salvar usuário admin.');
+      body = {
+        nome_completo: nome,
+        login: login,
+        senha: senha,
+        nivel_acesso: nivelAcesso
+      };
     }
+
+    const resp = await fetch(url, {
+      method,
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!resp.ok) {
+      const txt = await resp.text();
+      console.error('Erro ao salvar usuário admin:', resp.status, txt);
+      alert('Erro ao salvar usuário admin: ' + txt);
+      return;
+    }
+
+    alert('Usuário admin salvo com sucesso.');
+
+    // Fecha o modal manualmente
+    closeModal('modalUsuario');
+
+    carregarUsuariosAdmin();
+  } catch (err) {
+    console.error('Erro inesperado ao salvar usuário admin:', err);
+    alert('Erro inesperado ao salvar usuário admin.');
   }
+}
+
+// Funções para abrir e fechar modais (genéricas, sem Bootstrap)
+function openModal(modalId) {
+  const modalElement = document.getElementById(modalId);
+  const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', '')); // Assumindo padrão modalOverlay[NomeDoModal]
+
+  if (modalElement) {
+    modalElement.style.display = 'block';
+    if (overlayElement) {
+      overlayElement.style.display = 'block';
+    }
+    document.body.style.overflow = 'hidden'; // Impede scroll do body
+  }
+}
+
+function closeModal(modalId) {
+  const modalElement = document.getElementById(modalId);
+  const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', ''));
+
+  if (modalElement) {
+    modalElement.style.display = 'none';
+    if (overlayElement) {
+      overlayElement.style.display = 'none';
+    }
+    document.body.style.overflow = ''; // Restaura scroll do body
+  }
+}
 
   // -------- INICIALIZAÇÃO --------
   document.addEventListener('DOMContentLoaded', function () {
