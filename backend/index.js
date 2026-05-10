@@ -21,7 +21,7 @@ app.use(express.json());
 app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, nome_completo, login, nivel_acesso, status
+      `SELECT id, nome_completo, login, nivel_acesso, status, permissoes
        FROM admin_users
        ORDER BY id ASC`
     );
