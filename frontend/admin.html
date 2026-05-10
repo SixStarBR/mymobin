@@ -1589,122 +1589,155 @@
   </div>
 </div>
 
-<!-- MODAL: Usuário Admin -->
-<div class="modal-overlay" id="modalUsuario">
-  <div class="modal" style="max-width:680px;">
-    <div class="modal-header">
-      <h3>👥 Cadastrar / Editar Usuário Admin</h3>
-      <button class="modal-close" onclick="closeModal('modalUsuario')">✕</button>
-    </div>
-    <div class="modal-body">
-      <!-- ID oculto para saber se é criação ou edição -->
-      <input type="hidden" id="usuario-id">
+<!-- MODAL: Cadastrar / Editar Usuário Admin -->
+<div class="modal" id="modalUsuario" style="display:none;">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Nome Completo *</label>
-          <input
-            type="text"
-            class="form-control"
-            id="usuario-nome"
-            placeholder="Nome do usuário"
-          >
-        </div>
-        <div class="form-group">
-          <label class="form-label">Login *</label>
-          <input
-            type="text"
-            class="form-control"
-            id="usuario-login"
-            placeholder="Ex: operador2"
-          >
-        </div>
+      <div class="modal-header">
+        <h5 class="modal-title">Cadastrar / Editar Usuário Admin</h5>
+        <button type="button" class="close" onclick="closeModal('modalUsuario')">&times;</button>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Senha *</label>
-          <input
-            type="password"
-            class="form-control"
-            id="usuario-senha"
-            placeholder="Mínimo 6 caracteres"
-          >
+      <div class="modal-body">
+        <input type="hidden" id="usuario-id" />
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="usuario-nome">NOME COMPLETO *</label>
+            <input type="text" class="form-control" id="usuario-nome" />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="usuario-login">LOGIN *</label>
+            <input type="email" class="form-control" id="usuario-login" />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Nível de Acesso *</label>
-          <select
-            class="form-control"
-            id="usuario-nivel-acesso"
-            onchange="setPermPreset(this.value)"
-          >
-            <option value="">Personalizado</option>
-            <option value="super_admin">Super Admin</option>
-            <option value="admin">Admin</option>
-            <option value="operador">Operador</option>
-            <option value="viewer">Viewer (só visualização)</option>
-          </select>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="usuario-senha">SENHA *</label>
+            <input type="password" class="form-control" id="usuario-senha" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="usuario-nivel-acesso">NÍVEL DE ACESSO *</label>
+            <select class="form-control" id="usuario-nivel-acesso" onchange="onChangeNivelAcesso()">
+              <option value="">Selecione...</option>
+              <option value="super_admin">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="operador">Operador</option>
+            </select>
+          </div>
         </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <strong>Permissões Individuais</strong>
+          </div>
+          <div class="text-muted" style="font-size: 0.85rem;">
+            As permissões abaixo são apenas para visualização.
+            Elas são definidas automaticamente pelo nível de acesso escolhido.
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm" id="tabela-permissoes-admin">
+            <thead style="background-color:#f8f9fa;">
+              <tr>
+                <th>MÓDULO</th>
+                <th class="text-center">VISUALIZAR</th>
+                <th class="text-center">EDITAR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dashboard</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Mapa ao Vivo</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Motoristas</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Clientes</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Transfers</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Eventos</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Histórico</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="editar" disabled />
+                </td>
+              </tr>
+              <tr>
+                <td>Usuários Admin</td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="usuarios" data-tipo="ver" disabled />
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="perm-check" data-modulo="usuarios" data-tipo="editar" disabled />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
-      <div style="border-top:1px solid var(--border);margin:16px 0;"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeModal('modalUsuario')">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-warning" onclick="saveUsuario()">
+          💾 Salvar Usuário
+        </button>
+      </div>
 
-      <h4 style="margin-bottom:12px;font-size:14px;">🔐 Permissões Individuais</h4>
-      <table class="perm-table" style="width:100%;">
-        <thead>
-          <tr>
-            <th style="text-align:left;">Módulo</th>
-            <th>Visualizar</th>
-            <th>Editar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Dashboard</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="dashboard" data-tipo="editar" checked></td>
-          </tr>
-          <tr>
-            <td>Mapa ao Vivo</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="mapa" data-tipo="editar"></td>
-          </tr>
-          <tr>
-            <td>Motoristas</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="motoristas" data-tipo="editar"></td>
-          </tr>
-          <tr>
-            <td>Clientes</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="clientes" data-tipo="editar"></td>
-          </tr>
-          <tr>
-            <td>Transfers</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="transfers" data-tipo="editar"></td>
-          </tr>
-          <tr>
-            <td>Eventos</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="eventos" data-tipo="editar"></td>
-          </tr>
-          <tr>
-            <td>Histórico</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="ver" checked></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="historico" data-tipo="editar"></td>
-          </tr>
-          <tr>
-            <td>Usuários Admin</td>
-            <td><input type="checkbox" class="perm-check" data-modulo="usuarios_admin" data-tipo="ver"></td>
-            <td><input type="checkbox" class="perm-check" data-modulo="usuarios_admin" data-tipo="editar"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modalUsuario')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveUsuario()">💾 Salvar Usuário</button>
     </div>
   </div>
 </div>
@@ -3431,12 +3464,69 @@ function renderizarBusca(codigo) {
 
     tbody.innerHTML = '';
 
-    // Helper para verificar permissões
-    function temPerm(permissoes, modulo, tipo) {
-      if (!permissoes) return false;
-      const mod = permissoes[modulo];
-      if (!mod) return false;
-      return !!mod[tipo];
+    // Em vez de olhar JSON de permissoes, usamos só o nivel_acesso
+    function permissoesPorNivel(nivel) {
+      // estrutura: { dashboard:{ver,editar}, mapa:{...}, ... }
+      const base = {
+        dashboard:   { ver: false, editar: false },
+        mapa:        { ver: false, editar: false },
+        motoristas:  { ver: false, editar: false },
+        clientes:    { ver: false, editar: false },
+        transfers:   { ver: false, editar: false },
+        eventos:     { ver: false, editar: false },
+        historico:   { ver: false, editar: false },
+        usuarios:    { ver: false, editar: false }
+      };
+
+      if (nivel === 'super_admin') {
+        // Tudo liberado
+        Object.keys(base).forEach(m => {
+          base[m].ver = true;
+          base[m].editar = true;
+        });
+      } else if (nivel === 'admin') {
+        // Tudo liberado, exceto administração de usuários
+        Object.keys(base).forEach(m => {
+          base[m].ver = true;
+          base[m].editar = true;
+        });
+        base.usuarios.ver = true;   // se quiser que Admin VEJA a lista
+        base.usuarios.editar = false; // mas não edite/crie (ajuste se quiser)
+      } else if (nivel === 'operador') {
+        // Regras que você descreveu:
+        // Dashboard: ver
+        base.dashboard.ver = true;
+
+        // Mapa: ver
+        base.mapa.ver = true;
+
+        // Motoristas: ver, cadastrar, editar
+        base.motoristas.ver = true;
+        base.motoristas.editar = true;
+
+        // Transfers: ver, cadastrar, editar
+        base.transfers.ver = true;
+        base.transfers.editar = true;
+
+        // Histórico: ver
+        base.historico.ver = true;
+
+        // Eventos (apenas cadastrar transfer relacionado) -> consideramos editar aqui
+        base.eventos.ver = true;
+        base.eventos.editar = true;
+
+        // Clientes: se quiser liberar, ajuste aqui:
+        base.clientes.ver = true;
+        base.clientes.editar = true;
+
+        // Usuários: nada
+        base.usuarios.ver = false;
+        base.usuarios.editar = false;
+      } else {
+        // Qualquer outro nível desconhecido: tudo falso
+      }
+
+      return base;
     }
 
     usuarios.forEach((u) => {
@@ -3445,31 +3535,26 @@ function renderizarBusca(codigo) {
       const nivelBadge =
         u.nivel_acesso === 'super_admin'
           ? '<span class="badge badge-danger">Super Admin</span>'
-          : '<span class="badge badge-info">' + (u.nivel_acesso || 'Admin') + '</span>';
+          : u.nivel_acesso === 'admin'
+          ? '<span class="badge badge-primary">Admin</span>'
+          : '<span class="badge badge-info">' + (u.nivel_acesso || 'Operador') + '</span>';
 
       const statusBadge =
         u.status === 'ativo'
           ? '<span class="badge badge-success">Ativo</span>'
           : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
 
-      const perm = u.permissoes || {};
+      // calcula permissões a partir apenas do nivel_acesso
+      const perm = permissoesPorNivel(u.nivel_acesso);
 
-      const podeDashboard =
-        temPerm(perm, 'dashboard', 'ver') || temPerm(perm, 'dashboard', 'editar');
-      const podeMapa =
-        temPerm(perm, 'mapa', 'ver') || temPerm(perm, 'mapa', 'editar');
-      const podeMotoristas =
-        temPerm(perm, 'motoristas', 'ver') || temPerm(perm, 'motoristas', 'editar');
-      const podeClientes =
-        temPerm(perm, 'clientes', 'ver') || temPerm(perm, 'clientes', 'editar');
-      const podeTransfers =
-        temPerm(perm, 'transfers', 'ver') || temPerm(perm, 'transfers', 'editar');
-      const podeEventos =
-        temPerm(perm, 'eventos', 'ver') || temPerm(perm, 'eventos', 'editar');
-      const podeHistorico =
-        temPerm(perm, 'historico', 'ver') || temPerm(perm, 'historico', 'editar');
-      const podeUsuarios =
-        temPerm(perm, 'usuarios', 'ver') || temPerm(perm, 'usuarios', 'editar');
+      const podeDashboard = perm.dashboard.ver || perm.dashboard.editar;
+      const podeMapa = perm.mapa.ver || perm.mapa.editar;
+      const podeMotoristas = perm.motoristas.ver || perm.motoristas.editar;
+      const podeClientes = perm.clientes.ver || perm.clientes.editar;
+      const podeTransfers = perm.transfers.ver || perm.transfers.editar;
+      const podeEventos = perm.eventos.ver || perm.eventos.editar;
+      const podeHistorico = perm.historico.ver || perm.historico.editar;
+      const podeUsuarios = perm.usuarios.ver || perm.usuarios.editar;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -3515,7 +3600,7 @@ function renderizarBusca(codigo) {
     openModal('modalUsuario');
   }
 
-  // Define presets de permissões conforme o nível
+  // Define presets de permissões conforme o nível (somente visual)
   function setPermPreset(nivel) {
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
 
@@ -3536,37 +3621,46 @@ function renderizarBusca(codigo) {
     }
 
     if (nivel === 'admin') {
-      // pode ver e editar tudo
+      // tudo ver + editar, exceto usuários (ajuste visual)
       checks.forEach((c) => { c.checked = true; });
+      const usuariosVer = document.querySelector('#modalUsuario .perm-check[data-modulo="usuarios"][data-tipo="ver"]');
+      const usuariosEditar = document.querySelector('#modalUsuario .perm-check[data-modulo="usuarios"][data-tipo="editar"]');
+      if (usuariosEditar) usuariosEditar.checked = false;
+      // se quiser também tirar "ver", desmarque usuariosVer
       return;
     }
 
     if (nivel === 'operador') {
-      // pode ver tudo
+      // Dashboard: ver
       marcar('dashboard', 'ver');
+
+      // Mapa: ver
       marcar('mapa', 'ver');
+
+      // Motoristas: ver, editar
       marcar('motoristas', 'ver');
+      marcar('motoristas', 'editar');
+
+      // Clientes: ver, editar (se quiser)
       marcar('clientes', 'ver');
+      marcar('clientes', 'editar');
+
+      // Transfers: ver, editar
       marcar('transfers', 'ver');
+      marcar('transfers', 'editar');
+
+      // Eventos: ver, editar (para cadastrar transfer relacionado)
       marcar('eventos', 'ver');
+      marcar('eventos', 'editar');
+
+      // Histórico: ver
       marcar('historico', 'ver');
 
-      // pode editar “operacional”
-      marcar('motoristas', 'editar');
-      marcar('clientes', 'editar');
-      marcar('transfers', 'editar');
-      marcar('eventos', 'editar');
+      // Usuários: nada
       return;
     }
 
-    if (nivel === 'viewer') {
-      // só ver alguns módulos
-      marcar('mapa', 'ver');
-      marcar('eventos', 'ver');
-      return;
-    }
-
-    // nivel === '' (Personalizado): deixa tudo zerado para o usuário marcar manualmente
+    // qualquer outro nível: tudo zerado
   }
 
   // Abre o modal para editar um usuário admin existente
@@ -3598,38 +3692,12 @@ function renderizarBusca(codigo) {
       document.getElementById('usuario-nome').value = admin.nome_completo || '';
       document.getElementById('usuario-login').value = admin.login || '';
       document.getElementById('usuario-senha').value = '';
-      document.getElementById('usuario-nivel-acesso').value = admin.nivel_acesso || '';
 
-      const checks = document.querySelectorAll('#modalUsuario .perm-check');
+      const selectNivel = document.getElementById('usuario-nivel-acesso');
+      selectNivel.value = admin.nivel_acesso || '';
 
-      // 1) zera tudo
-      checks.forEach((c) => {
-        c.checked = false;
-      });
-
-      // 2) se tiver permissoes no backend, aplica exatamente o que veio
-      if (admin.permissoes) {
-        checks.forEach((c) => {
-          const modulo = c.getAttribute('data-modulo');
-          const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
-          if (!modulo || !tipo) return;
-
-          if (
-            admin.permissoes[modulo] &&
-            admin.permissoes[modulo][tipo] === true
-          ) {
-            c.checked = true;
-          }
-        });
-
-        // se quiser forçar o select em "Personalizado":
-        // document.getElementById('usuario-nivel-acesso').value = '';
-      } else {
-        // usuário antigo sem permissoes: aplica preset pelo nível
-        if (typeof setPermPreset === 'function') {
-          setPermPreset(admin.nivel_acesso || '');
-        }
-      }
+      // aplica preset visual conforme nivel
+      setPermPreset(admin.nivel_acesso || '');
 
       openModal('modalUsuario');
     } catch (err) {
@@ -3638,7 +3706,7 @@ function renderizarBusca(codigo) {
     }
   }
 
-  // Coleta as permissões marcadas no modal e monta o JSON
+  // Coleta as permissões do modal (AGORA APENAS VISUAL, MAS A FUNÇÃO PODE SER MANTIDA SE VOCÊ AINDA QUISER ENVIAR)
   function coletarPermissoesDoModal() {
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
     const permissoes = {};
@@ -3671,10 +3739,14 @@ function renderizarBusca(codigo) {
     const login = document.getElementById('usuario-login').value.trim();
     const senha = document.getElementById('usuario-senha').value;
     const nivelAcesso = document.getElementById('usuario-nivel-acesso').value;
-    const permissoes = coletarPermissoesDoModal();
 
     if (!nome || !login) {
       alert('Nome e login são obrigatórios.');
+      return;
+    }
+
+    if (!nivelAcesso) {
+      alert('Selecione um nível de acesso.');
       return;
     }
 
@@ -3692,8 +3764,8 @@ function renderizarBusca(codigo) {
         body = {
           nome_completo: nome,
           login: login,
-          nivel_acesso: nivelAcesso,
-          permissoes: permissoes
+          nivel_acesso: nivelAcesso
+          // não usamos mais permissoes no backend
         };
 
         if (senha && senha.trim() !== '') {
@@ -3716,8 +3788,8 @@ function renderizarBusca(codigo) {
           nome_completo: nome,
           login: login,
           senha: senha,
-          nivel_acesso: nivelAcesso,
-          permissoes: permissoes
+          nivel_acesso: nivelAcesso
+          // sem permissoes
         };
       }
 
