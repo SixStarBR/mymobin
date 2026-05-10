@@ -174,18 +174,8 @@
         // Salva o token
 localStorage.setItem('sixstar_token', data.token);
 
-// --- INÍCIO DA ALTERAÇÃO ---
-// Cria um objeto ssmUser com as propriedades esperadas pelo admin.html
-// Assumimos que data.usuario contém as propriedades nome_completo e nivel_acesso
-// Se sua API retornar com nomes diferentes (ex: data.usuario.name, data.usuario.role),
-// você precisará ajustar 'nome_completo' e 'nivel_acesso' aqui.
-const ssmUser = {
-    nome_completo: data.usuario.nome_completo, // Ajuste aqui se o nome for diferente na API (ex: data.usuario.name)
-    nivel_acesso: data.usuario.nivel_acesso   // Ajuste aqui se o nome for diferente na API (ex: data.usuario.role)
-};
-
-// Salva o objeto ssmUser no localStorage como uma string JSON
-localStorage.setItem('ssm_user', JSON.stringify(ssmUser));
+// Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
+        localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
 // --- FIM DA ALTERAÇÃO ---
 
         // Redireciona para o painel administrativo
