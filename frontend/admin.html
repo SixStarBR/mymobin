@@ -266,6 +266,7 @@
     <div class="sidebar-user">
   <div class="avatar" id="sidebarAvatar">?</div> <!-- Vamos preencher isso via JS -->
   <div class="info">
+    <p>Bem-vindo, <span id="userName"></span> (<span id="userRole"></span>)</p>
     <p id="sidebarName">Carregando...</p> <!-- Será preenchido via JS -->
     <span id="sidebarRole">Carregando...</span> <!-- Será preenchido via JS -->
   </div>
@@ -4007,6 +4008,63 @@ function renderizarBusca(codigo) {
     //   }
     // }
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ssmUserString = localStorage.getItem('ssm_user');
+        const sixstarToken = localStorage.getItem('sixstar_token');
+    if (!ssmUserString || !sixstarToken) {
+        // Se não houver usuário ou token, redireciona para o login
+        window.location.href = 'login.html';
+        return;
+    }
+
+    let ssmUser;
+    try {
+        ssmUser = JSON.parse(ssmUserString);
+    } catch (e) {
+        console.error("Erro ao parsear ssm_user do localStorage:", e);
+        // Se houver erro, limpa e redireciona
+        localStorage.removeItem('ssm_user');
+        localStorage.removeItem('sixstar_token');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // 1. Exibir informações do usuário logado
+    // Você precisará de elementos HTML com IDs específicos para isso.
+    // Por exemplo, se você tiver um &lt;span id="userName"&gt;&lt;/span&gt; e &lt;span id="userRole"&gt;&lt;/span&gt;
+    const userNameElement = document.getElementById('userName');
+    const userRoleElement = document.getElementById('userRole');
+
+    if (userNameElement) {
+        userNameElement.textContent = ssmUser.nome_completo || ssmUser.login;
+    }
+    if (userRoleElement) {
+        // Formata o nível de acesso para exibição
+        let roleText = ssmUser.nivel_acesso.replace('_', ' ').split(' ').map(word =&gt; word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        userRoleElement.textContent = roleText;
+    }
+
+    // 2. Controlar a visibilidade da lista de administradores
+    // Supondo que a seção de "Usuários Admin" tenha um ID, por exemplo, 'adminUsersSection'
+    const adminUsersSection = document.getElementById('adminUsersSection');
+    if (adminUsersSection) {
+        if (ssmUser.nivel_acesso === 'super_admin') {
+            adminUsersSection.style.display = 'block'; // Mostra a seção
+        } else {
+            adminUsersSection.style.display = 'none'; // Esconde a seção para outros níveis
+        }
+    }
+
+    // 3. Outras permissões (ex: "usuário padrão" e "visualizador")
+    // Você precisará identificar quais elementos HTML correspondem a essas descrições
+    // e aplicar lógica semelhante baseada em ssmUser.nivel_acesso.
+    // Por exemplo, se houver um elemento que exibe "usuário padrão", você o esconderia
+    // ou alteraria seu texto se o usuário for 'super_admin'.
+    // Para isso, precisaria dos IDs ou classes desses elementos.
+});
+</script>
   
 </body>
 
