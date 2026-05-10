@@ -133,9 +133,9 @@
     const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
     const form = document.querySelector('form'); // Seleciona o formulário
-const inputLogin = document.getElementById('loginInput'); // Seleciona o input de login pelo ID
-const inputSenha = document.getElementById('senhaInput'); // Seleciona o input de senha pelo ID
-const erroBox = document.getElementById('loginErro'); // Seleciona o parágrafo de erro pelo ID
+    const inputLogin = document.getElementById('loginInput'); // Seleciona o input de login pelo ID
+    const inputSenha = document.getElementById('senhaInput'); // Seleciona o input de senha pelo ID
+    const erroBox = document.getElementById('loginErro'); // Seleciona o parágrafo de erro pelo ID
 
     // Garante que os elementos foram encontrados
     if (!form) console.error("Formulário de login não encontrado.");
@@ -172,9 +172,21 @@ const erroBox = document.getElementById('loginErro'); // Seleciona o parágrafo 
         const data = await resp.json();
 
         // Salva o token
-        localStorage.setItem('sixstar_token', data.token);
-        // Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
-        localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
+localStorage.setItem('sixstar_token', data.token);
+
+// --- INÍCIO DA ALTERAÇÃO ---
+// Cria um objeto ssmUser com as propriedades esperadas pelo admin.html
+// Assumimos que data.usuario contém as propriedades nome_completo e nivel_acesso
+// Se sua API retornar com nomes diferentes (ex: data.usuario.name, data.usuario.role),
+// você precisará ajustar 'nome_completo' e 'nivel_acesso' aqui.
+const ssmUser = {
+    nome_completo: data.usuario.nome_completo, // Ajuste aqui se o nome for diferente na API (ex: data.usuario.name)
+    nivel_acesso: data.usuario.nivel_acesso   // Ajuste aqui se o nome for diferente na API (ex: data.usuario.role)
+};
+
+// Salva o objeto ssmUser no localStorage como uma string JSON
+localStorage.setItem('ssm_user', JSON.stringify(ssmUser));
+// --- FIM DA ALTERAÇÃO ---
 
         // Redireciona para o painel administrativo
         window.location.href = 'admin.html';
