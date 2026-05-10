@@ -3458,28 +3458,21 @@ function renderizarBusca(codigo) {
         base[m].ver = true;
         base[m].editar = true;
       });
-      // se quiser que admin veja a lista de usuários mas não edite, ajuste aqui:
+      // Admin pode ver a lista de usuários, mas não editar/criar
       base.usuarios.ver = true;
       base.usuarios.editar = false;
     } else if (nivel === 'operador') {
       base.dashboard.ver = true;
-
       base.mapa.ver = true;
-
       base.motoristas.ver = true;
       base.motoristas.editar = true;
-
       base.transfers.ver = true;
       base.transfers.editar = true;
-
       base.historico.ver = true;
-
       base.eventos.ver = true;
       base.eventos.editar = true;
-
       base.clientes.ver = true;
       base.clientes.editar = true;
-
       base.usuarios.ver = false;
       base.usuarios.editar = false;
     }
@@ -3493,12 +3486,12 @@ function renderizarBusca(codigo) {
 
     checks.forEach((c) => {
       const modulo = c.getAttribute('data-modulo');
-      const tipo = c.getAttribute('data-tipo'); // 'ver' ou 'editar'
+      const tipo = c.getAttribute('data-tipo');
       if (!modulo || !tipo) return;
 
       const ativo = preset[modulo] ? !!preset[modulo][tipo] : false;
       c.checked = ativo;
-      c.disabled = true; // apenas visual, não editável
+      c.disabled = true; // Apenas visual, não editável
     });
   }
 
@@ -3552,23 +3545,24 @@ function renderizarBusca(codigo) {
           ? '<span class="badge badge-danger">Super Admin</span>'
           : u.nivel_acesso === 'admin'
           ? '<span class="badge badge-primary">Admin</span>'
-          : '<span class="badge badge-info">Operador</span>';
+          : '<span class="badge badge-info">' + (u.nivel_acesso || 'Operador') + '</span>';
 
       const statusBadge =
         u.status === 'ativo'
           ? '<span class="badge badge-success">Ativo</span>'
           : '<span class="badge badge-secondary">' + (u.status || 'Inativo') + '</span>';
 
-      const perm = permissoesPorNivel(u.nivel_acesso);
+      // As permissões na tabela são baseadas no nível, não no JSON 'permissoes'
+      const permDoNivel = permissoesPorNivel(u.nivel_acesso);
 
-      const podeDashboard = perm.dashboard.ver || perm.dashboard.editar;
-      const podeMapa = perm.mapa.ver || perm.mapa.editar;
-      const podeMotoristas = perm.motoristas.ver || perm.motoristas.editar;
-      const podeClientes = perm.clientes.ver || perm.clientes.editar;
-      const podeTransfers = perm.transfers.ver || perm.transfers.editar;
-      const podeEventos = perm.eventos.ver || perm.eventos.editar;
-      const podeHistorico = perm.historico.ver || perm.historico.editar;
-      const podeUsuarios = perm.usuarios.ver || perm.usuarios.editar;
+      const podeDashboard = permDoNivel.dashboard.ver || permDoNivel.dashboard.editar;
+      const podeMapa = permDoNivel.mapa.ver || permDoNivel.mapa.editar;
+      const podeMotoristas = permDoNivel.motoristas.ver || permDoNivel.motoristas.editar;
+      const podeClientes = permDoNivel.clientes.ver || permDoNivel.clientes.editar;
+      const podeTransfers = permDoNivel.transfers.ver || permDoNivel.transfers.editar;
+      const podeEventos = permDoNivel.eventos.ver || permDoNivel.eventos.editar;
+      const podeHistorico = permDoNivel.historico.ver || permDoNivel.historico.editar;
+      const podeUsuarios = permDoNivel.usuarios.ver || permDoNivel.usuarios.editar;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -3592,38 +3586,49 @@ function renderizarBusca(codigo) {
         <td>${podeUsuarios ? '✅' : ''}</td>
         <td>${statusBadge}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" onclick="editarUsuarioAdmin(${u.id})">✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="toggleBlock(${u.id})">🚫 Bloquear</button>
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            onclick="editarUsuarioAdmin(${u.id})"
+          >
+            ✏️
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            onclick="toggleBlock(${u.id})"
+          >
+            🚫 Bloquear
+          </button>
         </td>
       `;
+
       tbody.appendChild(tr);
     });
   }
 
-  // -------- NOVO USUÁRIO ADMIN (abrir modal vazio) --------
+  // -------- ABRIR MODAL PARA NOVO USUÁRIO --------
   function novoUsuarioAdmin() {
     document.getElementById('usuario-id').value = '';
     document.getElementById('usuario-nome').value = '';
     document.getElementById('usuario-login').value = '';
     document.getElementById('usuario-senha').value = '';
-    document.getElementById('usuario-nivel-acesso').value = '';
+    document.getElementById('usuario-nivel-acesso').value = ''; // Limpa o select
 
+    // Limpa todos os checkboxes e desabilita
     const checks = document.querySelectorAll('#modalUsuario .perm-check');
     checks.forEach((c) => {
       c.checked = false;
       c.disabled = true;
     });
 
-    if (typeof openModal === 'function') {
-      openModal('modalUsuario');
-    } else {
-      // fallback simples, caso use display:block
-      const modal = document.getElementById('modalUsuario');
-      if (modal) modal.style.display = 'block';
-    }
+    // Abre o modal usando a API do Bootstrap
+    const modalElement = document.getElementById('modalUsuario');
+    const bootstrapModal = new bootstrap.Modal(modalElement);
+    bootstrapModal.show();
   }
 
-  // -------- EDITAR USUÁRIO ADMIN (abrir modal com dados) --------
+  // -------- ABRIR MODAL PARA EDITAR USUÁRIO --------
   async function editarUsuarioAdmin(adminId) {
     const token = localStorage.getItem('sixstar_token');
     if (!token) {
@@ -3651,19 +3656,17 @@ function renderizarBusca(codigo) {
       document.getElementById('usuario-id').value = admin.id;
       document.getElementById('usuario-nome').value = admin.nome_completo || '';
       document.getElementById('usuario-login').value = admin.login || '';
-      document.getElementById('usuario-senha').value = '';
+      document.getElementById('usuario-senha').value = ''; // Senha nunca vem preenchida por segurança
 
       const selectNivel = document.getElementById('usuario-nivel-acesso');
       selectNivel.value = admin.nivel_acesso || '';
 
-      aplicarPresetNaTabela(selectNivel.value);
+      aplicarPresetNaTabela(selectNivel.value); // Aplica o preset visual conforme o nível
 
-      if (typeof openModal === 'function') {
-        openModal('modalUsuario');
-      } else {
-        const modal = document.getElementById('modalUsuario');
-        if (modal) modal.style.display = 'block';
-      }
+      // Abre o modal usando a API do Bootstrap
+      const modalElement = document.getElementById('modalUsuario');
+      const bootstrapModal = new bootstrap.Modal(modalElement);
+      bootstrapModal.show();
     } catch (err) {
       console.error('Erro inesperado em editarUsuarioAdmin:', err);
       alert('Erro inesperado ao carregar dados do usuário.');
@@ -3753,11 +3756,21 @@ function renderizarBusca(codigo) {
 
       alert('Usuário admin salvo com sucesso.');
 
-      if (typeof closeModal === 'function') {
-        closeModal('modalUsuario');
+      // Fecha o modal usando a API do Bootstrap
+      const modalElement = document.getElementById('modalUsuario');
+      const bootstrapModal = bootstrap.Modal.getInstance(modalElement); // Pega a instância existente
+      if (bootstrapModal) {
+        bootstrapModal.hide();
       } else {
-        const modal = document.getElementById('modalUsuario');
-        if (modal) modal.style.display = 'none';
+        // Fallback caso a instância não seja encontrada (pode acontecer se o modal foi aberto de outra forma)
+        modalElement.style.display = 'none';
+        modalElement.classList.remove('show');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        modalElement.style.removeProperty('padding-right');
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
       }
 
       carregarUsuariosAdmin();
@@ -3769,7 +3782,7 @@ function renderizarBusca(codigo) {
 
   // -------- INICIALIZAÇÃO --------
   document.addEventListener('DOMContentLoaded', function () {
-    // garante que mudar o select no modal aplica o preset
+    // Garante que mudar o select no modal aplica o preset
     const selectNivel = document.getElementById('usuario-nivel-acesso');
     if (selectNivel) {
       selectNivel.addEventListener('change', onChangeNivelAcesso);
