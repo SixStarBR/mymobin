@@ -9,9 +9,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* Adicione esta classe para esconder elementos via JavaScript */
+    /* Adicione esta classe para esconder elementos via JS */
     .hidden {
-      display: none !important;
+        display: none !important;
     }
 
     /* CSS para garantir que o modal apareça acima da sidebar */
@@ -183,1389 +183,824 @@
         <p>Painel Administrativo</p>
       </div>
     </div>
+
     <nav class="sidebar-nav">
       <div class="nav-section">Principal</div>
-      <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
-      <div class="nav-item" data-page="mapa"><span class="icon">🗺️</span> Mapa ao Vivo <span class="nav-badge">3</span></div>
-      <div class="nav-section">Gestão</div>
-      <div class="nav-item" data-page="motoristas"><span class="icon">👨‍✈️</span> Motoristas</div>
-      <div class="nav-item" data-page="clientes"><span class="icon">🏢</span> Clientes / Empresas</div>
-      <div class="nav-item" data-page="transfers"><span class="icon">🚗</span> Transfers <span class="nav-badge">2</span></div>
-      <div class="nav-item" data-page="eventos"><span class="icon">📅</span> Eventos</div>
-      <div class="nav-section">Relatórios</div>
-      <div class="nav-item" data-page="busca"><span class="icon">🔎</span> Busca por Código</div>
-      <div class="nav-item" data-page="historico"><span class="icon">📋</span> Histórico</div>
-      <div class="nav-section">Configurações</div>
-      <!-- Adicionado id="adminUsersMenuItem" e classe "hidden" -->
-      <div class="nav-item hidden" id="adminUsersMenuItem" data-page="usuarios"><span class="icon">👥</span> Usuários Admin</div>
-    </nav>
-    <div class="sidebar-user">
-      <div class="avatar" id="sidebarAvatar">?</div> <!-- Vamos preencher isso via JS -->
-      <div class="info">
-        <!-- Adicionado id="loggedInUserName" e id="loggedInUserRole" -->
-        <p>Bem-vindo, <span id="loggedInUserName">Carregando...</span></p>
-        <p><span id="loggedInUserRole">Carregando...</span></p>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="icon">📊</span> Dashboard
       </div>
-      <!-- Adicionado id="logoutButton" -->
-      <button id="logoutButton" class="btn-logout">⏻</button>
+      <div class="nav-item" data-page="mapa">
+        <span class="icon">🗺️</span> Mapa ao Vivo <span class="nav-badge">3</span>
+      </div>
+
+      <div class="nav-section">Gestão</div>
+      <div class="nav-item" data-page="motoristas">
+        <span class="icon">👨‍✈️</span> Motoristas
+      </div>
+      <div class="nav-item" data-page="clientes">
+        <span class="icon">🏢</span> Clientes / Empresas
+      </div>
+      <div class="nav-item" data-page="transfers">
+        <span class="icon">🚗</span> Transfers <span class="nav-badge">2</span>
+      </div>
+      <div class="nav-item" data-page="eventos">
+        <span class="icon">📅</span> Eventos
+      </div>
+
+      <div class="nav-section">Relatórios</div>
+      <div class="nav-item" data-page="busca-codigo">
+        <span class="icon">🔎</span> Busca por Código
+      </div>
+      <div class="nav-item" data-page="historico">
+        <span class="icon">📋</span> Histórico
+      </div>
+
+      <div class="nav-section">Configurações</div>
+      <!-- Adicionado id="adminUsersMenuItem" e a classe "hidden" -->
+      <div class="nav-item hidden" data-page="usuarios-admin" id="adminUsersMenuItem">
+        <span class="icon">👥</span> Usuários Admin
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="sidebarAvatar">C</div> <!-- Adicionado id="sidebarAvatar" -->
+      <div class="info">
+        <p id="loggedInUserName">Carregando...</p> <!-- Adicionado id="loggedInUserName" -->
+        <span id="loggedInUserRole">Carregando...</span> <!-- Adicionado id="loggedInUserRole" -->
+      </div>
+      <button class="btn-logout" id="logoutButton">⏻</button> <!-- Adicionado id="logoutButton" -->
     </div>
   </aside>
 
   <!-- ===== MAIN CONTENT ===== -->
   <div class="main-content">
     <div class="topbar">
-      <button class="sidebar-toggle" id="sidebarToggle">☰</button>
-      <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
-      <div class="topbar-right">
-        <span id="currentDateTime"></span>
-      </div>
+      <button class="sidebar-toggle">☰</button>
+      <h1 class="topbar-title" id="topbarTitle">Dashboard</h1> <!-- Adicionado id="topbarTitle" -->
     </div>
 
-    <div class="page-container">
-
-      <!-- ===== DASHBOARD PAGE ===== -->
-      <div id="page-dashboard" class="page-content">
-        <div class="stats-grid">
-          <div class="card">
-            <div class="card-icon">👨‍✈️</div>
-            <div class="card-info">
-              <p>Motoristas</p>
-              <h3>12</h3>
-              <span>▲ 2 este mês</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-icon">✅</div>
-            <div class="card-info">
-              <p>Transfers Realizados</p>
-              <h3>348</h3>
-              <span>▲ 18 esta semana</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-icon">🔄</div>
-            <div class="card-info">
-              <p>Em Andamento</p>
-              <h3>3</h3>
-              <span>● Ao vivo</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-icon">📅</div>
-            <div class="card-info">
-              <p>Transfers este Mês</p>
-              <h3>47</h3>
-              <span>▲ 5 vs mês anterior</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-icon">⏳</div>
-            <div class="card-info">
-              <p>Pendentes s/ Motorista</p>
-              <h3>2</h3>
-              <span>Requer atenção</span>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-icon">🏢</div>
-            <div class="card-info">
-              <p>Clientes Ativos</p>
-              <h3>28</h3>
-              <span>▲ 3 este mês</span>
-            </div>
+    <!-- ===== PAGE CONTENT ===== -->
+    <div class="page-container page-content" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👨‍✈️</div>
+          <div class="stat-info">
+            <div class="stat-label">Motoristas</div>
+            <div class="stat-value">### 12</div>
+            <div class="stat-change">▲ 2 este mês</div>
           </div>
         </div>
-
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>🚗 Transfers de Hoje</h3>
-            <button class="btn btn-sm btn-outline">Ver Todos</button>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Horário</th>
-                  <th>Código</th>
-                  <th>Embarque → Destino</th>
-                  <th>Cliente</th>
-                  <th>Motorista</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>**08:30**</td>
-                  <td>IT145874</td>
-                  <td>Aeroporto POA → Hotel Hilton Moinhos</td>
-                  <td>Beira Rio S/A</td>
-                  <td>João Silva</td>
-                  <td>Em andamento</td>
-                  <td>🗺️ Rastrear</td>
-                </tr>
-                <tr>
-                  <td>**10:00**</td>
-                  <td>PU548741</td>
-                  <td>Laghetto Stilo Centro → Aeroporto CXJ</td>
-                  <td>Beta Corp</td>
-                  <td>Pedro Oliveira</td>
-                  <td>A caminho</td>
-                  <td>🗺️ Rastrear</td>
-                </tr>
-                <tr>
-                  <td>**14:00**</td>
-                  <td>GR837463</td>
-                  <td>Centro → Aeroporto POA</td>
-                  <td>Gamma Ltda</td>
-                  <td>*Sem motorista*</td>
-                  <td>Pendente</td>
-                  <td>Atribuir</td>
-                </tr>
-                <tr>
-                  <td>**16:30**</td>
-                  <td>BQ587412</td>
-                  <td>Hotel Double Tree Pontal → Aeroporto FNP</td>
-                  <td>Delta S.A.</td>
-                  <td>Maria Santos</td>
-                  <td>Confirmado</td>
-                  <td>🗺️ Rastrear</td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <div class="stat-label">Transfers Realizados</div>
+            <div class="stat-value">### 348</div>
+            <div class="stat-change">▲ 18 esta semana</div>
           </div>
         </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3>📅 Eventos Ativos</h3>
-            <button class="btn btn-sm btn-outline">Gerenciar</button>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-info">
+            <div class="stat-label">Em Andamento</div>
+            <div class="stat-value">### 3</div>
+            <div class="stat-change">● Ao vivo</div>
           </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <div class="stat-label">Transfers este Mês</div>
+            <div class="stat-value">### 47</div>
+            <div class="stat-change">▲ 5 vs mês anterior</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <div class="stat-label">Pendentes s/ Motorista</div>
+            <div class="stat-value">### 2</div>
+            <div class="stat-change">Requer atenção</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏢</div>
+          <div class="stat-info">
+            <div class="stat-label">Clientes Ativos</div>
+            <div class="stat-value">### 28</div>
+            <div class="stat-change">▲ 3 este mês</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>🚗 Transfers de Hoje</h3>
+          <button class="btn btn-sm btn-secondary">Ver Todos</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Código</th>
+                <th>Embarque → Destino</th>
+                <th>Cliente</th>
+                <th>Motorista</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>08:30</b></td>
+                <td>IT145874</td>
+                <td>Aeroporto POA → Hotel Hilton Moinhos</td>
+                <td>Beira Rio S/A</td>
+                <td>João Silva</td>
+                <td><span class="badge badge-warning">Em andamento</span></td>
+                <td><button class="btn btn-sm btn-primary">🗺️ Rastrear</button></td>
+              </tr>
+              <tr>
+                <td><b>10:00</b></td>
+                <td>PU548741</td>
+                <td>Laghetto Stilo Centro → Aeroporto CXJ</td>
+                <td>Beta Corp</td>
+                <td>Pedro Oliveira</td>
+                <td><span class="badge badge-info">A caminho</span></td>
+                <td><button class="btn btn-sm btn-primary">🗺️ Rastrear</button></td>
+              </tr>
+              <tr>
+                <td><b>14:00</b></td>
+                <td>GR837463</td>
+                <td>Centro → Aeroporto POA</td>
+                <td>Gamma Ltda</td>
+                <td><i>Sem motorista</i></td>
+                <td><span class="badge badge-danger">Pendente</span></td>
+                <td><button class="btn btn-sm btn-success">Atribuir</button></td>
+              </tr>
+              <tr>
+                <td><b>16:30</b></td>
+                <td>BQ587412</td>
+                <td>Hotel Double Tree Pontal → Aeroporto FNP</td>
+                <td>Delta S.A.</td>
+                <td>Maria Santos</td>
+                <td><span class="badge badge-success">Confirmado</span></td>
+                <td><button class="btn btn-sm btn-primary">🗺️ Rastrear</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <h3>📅 Eventos Ativos</h3>
+          <button class="btn btn-sm btn-secondary">Gerenciar</button>
+        </div>
+        <div class="card-body">
           <div class="evento-box">
             <div class="evento-box-header">
               <div class="evento-box-info">
-                <span class="evento-box-icon">📅</span>
+                <span class="evento-box-icon">🗓️</span>
                 <div>
                   <div class="evento-box-title">Congresso Nacional de TI</div>
                   <div class="evento-box-meta">
-                    📍 Centro de Convenções FIERGS POA - RS
-                    📆 25/04/2025 – 28/04/2025
+                    <span>📍 Centro de Convenções FIERGS POA - RS</span>
+                    <span class="badge badge-success">Ativo</span>
                   </div>
                 </div>
               </div>
               <div class="evento-box-stats">
-                <span class="ev-stat ok">Ativo</span>
+                <span class="ev-stat">📆 25/04/2025 – 28/04/2025</span>
                 <span class="ev-stat">🚗 3 transfers</span>
-                <span class="ev-stat">✅ 2 com motorista</span>
+                <span class="ev-stat ok">✅ 2 com motorista</span>
               </div>
               <span class="evento-chevron">▼</span>
             </div>
+            <div class="evento-box-body">
+              <div class="evento-body-toolbar">
+                <h4>Transfers do Evento</h4>
+                <button class="btn btn-sm btn-primary">Adicionar Transfer</button>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th>Código</th>
+                      <th>Embarque → Destino</th>
+                      <th>Motorista</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>09:00</td>
+                      <td>EVT001</td>
+                      <td>Hotel Plaza → FIERGS</td>
+                      <td>Carlos Lima</td>
+                      <td><span class="badge badge-success">Confirmado</span></td>
+                      <td><button class="btn btn-sm btn-info">Ver</button></td>
+                    </tr>
+                    <tr>
+                      <td>11:00</td>
+                      <td>EVT002</td>
+                      <td>Aeroporto POA → FIERGS</td>
+                      <td>Ana Paula</td>
+                      <td><span class="badge badge-warning">Em andamento</span></td>
+                      <td><button class="btn btn-sm btn-info">Ver</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
+
           <div class="evento-box">
             <div class="evento-box-header">
               <div class="evento-box-info">
-                <span class="evento-box-icon">📅</span>
+                <span class="evento-box-icon">🗓️</span>
                 <div>
                   <div class="evento-box-title">Fórum de Investimentos RS</div>
                   <div class="evento-box-meta">
-                    📍 WTC – World Trade Center RS
-                    📆 30/04/2025 – 02/05/2025
+                    <span>📍 WTC – World Trade Center POA - RS</span>
+                    <span class="badge badge-success">Ativo</span>
                   </div>
                 </div>
               </div>
               <div class="evento-box-stats">
-                <span class="ev-stat warn">Próximo</span>
-                <span class="ev-stat">🚗 2 transfers</span>
-                <span class="ev-stat">⏳ 2 pendentes</span>
+                <span class="ev-stat">📆 10/05/2025 – 12/05/2025</span>
+                <span class="ev-stat">🚗 5 transfers</span>
+                <span class="ev-stat warn">⚠️ 1 sem motorista</span>
               </div>
               <span class="evento-chevron">▼</span>
+            </div>
+            <div class="evento-box-body">
+              <div class="evento-body-toolbar">
+                <h4>Transfers do Evento</h4>
+                <button class="btn btn-sm btn-primary">Adicionar Transfer</button>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th>Código</th>
+                      <th>Embarque → Destino</th>
+                      <th>Motorista</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>10:00</td>
+                      <td>EVT003</td>
+                      <td>Hotel Deville → WTC</td>
+                      <td>Mariana Costa</td>
+                      <td><span class="badge badge-success">Confirmado</span></td>
+                      <td><button class="btn btn-sm btn-info">Ver</button></td>
+                    </tr>
+                    <tr>
+                      <td>14:00</td>
+                      <td>EVT004</td>
+                      <td>Aeroporto POA → WTC</td>
+                      <td><i>Sem motorista</i></td>
+                      <td><span class="badge badge-danger">Pendente</span></td>
+                      <td><button class="btn btn-sm btn-success">Atribuir</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- ===== MAPA AO VIVO PAGE ===== -->
-      <div id="page-mapa" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>🗺️ Mapa ao Vivo</h3>
-            <div class="map-controls">
-              <button class="btn btn-sm btn-outline">🔄 Atualizar Posições</button>
-              <span class="text-muted">Última atualização: nunca</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div id="map"></div>
-            <div class="mt-3">
-              <span class="dot dot-green"></span> Em viagem
-              <span class="dot dot-orange"></span> A caminho
-              <span class="dot dot-gray"></span> Disponível
-            </div>
+    <!-- ===== PAGE: MAPA AO VIVO ===== -->
+    <div class="page-container page-content hidden" id="page-mapa">
+      <div class="card">
+        <div class="card-header">
+          <h3>🗺️ Mapa de Motoristas e Transfers</h3>
+          <div class="map-controls">
+            <label><input type="checkbox" checked> Motoristas Online</label>
+            <label><input type="checkbox"> Transfers Ativos</label>
+            <label><input type="checkbox"> Eventos</label>
           </div>
         </div>
+        <div class="card-body">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
 
-        <div class="card">
-          <div class="card-header">
-            <h3>👨‍✈️ Motoristas Ativos</h3>
-            <span class="text-muted">Clique em 🗺️ para destacar no mapa</span>
+    <!-- ===== PAGE: MOTORISTAS ===== -->
+    <div class="page-container page-content hidden" id="page-motoristas">
+      <div class="card">
+        <div class="card-header">
+          <h3>👨‍✈️ Gerenciar Motoristas</h3>
+          <button class="btn btn-primary">Novo Motorista</button>
+        </div>
+        <div class="card-body">
+          <div class="filter-bar">
+            <div class="form-group">
+              <label for="filtroMotoristaNome">Nome</label>
+              <input type="text" id="filtroMotoristaNome" class="form-control" placeholder="Buscar por nome">
+            </div>
+            <div class="form-group">
+              <label for="filtroMotoristaStatus">Status</label>
+              <select id="filtroMotoristaStatus" class="form-control">
+                <option value="">Todos</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary">Filtrar</button>
           </div>
           <div class="table-responsive">
-            <table class="table">
+            <table>
               <thead>
                 <tr>
-                  <th></th>
-                  <th>Motorista</th>
+                  <th>Nome</th>
+                  <th>Contato</th>
                   <th>Veículo</th>
                   <th>Status</th>
-                  <th>Vel.</th>
-                  <th>Código</th>
-                  <th>Pax Principal</th>
-                  <th>Evento</th>
-                  <th>Restante</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><img src="foto_joao.jpg" class="driver-foto-sm" alt="João Silva"></td>
-                  <td>**João Silva**</td>
-                  <td>Toyota Corolla · ABC-1234</td>
-                  <td>Em viagem</td>
-                  <td>62 km/h</td>
-                  <td>IT145874</td>
-                  <td>👤 Roberto Alves</td>
-                  <td>Congresso TI</td>
-                  <td>8 min · 4,2 km</td>
-                </tr>
-                <tr>
-                  <td><img src="foto_pedro.jpg" class="driver-foto-sm" alt="Pedro Oliveira"></td>
-                  <td>**Pedro Oliveira**</td>
-                  <td>Honda HR-V · DEF-5678</td>
-                  <td>A caminho</td>
-                  <td>45 km/h</td>
-                  <td>UH874525</td>
-                  <td>👤 Marcos Pereira</td>
-                  <td>Congresso TI</td>
-                  <td>22 min · 11,8 km</td>
-                </tr>
-                <tr>
-                  <td><img src="foto_maria.jpg" class="driver-foto-sm" alt="Maria Santos"></td>
-                  <td>**Maria Santos**</td>
-                  <td>VW Passat · GHI-9012</td>
-                  <td>Disponível</td>
-                  <td>0 km/h</td>
-                  <td>—</td>
-                  <td>—</td>
-                  <td>—</td>
-                  <td>—</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== MOTORISTAS PAGE ===== -->
-      <div id="page-motoristas" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>👨‍✈️ Motoristas</h3>
-            <button class="btn btn-primary" onclick="novoUsuarioAdmin()">+ Novo Motorista</button>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Motorista</th>
-                  <th>WhatsApp</th>
-                  <th>Veículos</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="motoristasTableBody">
-                <!-- Motoristas serão carregados aqui via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== CLIENTES PAGE ===== -->
-      <div id="page-clientes" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>🏢 Clientes / Empresas</h3>
-            <button class="btn btn-primary" onclick="novoCliente()">+ Novo Cliente</button>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Empresa</th>
-                  <th>CNPJ</th>
-                  <th>Responsável</th>
-                  <th>Contato</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="clientesTableBody">
-                <tr>
-                  <td>**Beira Rio S/A Ltda** alpha@email.com</td>
-                  <td>12.345.678/0001-90</td>
-                  <td>Roberto Alves</td>
-                  <td>📱 (11) 3333-4444</td>
-                  <td>Ativo</td>
-                  <td>✏️ Editar 🚫 Bloquear</td>
-                </tr>
-                <tr>
-                  <td>**Beta Corp S.A.** contato@betacorp.com.br</td>
-                  <td>98.765.432/0001-10</td>
-                  <td>Fernanda Lima</td>
-                  <td>📱 (11) 5555-6666</td>
-                  <td>Ativo</td>
-                  <td>✏️ Editar 🚫 Bloquear</td>
-                </tr>
-                <tr>
-                  <td>**Gamma Logística** gamma@gamma.com</td>
-                  <td>11.222.333/0001-44</td>
-                  <td>Carlos Mota</td>
-                  <td>📱 (11) 7777-8888</td>
-                  <td>Ativo</td>
-                  <td>✏️ Editar 🚫 Bloquear</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== TRANSFERS PAGE ===== -->
-      <div id="page-transfers" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>🚗 Transfers</h3>
-            <div class="filter-bar">
-              <div class="form-group">
-                <label for="filterStatus">Status</label>
-                <select id="filterStatus" class="form-control">
-                  <option>Todos</option>
-                  <option>⚠️ Pendentes</option>
-                  <option>🔄 Em Andamento</option>
-                  <option>✅ Concluídos</option>
-                </select>
-              </div>
-              <button class="btn btn-primary" onclick="novaDemanda()">+ Nova Demanda</button>
-            </div>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Data/Hora</th>
-                  <th>Código</th>
-                  <th>Embarque → Destino</th>
-                  <th>Cliente</th>
-                  <th>Pax</th>
-                  <th>Motorista(s)</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="transfersTableBody">
-                <tr>
-                  <td>**26/04 08:30**</td>
-                  <td>IT145874</td>
-                  <td>📍 Aeroporto POA → Hotel Hilton Moinhos</td>
-                  <td>Beira Rio S/A</td>
-                  <td>4 pax</td>
                   <td>João Silva</td>
-                  <td>Em andamento</td>
-                  <td>✏️ 👨‍✈️ 🗺️</td>
+                  <td>(51) 98765-4321</td>
+                  <td>Fiat Cronos (ABC-1234)</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-danger">Bloquear</button>
+                  </td>
                 </tr>
                 <tr>
-                  <td>**26/04 14:00**</td>
-                  <td>GR837463</td>
-                  <td>📍 Residência: Rua Ipê, 235 - POA → Aeroporto POA</td>
-                  <td>Gamma Ltda</td>
-                  <td>2 pax</td>
-                  <td>*Sem motorista*</td>
-                  <td>Pendente</td>
-                  <td>✏️ 👨‍✈️ Atribuir</td>
-                </tr>
-                <tr>
-                  <td>**27/04 10:00**</td>
-                  <td>TF587458</td>
-                  <td>📍 Aeroporto FNP → Aeroporto POA</td>
-                  <td>Beta Corp</td>
-                  <td>6 pax</td>
-                  <td>*Sem motorista*</td>
-                  <td>Pendente (2 veíc.)</td>
-                  <td>✏️ 👨‍✈️ Atribuir</td>
-                </tr>
-                <tr>
-                  <td>**25/04 16:00**</td>
-                  <td>KT587458</td>
-                  <td>📍 Hotel Double Tree Pontal → Aeroporto FNP</td>
-                  <td>Delta S.A.</td>
-                  <td>3 pax</td>
-                  <td>Pedro Oliveira</td>
-                  <td>Concluído</td>
-                  <td>👁️ Ver</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== EVENTOS PAGE ===== -->
-      <div id="page-eventos" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>📅 Eventos</h3>
-            <button class="btn btn-primary" onclick="novoEvento()">+ Novo Evento</button>
-          </div>
-          <div id="eventosList">
-            <div class="evento-box">
-              <div class="evento-box-header">
-                <div class="evento-box-info">
-                  <span class="evento-box-icon">📅</span>
-                  <div>
-                    <div class="evento-box-title">Congresso Nacional de TI</div>
-                    <div class="evento-box-meta">
-                      📍 Centro de Convenções FIERGS POA - RS
-                      📆 25/04/2025 – 28/04/2025
-                    </div>
-                  </div>
-                </div>
-                <div class="evento-box-stats">
-                  <span class="ev-stat ok">Ativo</span>
-                  <span class="ev-stat">🚗 **3**</span>
-                  <span class="ev-stat">✅ **2**</span>
-                  <span class="ev-stat">⏳ **1**</span>
-                </div>
-                <div class="evento-box-actions">
-                  <button class="btn btn-sm btn-secondary">✏️</button>
-                  <button class="btn btn-sm btn-danger">🗑️</button>
-                </div>
-                <span class="evento-chevron">▼</span>
-              </div>
-              <div class="evento-box-body">
-                <div class="evento-body-toolbar">
-                  <h4>Demandas deste evento</h4>
-                  <button class="btn btn-sm btn-primary">+ Nova Demanda</button>
-                </div>
-                <div class="demand-card">
-                  <div class="demand-card-header">
-                    <div>
-                      <span class="codigo-badge">IT145874</span>
-                      <div class="demand-card-title">**Chegada VIP — Delegação Brasil/Suíça**</div>
-                      <div class="demand-card-meta">Com motorista</div>
-                    </div>
-                    <div class="demand-card-btns">
-                      <button class="btn btn-sm btn-secondary">👁️ Ver</button>
-                      <button class="btn btn-sm btn-secondary">✏️ Editar</button>
-                      <button class="btn btn-sm btn-secondary">👨‍✈️ Trocar</button>
-                      <button class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                  </div>
-                  <div class="demand-route">
-                    **Aeroporto POA**→**Centro de Eventos Gramado**
-                  </div>
-                  <div class="demand-meta">
-                    📅 25/04/2025🕐 09:00h✈️ LA3050👥 4 pax👤 Roberto Alves🚗 João Silva · ABC-1234
-                  </div>
-                </div>
-                <div class="demand-card">
-                  <div class="demand-card-header">
-                    <div>
-                      <span class="codigo-badge">UH874525</span>
-                      <div class="demand-card-title">**Traslado Dia 1 — Manhã**</div>
-                      <div class="demand-card-meta">Com motorista</div>
-                    </div>
-                    <div class="demand-card-btns">
-                      <button class="btn btn-sm btn-secondary">👁️ Ver</button>
-                      <button class="btn btn-sm btn-secondary">✏️ Editar</button>
-                      <button class="btn btn-sm btn-secondary">👨‍✈️ Trocar</button>
-                      <button class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                  </div>
-                  <div class="demand-route">
-                    **Aeroporto FNP**→**Centro de Eventos Gramado**
-                  </div>
-                  <div class="demand-meta">
-                    📅 25/04/2025🕐 08:00h👥 6 pax👤 Marcos Pereira🚗 Pedro Oliveira · DEF-5678
-                  </div>
-                </div>
-                <div class="demand-card">
-                  <div class="demand-card-header">
-                    <div>
-                      <span class="codigo-badge">GT254125</span>
-                      <div class="demand-card-title">**Encerramento — Retorno Delegação**</div>
-                      <div class="demand-card-meta">Sem motorista</div>
-                    </div>
-                    <div class="demand-card-btns">
-                      <button class="btn btn-sm btn-secondary">👁️ Ver</button>
-                      <button class="btn btn-sm btn-secondary">✏️ Editar</button>
-                      <button class="btn btn-sm btn-primary">👨‍✈️ Atribuir</button>
-                      <button class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                  </div>
-                  <div class="demand-route">
-                    **Centro de Eventos Gramado**→**Aeroporto POA**
-                  </div>
-                  <div class="demand-meta">
-                    📅 28/04/2025🕐 18:00h✈️ LA3201👥 4 pax👤 Roberto Alves⚠️ Aguardando atribuição
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="evento-box">
-              <div class="evento-box-header">
-                <div class="evento-box-info">
-                  <span class="evento-box-icon">📅</span>
-                  <div>
-                    <div class="evento-box-title">Fórum de Investimentos RS</div>
-                    <div class="evento-box-meta">
-                      📍 WTC – World Trade Center RS
-                      📆 30/04/2025 – 02/05/2025
-                    </div>
-                  </div>
-                </div>
-                <div class="evento-box-stats">
-                  <span class="ev-stat warn">Próximo</span>
-                  <span class="ev-stat">🚗 **2**</span>
-                  <span class="ev-stat">✅ **0**</span>
-                  <span class="ev-stat">⏳ **2**</span>
-                </div>
-                <div class="evento-box-actions">
-                  <button class="btn btn-sm btn-secondary">✏️</button>
-                  <button class="btn btn-sm btn-danger">🗑️</button>
-                </div>
-                <span class="evento-chevron">▼</span>
-              </div>
-              <div class="evento-box-body">
-                <div class="evento-body-toolbar">
-                  <h4>Demandas deste evento</h4>
-                  <button class="btn btn-sm btn-primary">+ Nova Demanda</button>
-                </div>
-                <div class="demand-card">
-                  <div class="demand-card-header">
-                    <div>
-                      <span class="codigo-badge">TS874592</span>
-                      <div class="demand-card-title">**Chegada Palestrantes**</div>
-                      <div class="demand-card-meta">Sem motorista</div>
-                    </div>
-                    <div class="demand-card-btns">
-                      <button class="btn btn-sm btn-secondary">👁️ Ver</button>
-                      <button class="btn btn-sm btn-secondary">✏️ Editar</button>
-                      <button class="btn btn-sm btn-primary">👨‍✈️ Atribuir</button>
-                      <button class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                  </div>
-                  <div class="demand-route">
-                    **Aeroporto POA**→**FIERGS POA**
-                  </div>
-                  <div class="demand-meta">
-                    📅 30/04/2025🕐 14:00h👥 3 pax👤 John Smith⚠️ Aguardando atribuição
-                  </div>
-                </div>
-                <div class="demand-card">
-                  <div class="demand-card-header">
-                    <div>
-                      <span class="codigo-badge">TS874593</span>
-                      <div class="demand-card-title">**Encerramento — Retorno VIPs**</div>
-                      <div class="demand-card-meta">Sem motorista</div>
-                    </div>
-                    <div class="demand-card-btns">
-                      <button class="btn btn-sm btn-secondary">👁️ Ver</button>
-                      <button class="btn btn-sm btn-secondary">✏️ Editar</button>
-                      <button class="btn btn-sm btn-primary">👨‍✈️ Atribuir</button>
-                      <button class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                  </div>
-                  <div class="demand-route">
-                    **FIERGS POA**→**Aeroporto POA**
-                  </div>
-                  <div class="demand-meta">
-                    📅 02/05/2025🕐 20:00h👥 5 pax👤 John Smith🚗 2 veículos⚠️ Aguardando atribuição
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card empty-state">
-              <div class="card-body text-center">
-                <h3>Nenhum evento cadastrado</h3>
-                <button class="btn btn-primary mt-3" onclick="novoEvento()">+ Criar Primeiro Evento</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== BUSCA POR CÓDIGO PAGE ===== -->
-      <div id="page-busca" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>🔍 Busca por Código de Demanda</h3>
-          </div>
-          <div class="card-body">
-            <p class="text-muted">Digite o código alfanumérico para ver o status completo do serviço em tempo real.</p>
-            <div class="input-group mb-3">
-              <span class="input-group-text">🔖</span>
-              <input type="text" class="form-control" placeholder="Código" id="buscaCodigoInput">
-              <button class="btn btn-primary" id="btnBuscarCodigo">Buscar</button>
-            </div>
-            <p class="text-muted small">Exemplos rápidos: IT145874, UH874525, GT254125, TS874592</p>
-
-            <div id="buscaResultado" class="mt-4 hidden">
-              <div class="progress-steps mb-4">
-                <div class="step active">Cadastrada</div>
-                <div class="step">Motorista Atribuído</div>
-                <div class="step">Em Viagem</div>
-                <div class="step">Concluída</div>
-              </div>
-              <div class="card">
-                <div class="card-body">
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <p><strong>Código:</strong> <span id="detalheCodigo">—</span></p>
-                      <p><strong>Rota:</strong> <span id="detalheRota">—</span></p>
-                      <p><strong>Data:</strong> <span id="detalheData">—</span></p>
-                      <p><strong>Horário:</strong> <span id="detalheHorario">—</span></p>
-                      <p><strong>Voo:</strong> <span id="detalheVoo">—</span></p>
-                    </div>
-                    <div class="col-md-6">
-                      <p><strong>Passageiros:</strong> <span id="detalhePax">—</span></p>
-                      <p><strong>Veículos:</strong> <span id="detalheVeiculos">—</span></p>
-                      <p><strong>Cliente:</strong> <span id="detalheCliente">—</span></p>
-                      <p><strong>Motorista / Veículo:</strong> <span id="detalheMotoristaVeiculo">—</span></p>
-                    </div>
-                  </div>
-                  <h5 class="mt-4">Lista de Passageiros</h5>
-                  <ul id="detalheListaPassageiros" class="list-group list-group-flush">
-                    <li class="list-group-item">Nenhum passageiro listado.</li>
-                  </ul>
-                  <h5 class="mt-4">Observações</h5>
-                  <p id="detalheObservacoes">—</p>
-                  <div class="d-flex gap-2 mt-4">
-                    <button class="btn btn-sm btn-secondary">👨‍✈️ Atribuir Motorista</button>
-                    <button class="btn btn-sm btn-secondary">🗺️ Ver no Mapa</button>
-                    <button class="btn btn-sm btn-secondary">✏️ Editar Demanda</button>
-                    <button class="btn btn-sm btn-outline-primary">🔄 Nova Busca</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="buscaNaoEncontrada" class="mt-4 text-center hidden">
-              <div class="alert alert-warning">
-                <h3>Código não encontrado</h3>
-                <p>Nenhuma demanda encontrada para o código <span id="codigoNaoEncontrado"></span>.</p>
-                <p>Verifique se o código está correto e tente novamente.</p>
-                <button class="btn btn-primary mt-3">🔄 Tentar novamente</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== HISTÓRICO PAGE ===== -->
-      <div id="page-historico" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>📋 Histórico de Demandas</h3>
-            <span class="text-muted">127 registros</span>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Data/Hora</th>
-                  <th>Código</th>
-                  <th>Embarque → Destino</th>
-                  <th>Cliente</th>
-                  <th>Motorista</th>
-                  <th>Pax</th>
-                  <th>Status</th>
-                  <th>Detalhes</th>
-                </tr>
-              </thead>
-              <tbody id="historicoTableBody">
-                <tr>
-                  <td>25/04/2025 16:00</td>
-                  <td>KT587458</td>
-                  <td>Hotel Double Tree Pontal → Hotel Swan NH</td>
-                  <td>Delta S.A.</td>
-                  <td>Pedro Oliveira</td>
-                  <td>3</td>
-                  <td>Concluído</td>
-                  <td>👁️ Ver</td>
-                </tr>
-                <tr>
-                  <td>24/04/2025 09:00</td>
-                  <td>IT145874</td>
-                  <td>Aeroporto POA → WTC SP</td>
-                  <td>Beta Corp S.A.</td>
-                  <td>João Silva</td>
-                  <td>5</td>
-                  <td>Concluído</td>
-                  <td>👁️ Ver</td>
-                </tr>
-                <tr>
-                  <td>23/04/2025 14:30</td>
-                  <td>XC587458</td>
-                  <td>Laghetto Stilo Centro → Aeroporto POA</td>
-                  <td>Beira Rio S/A</td>
                   <td>Maria Santos</td>
-                  <td>2</td>
-                  <td>Concluído</td>
-                  <td>👁️ Ver</td>
+                  <td>(51) 99876-5432</td>
+                  <td>VW Virtus (DEF-5678)</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-danger">Bloquear</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Pedro Oliveira</td>
+                  <td>(51) 97654-3210</td>
+                  <td>Chevrolet Onix (GHI-9012)</td>
+                  <td><span class="badge badge-warning">Inativo</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-success">Ativar</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- ===== USUÁRIOS ADMIN PAGE ===== -->
-      <!-- Adicionado id="adminUsersSection" e classe "hidden" -->
-      <div id="adminUsersSection" class="page-content hidden">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3>👥 Usuários Administrativos</h3>
-            <button class="btn btn-primary" onclick="novoUsuarioAdmin()">+ Novo Usuário</button>
+    <!-- ===== PAGE: CLIENTES ===== -->
+    <div class="page-container page-content hidden" id="page-clientes">
+      <div class="card">
+        <div class="card-header">
+          <h3>🏢 Gerenciar Clientes / Empresas</h3>
+          <button class="btn btn-primary">Novo Cliente</button>
+        </div>
+        <div class="card-body">
+          <div class="filter-bar">
+            <div class="form-group">
+              <label for="filtroClienteNome">Nome</label>
+              <input type="text" id="filtroClienteNome" class="form-control" placeholder="Buscar por nome">
+            </div>
+            <button class="btn btn-secondary">Filtrar</button>
           </div>
           <div class="table-responsive">
-            <table class="table">
+            <table>
               <thead>
                 <tr>
-                  <th>Usuário</th>
-                  <th>Nível</th>
-                  <th>Dashboard</th>
-                  <th>Mapa</th>
-                  <th>Motoristas</th>
-                  <th>Clientes</th>
-                  <th>Transfers</th>
-                  <th>Eventos</th>
-                  <th>Histórico</th>
-                  <th>Usuários</th>
+                  <th>Nome da Empresa</th>
+                  <th>Contato</th>
+                  <th>Email</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Beira Rio S/A</td>
+                  <td>(51) 3333-4444</td>
+                  <td>contato@beirario.com.br</td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-danger">Inativar</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Beta Corp</td>
+                  <td>(51) 3456-7890</td>
+                  <td>comercial@betacorp.com</td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-danger">Inativar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: TRANSFERS ===== -->
+    <div class="page-container page-content hidden" id="page-transfers">
+      <div class="card">
+        <div class="card-header">
+          <h3>🚗 Gerenciar Transfers</h3>
+          <button class="btn btn-primary">Novo Transfer</button>
+        </div>
+        <div class="card-body">
+          <div class="filter-bar">
+            <div class="form-group">
+              <label for="filtroTransferCodigo">Código</label>
+              <input type="text" id="filtroTransferCodigo" class="form-control" placeholder="Buscar por código">
+            </div>
+            <div class="form-group">
+              <label for="filtroTransferStatus">Status</label>
+              <select id="filtroTransferStatus" class="form-control">
+                <option value="">Todos</option>
+                <option value="pendente">Pendente</option>
+                <option value="confirmado">Confirmado</option>
+                <option value="em_andamento">Em Andamento</option>
+                <option value="concluido">Concluído</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary">Filtrar</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Data/Hora</th>
+                  <th>Origem</th>
+                  <th>Destino</th>
+                  <th>Motorista</th>
                   <th>Status</th>
                   <th>Ações</th>
                 </tr>
               </thead>
-              <tbody id="usuariosAdminTableBody">
-                <!-- Usuários serão carregados aqui via JS -->
+              <tbody>
+                <tr>
+                  <td>TRF001</td>
+                  <td>2025-05-10 08:00</td>
+                  <td>Aeroporto POA</td>
+                  <td>Hotel X</td>
+                  <td>João Silva</td>
+                  <td><span class="badge badge-success">Concluído</span></td>
+                  <td><button class="btn btn-sm btn-info">Ver</button></td>
+                </tr>
+                <tr>
+                  <td>TRF002</td>
+                  <td>2025-05-11 10:00</td>
+                  <td>Hotel Y</td>
+                  <td>Aeroporto POA</td>
+                  <td>Maria Santos</td>
+                  <td><span class="badge badge-warning">Em Andamento</span></td>
+                  <td><button class="btn btn-sm btn-primary">Rastrear</button></td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-
     </div>
-  </div>
 
+    <!-- ===== PAGE: EVENTOS ===== -->
+    <div class="page-container page-content hidden" id="page-eventos">
+      <div class="card">
+        <div class="card-header">
+          <h3>📅 Gerenciar Eventos</h3>
+          <button class="btn btn-primary">Novo Evento</button>
+        </div>
+        <div class="card-body">
+          <div class="filter-bar">
+            <div class="form-group">
+              <label for="filtroEventoNome">Nome</label>
+              <input type="text" id="filtroEventoNome" class="form-control" placeholder="Buscar por nome">
+            </div>
+            <div class="form-group">
+              <label for="filtroEventoStatus">Status</label>
+              <select id="filtroEventoStatus" class="form-control">
+                <option value="">Todos</option>
+                <option value="ativo">Ativo</option>
+                <option value="finalizado">Finalizado</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary">Filtrar</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome do Evento</th>
+                  <th>Período</th>
+                  <th>Local</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Congresso Nacional de TI</td>
+                  <td>25/04/2025 – 28/04/2025</td>
+                  <td>FIERGS POA</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-primary">Ver Transfers</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Fórum de Investimentos RS</td>
+                  <td>10/05/2025 – 12/05/2025</td>
+                  <td>WTC POA</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Editar</button>
+                    <button class="btn btn-sm btn-primary">Ver Transfers</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: BUSCA POR CÓDIGO ===== -->
+    <div class="page-container page-content hidden" id="page-busca-codigo">
+      <div class="card">
+        <div class="card-header">
+          <h3>🔎 Buscar Transfer por Código</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="buscaCodigoInput">Código do Transfer</label>
+            <input type="text" id="buscaCodigoInput" class="form-control" placeholder="Digite o código do transfer">
+          </div>
+          <button class="btn btn-primary">Buscar</button>
+          <div id="resultadoBusca" class="mt-4">
+            <!-- Resultado da busca será exibido aqui -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: HISTÓRICO ===== -->
+    <div class="page-container page-content hidden" id="page-historico">
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 Histórico de Atividades</h3>
+        </div>
+        <div class="card-body">
+          <div class="filter-bar">
+            <div class="form-group">
+              <label for="filtroHistoricoData">Data</label>
+              <input type="date" id="filtroHistoricoData" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="filtroHistoricoTipo">Tipo de Atividade</label>
+              <select id="filtroHistoricoTipo" class="form-control">
+                <option value="">Todos</option>
+                <option value="login">Login</option>
+                <option value="transfer_criado">Transfer Criado</option>
+                <option value="usuario_editado">Usuário Editado</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary">Filtrar</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data/Hora</th>
+                  <th>Usuário</th>
+                  <th>Tipo de Atividade</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>2025-05-10 14:30</td>
+                  <td>Admin</td>
+                  <td>Login</td>
+                  <td>Login bem-sucedido</td>
+                </tr>
+                <tr>
+                  <td>2025-05-10 10:15</td>
+                  <td>João Silva</td>
+                  <td>Transfer Criado</td>
+                  <td>Transfer TRF003 criado para Cliente Y</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: USUÁRIOS ADMIN ===== -->
+    <!-- Adicionado id="adminUsersSection" e a classe "hidden" -->
+    <div class="page-container page-content hidden" id="adminUsersSection">
+      <div class="card">
+        <div class="card-header">
+          <h3>👥 Usuários Administrativos</h3>
+          <button class="btn btn-primary" onclick="novoUsuarioAdmin()">Novo Usuário</button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="tabelaUsuariosAdmin">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome Completo</th>
+                  <th>Login</th>
+                  <th>Nível de Acesso</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Usuários serão carregados aqui pelo JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- ===== MODALS ===== -->
-
-<!-- Modal Usuário Admin -->
-<div class="modal-overlay" id="modalUsuarioOverlay"></div>
+<!-- ===== MODAL DE USUÁRIO ADMIN ===== -->
+<div class="modal-overlay" id="modalOverlay"></div>
 <div class="modal-custom" id="modalUsuario">
   <div class="modal-header">
-    <h5 class="modal-title" id="modalUsuarioTitle">Cadastrar / Editar Usuário Admin</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalUsuario')">✖</button>
+    <h3 id="modalUsuarioTitle">Cadastrar / Editar Usuário Admin</h3>
+    <button class="btn-close" onclick="closeModal('modalUsuario')">✖</button>
   </div>
   <div class="modal-body">
     <form id="formUsuarioAdmin">
       <input type="hidden" id="usuario-id">
       <div class="form-group">
-        <label for="usuario-nome">Nome Completo *</label>
+        <label for="usuario-nome">Nome Completo</label>
         <input type="text" id="usuario-nome" class="form-control" required>
       </div>
       <div class="form-group">
-        <label for="usuario-login">Login (Email) *</label>
+        <label for="usuario-login">Login (E-mail)</label>
         <input type="email" id="usuario-login" class="form-control" required>
       </div>
       <div class="form-group">
-        <label for="usuario-senha">Senha (mín. 6 caracteres)</label>
-        <input type="password" id="usuario-senha" class="form-control">
-        <small class="form-text text-muted">Deixe em branco para não alterar a senha.</small>
+        <label for="usuario-senha">Senha (mínimo 6 caracteres)</label>
+        <input type="password" id="usuario-senha" class="form-control" placeholder="Deixe em branco para não alterar">
       </div>
       <div class="form-group">
-        <label for="usuario-nivel-acesso">Nível de Acesso *</label>
+        <label for="usuario-nivel-acesso">Nível de Acesso</label>
         <select id="usuario-nivel-acesso" class="form-control" required>
           <option value="">Selecione</option>
           <option value="super_admin">Super Admin</option>
-          <option value="admin">Admin</option>
+          <option value="admin">Administrador</option>
           <option value="operador">Operador</option>
-        </select>
-        <small class="form-text text-muted">Permissões de visualização e edição. Elas são definidas automaticamente pelo nível selecionado.</small>
-      </div>
-
-      <h6 class="mt-4">Permissões por Módulo</h6>
-      <div class="table-responsive">
-        <table class="table table-bordered perm-table">
-          <thead>
-            <tr>
-              <th>Módulo</th>
-              <th>Visualizar</th>
-              <th>Editar</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Dashboard</td>
-              <td><input type="checkbox" class="perm-check" data-module="dashboard" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="dashboard" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Mapa ao Vivo</td>
-              <td><input type="checkbox" class="perm-check" data-module="mapa" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="mapa" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Motoristas</td>
-              <td><input type="checkbox" class="perm-check" data-module="motoristas" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="motoristas" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Clientes / Empresas</td>
-              <td><input type="checkbox" class="perm-check" data-module="clientes" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="clientes" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Transfers</td>
-              <td><input type="checkbox" class="perm-check" data-module="transfers" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="transfers" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Eventos</td>
-              <td><input type="checkbox" class="perm-check" data-module="eventos" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="eventos" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Busca por Código</td>
-              <td><input type="checkbox" class="perm-check" data-module="busca" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="busca" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Histórico</td>
-              <td><input type="checkbox" class="perm-check" data-module="historico" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="historico" data-type="editar" disabled></td>
-            </tr>
-            <tr>
-              <td>Usuários Admin</td>
-              <td><input type="checkbox" class="perm-check" data-module="usuarios" data-type="ver" disabled></td>
-              <td><input type="checkbox" class="perm-check" data-module="usuarios" data-type="editar" disabled></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalUsuario')">Cancelar</button>
-    <button type="button" class="btn btn-primary" onclick="saveUsuario()">💾 Salvar Usuário</button>
-  </div>
-</div>
-
-<!-- Modal Motorista -->
-<div class="modal-overlay" id="modalMotoristaOverlay"></div>
-<div class="modal-custom" id="modalMotorista">
-  <div class="modal-header">
-    <h5 class="modal-title">👨‍✈️ Cadastrar / Editar Motorista</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalMotorista')">✕</button>
-  </div>
-  <div class="modal-body">
-    <form>
-      <div class="form-group">
-        <label for="motorista-nome">Nome Completo *</label>
-        <input type="text" id="motorista-nome" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="motorista-nascimento">Data de Nascimento *</label>
-        <input type="date" id="motorista-nascimento" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="motorista-whatsapp">WhatsApp *</label>
-        <input type="tel" id="motorista-whatsapp" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="motorista-login">Login (código) *</label>
-        <input type="text" id="motorista-login" class="form-control" placeholder="Código é gerado automaticamente pela plataforma" disabled>
-      </div>
-      <div class="form-group">
-        <label for="motorista-senha">Senha *</label>
-        <input type="password" id="motorista-senha" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="motorista-foto">Foto do Motorista</label>
-        <input type="file" id="motorista-foto" class="form-control">
-        <small class="form-text text-muted">Em breve: upload de foto (JPG, PNG, GIF, WebP)</small>
-      </div>
-      <div class="form-group">
-        <label for="motorista-cnh">CNH (PDF) *</label>
-        <input type="file" id="motorista-cnh" class="form-control" required>
-        <small class="form-text text-muted">Em breve: upload de CNH em PDF</small>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalMotorista')">Cancelar</button>
-    <button type="button" class="btn btn-primary">💾 Salvar Motorista</button>
-  </div>
-</div>
-
-<!-- Modal Veículos Motorista -->
-<div class="modal-overlay" id="modalVeiculosMotoristaOverlay"></div>
-<div class="modal-custom" id="modalVeiculosMotorista">
-  <div class="modal-header">
-    <h5 class="modal-title">🚗 Veículos — João Silva</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalVeiculosMotorista')">✕</button>
-  </div>
-  <div class="modal-body">
-    <div class="list-group mb-4">
-      <div class="list-group-item d-flex align-items-center justify-content-between">
-        <div>
-          <strong>Toyota Corolla</strong> · Prata · 2022<br>
-          ABC-1234
-        </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary">📄 Documento</button>
-          <button class="btn btn-sm btn-outline-secondary">🛡️ Apólice</button>
-          <button class="btn btn-sm btn-danger">🗑️</button>
-        </div>
-      </div>
-      <div class="list-group-item d-flex align-items-center justify-content-between">
-        <div>
-          <strong>Honda CR-V</strong> · Preto · 2023<br>
-          XYZ-5678
-        </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary">📄 Documento</button>
-          <button class="btn btn-sm btn-outline-secondary">🛡️ Apólice</button>
-          <button class="btn btn-sm btn-danger">🗑️</button>
-        </div>
-      </div>
-    </div>
-
-    <hr>
-
-    <h5 class="mt-4 mb-3">+ Adicionar Veículo</h5>
-    <form>
-      <div class="form-group">
-        <label for="veiculo-placa">Placa *</label>
-        <input type="text" id="veiculo-placa" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="veiculo-marca">Marca *</label>
-        <input type="text" id="veiculo-marca" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="veiculo-modelo">Modelo *</label>
-        <input type="text" id="veiculo-modelo" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="veiculo-cor">Cor *</label>
-        <input type="text" id="veiculo-cor" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="veiculo-documento">Documento do Veículo (PDF/Imagem)</label>
-        <input type="file" id="veiculo-documento" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="veiculo-apolice">Apólice de Seguro (PDF)</label>
-        <input type="file" id="veiculo-apolice" class="form-control">
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalVeiculosMotorista')">Fechar</button>
-    <button type="button" class="btn btn-primary">💾 Adicionar Veículo</button>
-  </div>
-</div>
-
-<!-- Modal Cliente -->
-<div class="modal-overlay" id="modalClienteOverlay"></div>
-<div class="modal-custom" id="modalCliente">
-  <div class="modal-header">
-    <h5 class="modal-title">🏢 Cadastrar / Editar Cliente</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalCliente')">✕</button>
-  </div>
-  <div class="modal-body">
-    <form>
-      <div class="form-group">
-        <label for="cliente-empresa">Nome da Empresa *</label>
-        <input type="text" id="cliente-empresa" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="cliente-cnpj">CNPJ *</label>
-        <input type="text" id="cliente-cnpj" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="cliente-email">E-mail *</label>
-        <input type="email" id="cliente-email" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="cliente-telefone">Telefone *</label>
-        <input type="tel" id="cliente-telefone" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="cliente-responsavel">Responsável *</label>
-        <input type="text" id="cliente-responsavel" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="cliente-tel-responsavel">Telefone do Responsável</label>
-        <input type="tel" id="cliente-tel-responsavel" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="cliente-endereco">Endereço</label>
-        <input type="text" id="cliente-endereco" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="cliente-observacoes">Observações (somente admins visualizam)</label>
-        <textarea id="cliente-observacoes" class="form-control" rows="3"></textarea>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalCliente')">Cancelar</button>
-    <button type="button" class="btn btn-primary">💾 Salvar Cliente</button>
-  </div>
-</div>
-
-<!-- Modal Nova Demanda / Transfer -->
-<div class="modal-overlay" id="modalNovaDemandaOverlay"></div>
-<div class="modal-custom" id="modalNovaDemanda">
-  <div class="modal-header">
-    <h5 class="modal-title">🚗 Nova Demanda / Transfer</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalNovaDemanda')">✕</button>
-  </div>
-  <div class="modal-body">
-    <form>
-      <div class="form-group">
-        <label for="demanda-codigo">Código da Demanda *</label>
-        <input type="text" id="demanda-codigo" class="form-control" placeholder="Código alfanumérico único — usado para busca no sistema e no mapa." required>
-      </div>
-      <div class="form-group">
-        <label for="demanda-cliente">Cliente / Empresa *</label>
-        <select id="demanda-cliente" class="form-control" required>
-          <option value="">Selecione...</option>
-          <option value="beira-rio">Beira Rio S/A Ltda</option>
-          <option value="beta-corp">Beta Corp S.A.</option>
-          <option value="gamma-logistica">Gamma Logística</option>
-          <option value="delta-sa">Delta S.A.</option>
+          <option value="visualizador">Visualizador</option>
         </select>
       </div>
+
       <div class="form-group">
-        <label for="demanda-data">Data *</label>
-        <input type="date" id="demanda-data" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="demanda-horario">Horário *</label>
-        <input type="time" id="demanda-horario" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="demanda-voo">Nº do Voo</label>
-        <input type="text" id="demanda-voo" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="demanda-embarque">Embarque *</label>
-        <input type="text" id="demanda-embarque" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="demanda-desembarque">Desembarque *</label>
-        <input type="text" id="demanda-desembarque" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label>Passageiros</label>
-        <div id="passageiros-list" class="mb-2">
-          <!-- Passageiros serão adicionados aqui -->
+        <label>Permissões</label>
+        <div class="table-responsive">
+          <table class="perm-table">
+            <thead>
+              <tr>
+                <th>Módulo</th>
+                <th>Visualizar</th>
+                <th>Criar</th>
+                <th>Editar</th>
+                <th>Excluir</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dashboard</td>
+                <td><input type="checkbox" class="perm-check" data-module="dashboard" data-action="view"></td>
+                <td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>Motoristas</td>
+                <td><input type="checkbox" class="perm-check" data-module="motoristas" data-action="view"></td>
+                <td><input type="checkbox" class="perm-check" data-module="motoristas" data-action="create"></td>
+                <td><input type="checkbox" class="perm-check" data-module="motoristas" data-action="edit"></td>
+                <td><input type="checkbox" class="perm-check" data-module="motoristas" data-action="delete"></td>
+              </tr>
+              <tr>
+                <td>Clientes</td>
+                <td><input type="checkbox" class="perm-check" data-module="clientes" data-action="view"></td>
+                <td><input type="checkbox" class="perm-check" data-module="clientes" data-action="create"></td>
+                <td><input type="checkbox" class="perm-check" data-module="clientes" data-action="edit"></td>
+                <td><input type="checkbox" class="perm-check" data-module="clientes" data-action="delete"></td>
+              </tr>
+              <tr>
+                <td>Transfers</td>
+                <td><input type="checkbox" class="perm-check" data-module="transfers" data-action="view"></td>
+                <td><input type="checkbox" class="perm-check" data-module="transfers" data-action="create"></td>
+                <td><input type="checkbox" class="perm-check" data-module="transfers" data-action="edit"></td>
+                <td><input type="checkbox" class="perm-check" data-module="transfers" data-action="delete"></td>
+              </tr>
+              <tr>
+                <td>Eventos</td>
+                <td><input type="checkbox" class="perm-check" data-module="eventos" data-action="view"></td>
+                <td><input type="checkbox" class="perm-check" data-module="eventos" data-action="create"></td>
+                <td><input type="checkbox" class="perm-check" data-module="eventos" data-action="edit"></td>
+                <td><input type="checkbox" class="perm-check" data-module="eventos" data-action="delete"></td>
+              </tr>
+              <tr>
+                <td>Usuários Admin</td>
+                <td><input type="checkbox" class="perm-check" data-module="usuarios-admin" data-action="view"></td>
+                <td><input type="checkbox" class="perm-check" data-module="usuarios-admin" data-action="create"></td>
+                <td><input type="checkbox" class="perm-check" data-module="usuarios-admin" data-action="edit"></td>
+                <td><input type="checkbox" class="perm-check" data-module="usuarios-admin" data-action="delete"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-primary">+ Passageiro</button>
       </div>
-      <div class="form-group">
-        <label for="demanda-veiculos">Nº de Veículos *</label>
-        <input type="number" id="demanda-veiculos" class="form-control" min="1" value="1" required>
-      </div>
-      <div class="form-group">
-        <label for="demanda-placa-receptivo">Placa Receptivo (PDF)</label>
-        <input type="file" id="demanda-placa-receptivo" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="demanda-observacoes">Observações</label>
-        <textarea id="demanda-observacoes" class="form-control" rows="3"></textarea>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalUsuario')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar Usuário</button>
       </div>
     </form>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalNovaDemanda')">Cancelar</button>
-    <button type="button" class="btn btn-primary">💾 Salvar Demanda</button>
-  </div>
 </div>
 
-<!-- Modal Novo Evento -->
-<div class="modal-overlay" id="modalNovoEventoOverlay"></div>
-<div class="modal-custom" id="modalNovoEvento">
-  <div class="modal-header">
-    <h5 class="modal-title">📅 Novo Evento</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalNovoEvento')">✕</button>
-  </div>
-  <div class="modal-body">
-    <form>
-      <div class="form-group">
-        <label for="evento-nome">Nome do Evento *</label>
-        <input type="text" id="evento-nome" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="evento-data-inicio">Data de Início *</label>
-        <input type="date" id="evento-data-inicio" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="evento-data-termino">Data de Término *</label>
-        <input type="date" id="evento-data-termino" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="evento-local">Local do Evento *</label>
-        <input type="text" id="evento-local" class="form-control" required>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalNovoEvento')">Cancelar</button>
-    <button type="button" class="btn btn-primary">💾 Salvar Evento</button>
-  </div>
-</div>
-
-<!-- Modal Detalhes Demanda -->
-<div class="modal-overlay" id="modalDetalhesDemandaOverlay"></div>
-<div class="modal-custom" id="modalDetalhesDemanda">
-  <div class="modal-header">
-    <h5 class="modal-title">—</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalDetalhesDemanda')">✕</button>
-  </div>
-  <div class="modal-body">
-    <div class="row g-3">
-      <div class="col-md-6">
-        <p><strong>Código da Demanda:</strong> <span id="detalhes-demanda-codigo">—</span></p>
-        <p><strong>Nome / Descrição:</strong> <span id="detalhes-demanda-nome">—</span></p>
-        <p><strong>Data:</strong> <span id="detalhes-demanda-data">—</span></p>
-        <p><strong>Horário:</strong> <span id="detalhes-demanda-horario">—</span></p>
-        <p><strong>Voo:</strong> <span id="detalhes-demanda-voo">—</span></p>
-      </div>
-      <div class="col-md-6">
-        <p><strong>Embarque:</strong> <span id="detalhes-demanda-embarque">—</span></p>
-        <p><strong>Desembarque:</strong> <span id="detalhes-demanda-desembarque">—</span></p>
-        <p><strong>Passageiros:</strong> <span id="detalhes-demanda-passageiros">—</span></p>
-        <p><strong>Veículos:</strong> <span id="detalhes-demanda-veiculos">—</span></p>
-        <p><strong>Motorista:</strong> <span id="detalhes-demanda-motorista">—</span></p>
-      </div>
-    </div>
-    <h5 class="mt-4">Passageiros</h5>
-    <ul id="detalhes-demanda-lista-passageiros" class="list-group list-group-flush">
-      <li class="list-group-item">Nenhum passageiro listado.</li>
-    </ul>
-    <h5 class="mt-4">Observações</h5>
-    <p id="detalhes-demanda-observacoes">—</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalDetalhesDemanda')">Fechar</button>
-    <button type="button" class="btn btn-primary">👨‍✈️ Atribuir Motorista</button>
-  </div>
-</div>
-
-<!-- Modal Motoristas em Campo -->
-<div class="modal-overlay" id="modalMotoristasCampoOverlay"></div>
-<div class="modal-custom" id="modalMotoristasCampo">
-  <div class="modal-header">
-    <h5 class="modal-title">🗺️ Motoristas em Campo</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalMotoristasCampo')">✕</button>
-  </div>
-  <div class="modal-body">
-    <p class="text-muted">O motorista em destaque é o selecionado no mapa.</p>
-    <div class="driver-modal-card highlight">
-      <div class="driver-modal-header">
-        <img src="foto_joao.jpg" class="driver-foto-sm" alt="João Silva">
-        <div>
-          <strong>João Silva</strong><br>
-          <span class="text-success">Em viagem</span>
-        </div>
-      </div>
-      <div class="driver-modal-info">
-        <span>62 km/h</span>
-        <span>🚗 Toyota Corolla · ABC-1234</span>
-        <span>⏱️ 8 min · 4,2 km</span>
-        <span>🏁 GRU → Rebouças</span>
-      </div>
-      <div class="driver-modal-evento">
-        🔖 IT145874<br>
-        👤 Roberto Alves<br>
-        📅 Evento: **Congresso Nacional de TI**
-      </div>
-    </div>
-    <div class="driver-modal-card">
-      <div class="driver-modal-header">
-        <img src="foto_pedro.jpg" class="driver-foto-sm" alt="Pedro Oliveira">
-        <div>
-          <strong>Pedro Oliveira</strong><br>
-          <span class="text-warning">A caminho</span>
-        </div>
-      </div>
-      <div class="driver-modal-info">
-        <span>45 km/h</span>
-        <span>🚗 Honda HR-V · DEF-5678</span>
-        <span>⏱️ 22 min · 11,8 km</span>
-        <span>🏁 Aeroporto FNP → Rebouças</span>
-      </div>
-      <div class="driver-modal-evento">
-        🔖 UH874525<br>
-        👤 Marcos Pereira<br>
-        📅 Evento: **Congresso Nacional de TI**
-      </div>
-    </div>
-    <div class="driver-modal-card">
-      <div class="driver-modal-header">
-        <img src="foto_maria.jpg" class="driver-foto-sm" alt="Maria Santos">
-        <div>
-          <strong>Maria Santos</strong><br>
-          <span class="text-muted">Disponível</span>
-        </div>
-      </div>
-      <div class="driver-modal-info">
-        <span>0 km/h</span>
-        <span>🚗 VW Passat · GHI-9012</span>
-        <span>⏱️ —</span>
-        <span>🏁 —</span>
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalMotoristasCampo')">Fechar</button>
-  </div>
-</div>
-
-<!-- Modal Atribuir Motorista -->
-<div class="modal-overlay" id="modalAtribuirMotoristaOverlay"></div>
-<div class="modal-custom" id="modalAtribuirMotorista">
-  <div class="modal-header">
-    <h5 class="modal-title">👨‍✈️ Atribuir Motorista / Veículo</h5>
-    <button type="button" class="btn-close" onclick="closeModal('modalAtribuirMotorista')">✕</button>
-  </div>
-  <div class="modal-body">
-    <div class="alert alert-warning mb-3">
-      ⚠️ Esta demanda exige **2** motoristas/veículos. Selecione todos antes de salvar.
-    </div>
-    <div class="assign-search-box">
-      <span class="icon">🔍</span>
-      <input type="text" placeholder="Buscar motorista..." id="assignDriverSearchInput">
-      <button type="button" class="btn-close" onclick="clearAssignDriverSearch()">✕</button>
-    </div>
-
-    <div id="assignDriverList">
-      <div class="assign-driver-item">
-        <div class="assign-driver-header">
-          <img src="foto_joao.jpg" class="driver-foto-sm" alt="João Silva">
-          <div>
-            <strong>João Silva</strong><br>
-            <span class="text-muted">📱 (11) 99123-4567</span>
-          </div>
-          <span class="badge bg-success ms-auto">Disponível</span>
-        </div>
-        <div class="assign-vehicle-list">
-          <label class="assign-vehicle-opt">
-            <input type="checkbox" name="veiculo-joao" value="ABC-1234">
-            <div>
-              <span class="veh-plate">ABC-1234</span>
-              <span class="veh-detail">Toyota Corolla · Prata · 2022</span>
-            </div>
-          </label>
-          <label class="assign-vehicle-opt">
-            <input type="checkbox" name="veiculo-joao" value="XYZ-5678">
-            <div>
-              <span class="veh-plate">XYZ-5678</span>
-              <span class="veh-detail">Honda CR-V · Preto · 2023</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="assign-driver-item">
-        <div class="assign-driver-header">
-          <img src="foto_pedro.jpg" class="driver-foto-sm" alt="Pedro Oliveira">
-          <div>
-            <strong>Pedro Oliveira</strong><br>
-            <span class="text-muted">📱 (11) 98765-4321</span>
-          </div>
-          <span class="badge bg-warning ms-auto">Em viagem</span>
-        </div>
-        <div class="assign-vehicle-list">
-          <label class="assign-vehicle-opt">
-            <input type="checkbox" name="veiculo-pedro" value="DEF-5678">
-            <div>
-              <span class="veh-plate">DEF-5678</span>
-              <span class="veh-detail">Honda HR-V · Azul · 2021</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="assign-driver-item">
-        <div class="assign-driver-header">
-          <img src="foto_maria.jpg" class="driver-foto-sm" alt="Maria Santos">
-          <div>
-            <strong>Maria Santos</strong><br>
-            <span class="text-muted">📱 (11) 97654-3210</span>
-          </div>
-          <span class="badge bg-danger ms-auto">Bloqueada</span>
-        </div>
-        <div class="assign-vehicle-list">
-          <label class="assign-vehicle-opt">
-            <input type="checkbox" name="veiculo-maria" value="GHI-9012">
-            <div>
-              <span class="veh-plate">GHI-9012</span>
-              <span class="veh-detail">VW Passat · Branco · 2020</span>
-            </div>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <div id="assignDriverNoResults" class="text-center mt-4 hidden">
-      <p class="text-muted">Nenhum resultado para "<span id="noResultsQuery"></span>"</p>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modalAtribuirMotorista')">Cancelar</button>
-    <button type="button" class="btn btn-primary">✅ Confirmar Atribuição</button>
-  </div>
-</div>
-
-<!-- Scripts -->
 <script>
     const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
-    // --- Funções Auxiliares ---
-    function showToast(message, type = 'info') {
+    // --- Funções de Utilidade ---
+    function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) return;
+
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
         toastContainer.appendChild(toast);
+
         setTimeout(() => {
-            toast.remove();
+            toast.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
         }, 3000);
     }
 
     function openModal(modalId) {
-        document.getElementById(modalId).classList.add('active');
-        document.getElementById(modalId + 'Overlay').classList.add('active');
+        const modal = document.getElementById(modalId);
+        const overlay = document.getElementById('modalOverlay');
+        if (modal && overlay) {
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            document.body.classList.add('modal-open'); // Adiciona classe para desabilitar scroll
+        }
     }
 
     function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
-        document.getElementById(modalId + 'Overlay').classList.remove('active');
+        const modal = document.getElementById(modalId);
+        const overlay = document.getElementById('modalOverlay');
+        if (modal && overlay) {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            document.body.classList.remove('modal-open'); // Remove classe para reabilitar scroll
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timeString = `${hours}:${minutes}:${seconds}`;
+        // Se você tiver um elemento para exibir o relógio, atualize-o aqui
+        // Ex: document.getElementById('clockDisplay').textContent = timeString;
     }
 
     function logout() {
@@ -1574,97 +1009,89 @@
         window.location.href = 'login.html';
     }
 
-    function updateClock() {
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        document.getElementById('currentDateTime').textContent = now.toLocaleDateString('pt-BR', options);
-    }
-
+    // --- Funções de Navegação ---
     function showPage(pageId) {
+        // Esconde todas as páginas
         document.querySelectorAll('.page-content').forEach(page => {
             page.classList.add('hidden');
         });
-        document.getElementById(pageId).classList.remove('hidden');
 
+        // Mostra a página selecionada
+        const selectedPage = document.getElementById(`page-${pageId}`);
+        if (selectedPage) {
+            selectedPage.classList.remove('hidden');
+        } else {
+            console.warn(`Página com ID 'page-${pageId}' não encontrada.`);
+        }
+
+        // Atualiza o título da topbar
+        const topbarTitle = document.getElementById('topbarTitle');
+        if (topbarTitle) {
+            const navItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+            if (navItem) {
+                topbarTitle.textContent = navItem.textContent.trim().split(' ')[0]; // Pega a primeira palavra do texto do item
+            } else {
+                topbarTitle.textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1).replace(/-/g, ' ');
+            }
+        }
+
+        // Atualiza o estado ativo na sidebar
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
-        document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
-
-        const pageTitle = document.getElementById('pageTitle');
-        if (pageTitle) {
-            const navItemText = document.querySelector(`.nav-item[data-page="${pageId}"]`).textContent.trim();
-            pageTitle.textContent = navItemText.split(' ')[0]; // Pega a primeira palavra do texto do item de navegação
+        const activeNavItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+        if (activeNavItem) {
+            activeNavItem.classList.add('active');
         }
     }
 
-    // --- Funções de Permissão ---
-    const permissoesPorNivel = (nivel) => {
-      const basePerms = {
-        dashboard: { ver: false, editar: false },
-        mapa: { ver: false, editar: false },
-        motoristas: { ver: false, editar: false },
-        clientes: { ver: false, editar: false },
-        transfers: { ver: false, editar: false },
-        eventos: { ver: false, editar: false },
-        busca: { ver: false, editar: false },
-        historico: { ver: false, editar: false },
-        usuarios: { ver: false, editar: false },
-      };
-
-      switch (nivel) {
-        case 'super_admin':
-          return {
-            dashboard: { ver: true, editar: true },
-            mapa: { ver: true, editar: true },
-            motoristas: { ver: true, editar: true },
-            clientes: { ver: true, editar: true },
-            transfers: { ver: true, editar: true },
-            eventos: { ver: true, editar: true },
-            busca: { ver: true, editar: true },
-            historico: { ver: true, editar: true },
-            usuarios: { ver: true, editar: true },
-          };
-        case 'admin':
-          return {
-            dashboard: { ver: true, editar: true },
-            mapa: { ver: true, editar: true },
-            motoristas: { ver: true, editar: true },
-            clientes: { ver: true, editar: true },
-            transfers: { ver: true, editar: true },
-            eventos: { ver: true, editar: true },
-            busca: { ver: true, editar: true },
-            historico: { ver: true, editar: true },
-            usuarios: { ver: true, editar: false }, // Admin pode ver, mas não editar usuários
-          };
-        case 'operador':
-          return {
-            dashboard: { ver: true, editar: false },
-            mapa: { ver: true, editar: false },
-            motoristas: { ver: true, editar: false },
-            clientes: { ver: true, editar: false },
-            transfers: { ver: true, editar: true }, // Operador pode editar transfers
-            eventos: { ver: true, editar: false },
-            busca: { ver: true, editar: false },
-            historico: { ver: true, editar: false },
-            usuarios: { ver: false, editar: false },
-          };
-        default:
-          return basePerms;
+    // --- Funções de Permissões ---
+    const presetsPermissoes = {
+      super_admin: {
+        dashboard: { view: true },
+        motoristas: { view: true, create: true, edit: true, delete: true },
+        clientes: { view: true, create: true, edit: true, delete: true },
+        transfers: { view: true, create: true, edit: true, delete: true },
+        eventos: { view: true, create: true, edit: true, delete: true },
+        'usuarios-admin': { view: true, create: true, edit: true, delete: true }
+      },
+      admin: {
+        dashboard: { view: true },
+        motoristas: { view: true, create: true, edit: true },
+        clientes: { view: true, create: true, edit: true },
+        transfers: { view: true, create: true, edit: true },
+        eventos: { view: true, create: true, edit: true },
+        'usuarios-admin': { view: true, create: true, edit: true }
+      },
+      operador: {
+        dashboard: { view: true },
+        motoristas: { view: true, edit: true },
+        clientes: { view: true },
+        transfers: { view: true, create: true, edit: true },
+        eventos: { view: true },
+        'usuarios-admin': {}
+      },
+      visualizador: {
+        dashboard: { view: true },
+        motoristas: { view: true },
+        clientes: { view: true },
+        transfers: { view: true },
+        eventos: { view: true },
+        'usuarios-admin': {}
       }
     };
 
     function aplicarPresetNaTabela(nivel) {
-      const permissoes = permissoesPorNivel(nivel);
-      document.querySelectorAll('#modalUsuario .perm-check').forEach(checkbox => {
-        const module = checkbox.dataset.module;
-        const type = checkbox.dataset.type;
-        if (permissoes[module] && permissoes[module][type] !== undefined) {
-          checkbox.checked = permissoes[module][type];
-        } else {
-          checkbox.checked = false;
-        }
-        checkbox.disabled = true; // Sempre desabilitado, pois é um preset
+      const permissoes = presetsPermissoes[nivel] || {};
+      const checks = document.querySelectorAll('#modalUsuario .perm-check');
+
+      checks.forEach((c) => {
+        const module = c.dataset.module;
+        const action = c.dataset.action;
+        const hasPermission = permissoes[module] && permissoes[module][action];
+
+        c.checked = hasPermission;
+        c.disabled = (nivel === 'super_admin' || nivel === 'admin' || nivel === 'operador' || nivel === 'visualizador'); // Desabilita para todos os presets
       });
     }
 
@@ -1675,16 +1102,9 @@
 
     // --- Funções de Usuários Admin ---
     async function carregarUsuariosAdmin() {
-      const tbody = document.getElementById('usuariosAdminTableBody');
-      if (!tbody) {
-        console.warn('Elemento #usuariosAdminTableBody não encontrado.');
-        return;
-      }
-      tbody.innerHTML = '<tr><td colspan="12" class="text-center">Carregando usuários...</td></tr>';
-
       const token = localStorage.getItem('sixstar_token');
       if (!token) {
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Erro: Token de autenticação não encontrado.</td></tr>';
+        alert('Sessão expirada. Faça login novamente.');
         return;
       }
 
@@ -1696,69 +1116,43 @@
         });
 
         if (!resp.ok) {
-          const errorText = await resp.text();
-          console.error('Erro ao carregar usuários admin:', resp.status, errorText);
-          tbody.innerHTML = `<tr><td colspan="12" class="text-center text-danger">Erro ao carregar usuários: ${resp.status} - ${errorText}</td></tr>`;
+          const txt = await resp.text();
+          console.error('Erro ao carregar usuários admin:', resp.status, txt);
+          alert('Erro ao carregar usuários admin: ' + txt);
           return;
         }
 
         const usuarios = await resp.json();
-        tbody.innerHTML = ''; // Limpa o "Carregando..."
-
-        if (usuarios.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="12" class="text-center">Nenhum usuário administrativo cadastrado.</td></tr>';
-          return;
+        const tbody = document.querySelector('#tabelaUsuariosAdmin tbody');
+        if (!tbody) {
+            console.error('Elemento tbody da tabela de usuários admin não encontrado.');
+            return;
         }
+        tbody.innerHTML = ''; // Limpa a tabela
 
-        usuarios.forEach(u => {
-          const primeiraLetra = u.nome_completo ? u.nome_completo.charAt(0).toUpperCase() : 'U';
-          const nivelBadge = `<span class="badge badge-info">${u.nivel_acesso.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>`;
-          const statusBadge = u.status === 'ativo' ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-secondary">Inativo</span>';
+        usuarios.forEach(usuario => {
+          const row = tbody.insertRow();
+          row.insertCell().textContent = usuario.id;
+          row.insertCell().textContent = usuario.nome_completo;
+          row.insertCell().textContent = usuario.login;
+          row.insertCell().textContent = usuario.nivel_acesso;
+          row.insertCell().textContent = usuario.status;
 
-          const permDoNivel = permissoesPorNivel(u.nivel_acesso);
+          const actionsCell = row.insertCell();
+          const editBtn = document.createElement('button');
+          editBtn.className = 'btn btn-sm btn-info';
+          editBtn.textContent = 'Editar';
+          editBtn.onclick = () => editarUsuarioAdmin(usuario.id);
+          actionsCell.appendChild(editBtn);
 
-          const podeDashboard = permDoNivel.dashboard.ver || permDoNivel.dashboard.editar;
-          const podeMapa = permDoNivel.mapa.ver || permDoNivel.mapa.editar;
-          const podeMotoristas = permDoNivel.motoristas.ver || permDoNivel.motoristas.editar;
-          const podeClientes = permDoNivel.clientes.ver || permDoNivel.clientes.editar;
-          const podeTransfers = permDoNivel.transfers.ver || permDoNivel.transfers.editar;
-          const podeEventos = permDoNivel.eventos.ver || permDoNivel.eventos.editar;
-          const podeBusca = permDoNivel.busca.ver || permDoNivel.busca.editar; // Corrigido para 'busca'
-          const podeHistorico = permDoNivel.historico.ver || permDoNivel.historico.editar;
-          const podeUsuarios = permDoNivel.usuarios.ver || permDoNivel.usuarios.editar;
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>
-              <div class="flex-center gap-1">
-                <div class="avatar">${primeiraLetra}</div>
-                <div>
-                  <strong>${u.nome_completo || 'N/A'}</strong><br>
-                  <small class="text-muted">${u.login || 'N/A'}</small>
-                </div>
-              </div>
-            </td>
-            <td>${nivelBadge}</td>
-            <td>${podeDashboard ? '✅' : ''}</td>
-            <td>${podeMapa ? '✅' : ''}</td>
-            <td>${podeMotoristas ? '✅' : ''}</td>
-            <td>${podeClientes ? '✅' : ''}</td>
-            <td>${podeTransfers ? '✅' : ''}</td>
-            <td>${podeEventos ? '✅' : ''}</td>
-            <td>${podeBusca ? '✅' : ''}</td> <!-- Corrigido para 'busca' -->
-            <td>${podeHistorico ? '✅' : ''}</td>
-            <td>${podeUsuarios ? '✅' : ''}</td>
-            <td>${statusBadge}</td>
-            <td>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="editarUsuarioAdmin(${u.id})">✏️</button>
-              <button type="button" class="btn btn-danger btn-sm" onclick="toggleBlock(${u.id})">🚫 Bloquear</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
+          const toggleBlockBtn = document.createElement('button');
+          toggleBlockBtn.className = `btn btn-sm ${usuario.status === 'ativo' ? 'btn-danger' : 'btn-success'} ml-2`;
+          toggleBlockBtn.textContent = usuario.status === 'ativo' ? 'Bloquear' : 'Ativar';
+          toggleBlockBtn.onclick = () => toggleBlock(usuario.id);
+          actionsCell.appendChild(toggleBlockBtn);
         });
       } catch (err) {
         console.error('Erro inesperado ao carregar usuários admin:', err);
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Erro inesperado ao carregar usuários.</td></tr>';
       }
     }
 
