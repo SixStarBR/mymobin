@@ -18,121 +18,12 @@ app.use(cors());
 app.use(express.json());
 
 // ---------- LISTAR TODOS OS ADMINS (APENAS PARA ADMINS LOGADOS) ----------
-app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT id, nome_completo, login, nivel_acesso, status, permissoes
-       FROM admin_users
-       ORDER BY id ASC`
-    );
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Erro em GET /api/admin/usuarios:', error);
-    res.status(500).json({ erro: 'Erro ao listar admins' });
-  }
-});
-
-
-
-// 3) Logs de ambiente (opcional, mas útil)
-console.log('=== ENV NO RENDER ===');
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_PORT:', process.env.DB_PORT);
-console.log('DB_NAME:', process.env.DB_NAME);
-console.log('DB_USER:', process.env.DB_USER);
-console.log('JWT_SECRET definido?', !!process.env.JWT_SECRET);
-console.log('======================');
-
-// 4) Conexão com o banco (pool)
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-
-// 5) Teste de conexão (primeiro teste simples, se quiser manter)
-pool.connect()
-  .then(client => {
-    return client
-      .query('SELECT NOW()')
-      .then(res => {
-        console.log('✅ Conectado ao banco Supabase. Hora do servidor:', res.rows[0].now);
-        client.release();
-      })
-      .catch(err => {
-        client.release();
-        console.error('❌ Erro ao conectar no banco:', err.message);
-      });
-  })
-  .catch(err => console.error('❌ Erro ao obter cliente do pool:', err.message));
-
-// 6) Rotas básicas
-app.get('/', (req, res) => {
-  res.send('API do Mobin está rodando 🚀');
-});
-
-// (primeira versão da rota /api/health)
-app.get('/api/health', async (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-// 7) ROTA TEMPORÁRIA PARA CRIAR ADMIN
-app.post('/dev/create-admin', async (req, res) => {
-  try {
-    const { secret, nome_completo, login, senha } = req.body;
-
-    if (secret !== process.env.ADMIN_SETUP_SECRET) {
-      return res.status(403).json({ error: 'Não autorizado' });
-    }
-
-    if (!nome_completo || !login || !senha) {
-      return res.status(400).json({ error: 'Informe nome_completo, login e senha' });
-    }
-
-    const senhaHash = await bcrypt.hash(senha, 10);
-
-    const query = `
-      INSERT INTO admin_users
-        (nome_completo, login, senha_hash, nivel_acesso, status)
-      VALUES
-        ($1, $2, $3, 'super_admin', 'ativo')
-      RETURNING id, nome_completo, login, nivel_acesso, status;
-    `;
-
-    const result = await pool.query(query, [nome_completo, login, senhaHash]);
-
-    res.json({
-      message: 'Admin criado com sucesso',
-      admin: result.rows[0],
-    });
-  } catch (err) {
-    console.error('Erro ao criar admin:', err);
-    res.status(500).json({ error: 'Erro interno ao criar admin' });
-  }
-});
-
-// 8) (aqui entram suas outras rotas normais: login, etc.)
-
-// *** REMOVIDO: este bloco era o segundo app.listen e causava conflito ***
-// // 9) Start do servidor — APENAS UMA VEZ
-// const PORT = process.env.PORT || 4000;
-// 
-//   console.log(`🚀 Servidor API rodando na porta ${PORT}`);
-// });
-
-// ---------- LISTAR TODOS OS ADMINS REAIS ----------
-app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
+app.get('/api/admin/usuarios', autenticarAdmin, exigirNivelMinimo(['admin']), async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT id, nome_completo, login, nivel_acesso, status
-       FROM admin_users
-       ORDER BY id ASC`
+         FROM admin_users
+        ORDER BY id ASC`
     );
 
     res.json(result.rows);
@@ -143,12 +34,12 @@ app.get('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
 });
 
 // ---------- DETALHES DE UM ADMIN (PARA EDIÇÃO) ----------
-app.get('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
+app.get('/api/admin/usuarios/:id', autenticarAdmin, exigirNivelMinimo(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
 
     const result = await pool.query(
-      `SELECT id, nome_completo, login, nivel_acesso, status, permissoes
+      `SELECT id, nome_completo, login, nivel_acesso, status
          FROM admin_users
         WHERE id = $1`,
       [id]
@@ -166,12 +57,10 @@ app.get('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
 });
 
 // ---------- ATUALIZAR DADOS DE UM ADMIN ----------
-app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
+app.put('/api/admin/usuarios/:id', autenticarAdmin, exigirNivelMinimo(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome_completo, login, nivel_acesso, nova_senha, permissoes } = req.body;
-
-    
+    const { nome_completo, login, nivel_acesso, nova_senha } = req.body;
 
     console.log('PUT /api/admin/usuarios/:id body:', req.body);
 
@@ -179,20 +68,16 @@ app.put('/api/admin/usuarios/:id', autenticarAdmin, async (req, res) => {
       return res.status(400).json({ erro: 'Nome e login são obrigatórios.' });
     }
 
-   // normalizar nivel_acesso
-let nivel = nivel_acesso;
+    // normalizar nivel_acesso
+    let nivel = nivel_acesso;
+    if (!nivel || nivel.toString().trim() === '') {
+      nivel = 'operador'; // padrão se nada for escolhido
+    }
 
-// Se vier vazio (caso "Personalizado" no select), vamos salvar como 'personalizado',
-// que é exatamente o valor aceito pela constraint do banco.
-if (!nivel || nivel.toString().trim() === '') {
-  nivel = 'personalizado';
-}
-
-// garantir que o valor é um dos aceitos pela constraint do banco
-const niveisValidos = ['super_admin', 'operador', 'viewer', 'personalizado'];
-if (!niveisValidos.includes(nivel)) {
-  return res.status(400).json({ erro: 'Nível de acesso inválido.' });
-}
+    const niveisValidos = ['super_admin', 'admin', 'operador'];
+    if (!niveisValidos.includes(nivel)) {
+      return res.status(400).json({ erro: 'Nível de acesso inválido.' });
+    }
 
     // verificar se o usuário existe
     const busca = await pool.query(
@@ -225,11 +110,9 @@ if (!niveisValidos.includes(nivel)) {
             SET nome_completo = $1,
                 login        = $2,
                 nivel_acesso = $3,
-                senha_hash   = $4,
-                permissoes   = $5
-                
-          WHERE id = $6`,
-        [nome_completo, login, nivel, senha_hash, permissoes || null, id]
+                senha_hash   = $4
+          WHERE id = $5`,
+        [nome_completo, login, nivel, senha_hash, id]
       );
     } else {
       await pool.query(
@@ -250,9 +133,9 @@ if (!niveisValidos.includes(nivel)) {
 });
 
 // ---------- CRIAR NOVO ADMIN ----------
-app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
+app.post('/api/admin/usuarios', autenticarAdmin, exigirNivelMinimo(['admin']), async (req, res) => {
   try {
-    const { nome_completo, login, senha, nivel_acesso, permissoes } = req.body;
+    const { nome_completo, login, senha, nivel_acesso } = req.body;
 
     if (!nome_completo || !login || !senha) {
       return res.status(400).json({ erro: 'Nome, login e senha são obrigatórios.' });
@@ -263,18 +146,15 @@ app.post('/api/admin/usuarios', autenticarAdmin, async (req, res) => {
     }
 
     // normalizar nivel_acesso
-let nivel = nivel_acesso;
+    let nivel = nivel_acesso;
+    if (!nivel || nivel.toString().trim() === '') {
+      nivel = 'operador'; // padrão
+    }
 
-// Se vier vazio (caso "Personalizado" no select), salvar como 'personalizado'
-if (!nivel || nivel.toString().trim() === '') {
-  nivel = 'personalizado';
-}
-
-// Níveis aceitos pela constraint do banco
-const niveisValidos = ['super_admin', 'operador', 'viewer', 'personalizado'];
-if (!niveisValidos.includes(nivel)) {
-  return res.status(400).json({ erro: 'Nível de acesso inválido.' });
-}
+    const niveisValidos = ['super_admin', 'admin', 'operador'];
+    if (!niveisValidos.includes(nivel)) {
+      return res.status(400).json({ erro: 'Nível de acesso inválido.' });
+    }
 
     // checar login duplicado
     const verifica = await pool.query(
@@ -288,10 +168,12 @@ if (!niveisValidos.includes(nivel)) {
     const senha_hash = await bcrypt.hash(senha, 10);
 
     const result = await pool.query(
-      `INSERT INTO admin_users (nome_completo, login, senha_hash, nivel_acesso, status, permissoes)
-       VALUES ($1, $2, $3, $4, 'ativo', $5)
-       RETURNING id, nome_completo, login, nivel_acesso, status, permissoes`,
-      [nome_completo, login, senha_hash, nivel, permissoes || null]
+      `INSERT INTO admin_users
+         (nome_completo, login, senha_hash, nivel_acesso, status)
+       VALUES
+         ($1, $2, $3, $4, 'ativo')
+       RETURNING id, nome_completo, login, nivel_acesso, status`,
+      [nome_completo, login, senha_hash, nivel]
     );
 
     return res.status(201).json(result.rows[0]);
@@ -322,6 +204,34 @@ function autenticarAdmin(req, res, next) {
   } catch (error) {
     return res.status(401).json({ erro: 'Token inválido ou expirado' });
   }
+}
+
+// ---------- AUTORIZAÇÃO POR NÍVEL DE ACESSO ----------
+// niveisPermitidos é um array, ex: ['super_admin', 'admin']
+function exigirNivelMinimo(niveisPermitidos) {
+  return (req, res, next) => {
+    try {
+      if (!req.admin || !req.admin.nivel_acesso) {
+        return res.status(401).json({ erro: 'Admin não autenticado.' });
+      }
+
+      const nivel = req.admin.nivel_acesso;
+
+      // super_admin sempre tem acesso total
+      if (nivel === 'super_admin') {
+        return next();
+      }
+
+      if (!niveisPermitidos.includes(nivel)) {
+        return res.status(403).json({ erro: 'Acesso negado para o seu nível de acesso.' });
+      }
+
+      next();
+    } catch (err) {
+      console.error('Erro em exigirNivelMinimo:', err);
+      return res.status(500).json({ erro: 'Erro ao validar nível de acesso.' });
+    }
+  };
 }
 
 // ---------- MIDDLEWARE DE AUTENTICAÇÃO MOTORISTA ----------
