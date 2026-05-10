@@ -166,13 +166,22 @@
             erroBox.textContent = errorData.message || 'Login ou senha incorretos. Tente novamente.';
             erroBox.style.display = 'block';
           }
+          console.error('Erro na resposta da API:', errorData); // Adicione esta linha
           return;
         }
 
         const data = await resp.json();
+        console.log('Dados recebidos da API após login:', data); // Adicione esta linha
+
+        // Verifique se 'data.usuario' existe antes de tentar acessá-lo
+if (data && data.usuario) { // Adicione esta verificação
+    console.log('Objeto data.usuario:', data.usuario); // Adicione esta linha
 
         // Salva o token
 localStorage.setItem('sixstar_token', data.token);
+  // Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
+localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
+  console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user')); // Adicione esta linha
 
 // Salva o objeto 'usuario' completo, que contém nome_completo e nivel_acesso
         localStorage.setItem('ssm_user', JSON.stringify(data.usuario));
@@ -180,6 +189,14 @@ localStorage.setItem('sixstar_token', data.token);
 
         // Redireciona para o painel administrativo
         window.location.href = 'admin.html';
+
+  } else {
+    console.error('Erro: data.usuario não encontrado na resposta da API.'); // Adicione esta linha
+    if (erroBox) {
+        erroBox.textContent = 'Erro: Dados do usuário não recebidos da API. Tente novamente.';
+        erroBox.style.display = 'block';
+    }
+}
 
       } catch (err) {
         console.error('Erro na chamada de login:', err);
