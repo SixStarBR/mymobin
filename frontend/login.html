@@ -1,206 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Six Star Mobin — Login</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 50%, #1a1a1a 100%);
-    }
-    .login-box {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    .login-logo {
-      text-align: center;
-      margin-bottom: 36px;
-    }
-    .login-logo img {
-      height: 70px;
-      margin-bottom: 12px;
-    }
-    .login-logo h1 {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--dark);
-      letter-spacing: -0.5px;
-    }
-    .login-logo p {
-      font-size: 13px;
-      color: var(--medium);
-      margin-top: 4px;
-    }
-    .login-box .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      padding: 14px;
-      font-size: 15px;
-      border-radius: 10px;
-      margin-top: 8px;
-    }
-    .login-box .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(245,166,35,0.4);
-    }
-    .login-footer {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 12px;
-      color: var(--medium);
-    }
-    .input-icon {
-      position: relative;
-    }
-    .input-icon span {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 16px;
-    }
-    .input-icon .form-control {
-      padding-left: 40px;
-    }
-    .login-error {
-      display: none;
-      background: #f8d7da;
-      color: #721c24;
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      margin-bottom: 16px;
-      border-left: 4px solid var(--danger);
-    }
-    .stars-decoration {
-      display: flex;
-      justify-content: center;
-      gap: 4px;
-      margin-bottom: 8px;
-    }
-    .stars-decoration span {
-      color: var(--primary);
-      font-size: 12px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Six Star Mobin</title>
+    <!-- Seus links CSS e estilos aqui -->
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .login-container { background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; width: 350px; }
+        .login-container img { max-width: 150px; margin-bottom: 20px; }
+        .login-container h1 { font-size: 24px; margin-bottom: 10px; color: #333; }
+        .login-container p { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .login-container form { display: flex; flex-direction: column; }
+        .login-container input[type="email"],
+        .login-container input[type="password"] { padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        .login-container button { background-color: #007bff; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease; }
+        .login-container button:hover { background-color: #0056b3; }
+        .login-container .error-message { color: #e74c3c; margin-top: 10px; display: none; } /* Estilo para a mensagem de erro */
+        .footer { margin-top: 30px; font-size: 12px; color: #999; }
+    </style>
 </head>
 <body>
-  <div class="card" style="max-width: 400px; margin: 60px auto;">
-    <div class="text-center mb-3">
-      <img src="https://sixstartrips.com/site_assets/img/logo.png" alt="Six Star Mobin" style="width: 64px; height: 64px;">
-      <h1>Six Star Mobin</h1>
-      <p class="text-muted">Sistema de Gestão de Transfers & Mobilidade</p>
+    <div class="login-container">
+        <img src="https://sixstartrips.com/site_assets/img/logo.png" alt="Six Star Mobin">
+        <h1>Six Star Mobin</h1>
+        <p>Sistema de Gestão de Transfers & Mobilidade</p>
+
+        <!-- AQUI ESTÁ A ALTERAÇÃO: ADICIONADO id="loginErro" e style="display: none;" -->
+        <p id="loginErro" class="error-message" style="display: none;">⚠️ Login ou senha incorretos. Tente novamente.</p>
+
+        <!-- AQUI ESTÁ A ALTERAÇÃO: ADICIONADO id="loginForm" -->
+        <form id="loginForm">
+            <input type="email" id="loginInput" placeholder="Login" required>
+            <input type="password" id="senhaInput" placeholder="Senha" required>
+            <button type="submit">Entrar no Sistema</button>
+        </form>
+
+        <p class="footer">© 2025 Six Star Mobin. Todos os direitos reservados.</p>
     </div>
 
-    <div id="login-erro" class="alert alert-danger hidden">
-      <p id="loginErro" style="color: #e74c3c; margin-top: 10px; display: none;">⚠️ Login ou senha incorretos. Tente novamente.</p>
+    <script>
+        const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
 
-    </div>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const loginInput = document.getElementById('loginInput');
+            const senhaInput = document.getElementById('senhaInput');
+            const erroBox = document.getElementById('loginErro');
 
-    <form id="login-form">
-      <div class="form-group">
-        <label class="form-label" for="login">Login</label>
-        <input type="text" id="loginInput" class="form-control" placeholder="Login" required>
-        
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="senha">Senha</label>
-        <input type="password" id="senhaInput" class="form-control" placeholder="Senha" required>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block mt-2">
-        Entrar no Sistema
-      </button>
-    </form>
-
-    <p class="text-center mt-2 text-muted">
-      © 2025 Six Star Mobin. Todos os direitos reservados.
-    </p>
-  </div>
-
-
-  
-  <script>
-    const API_BASE = 'https://mymobin.onrender.com'; // Sua URL base da API
-
-    const form = document.querySelector('form'); // Seleciona o formulário
-    const inputLogin = document.getElementById('loginInput'); // Seleciona o input de login pelo ID
-    const inputSenha = document.getElementById('senhaInput'); // Seleciona o input de senha pelo ID
-    const erroBox = document.getElementById('loginErro'); // Seleciona o parágrafo de erro pelo ID
-
-    // Garante que os elementos foram encontrados
-    if (!form) console.error("Formulário de login não encontrado.");
-    if (!inputLogin) console.error("Input de login não encontrado.");
-    if (!inputSenha) console.error("Input de senha não encontrado.");
-    if (!erroBox) console.error("Parágrafo de erro não encontrado. Crie um <p> para mensagens de erro.");
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (erroBox) erroBox.style.display = 'none'; // Esconde a mensagem de erro anterior
-
-      const login = inputLogin.value;
-      const senha = inputSenha.value;
-
-      try {
-        const resp = await fetch(`${API_BASE}/api/admin/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ login, senha })
-        });
-
-        if (!resp.ok) {
-          const errorData = await resp.json();
-          if (erroBox) {
-            erroBox.textContent = errorData.message || 'Login ou senha incorretos. Tente novamente.';
-            erroBox.style.display = 'block';
-          }
-          console.error('Erro na resposta da API:', errorData);
-          return;
-        }
-
-        const data = await resp.json();
-        console.log('Dados recebidos da API após login:', data);
-
-        // A API retorna os dados do usuário dentro da propriedade 'admin'
-        if (data && data.admin) {
-            console.log('Entrou no bloco if (data && data.admin). Objeto data.admin:', data.admin);
-            // Salva o token
-            localStorage.setItem('sixstar_token', data.token);
-
-            // Salva o objeto 'admin' completo como 'ssm_user'
-            localStorage.setItem('ssm_user', JSON.stringify(data.admin));
-
-            console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user'));
-
-            // Redireciona para o painel administrativo
-            window.location.href = 'admin.html';
-        } else {
-            console.error('Erro: data.admin não encontrado na resposta da API. Conteúdo de data:', data);
-            if (erroBox) {
-                erroBox.textContent = 'Erro: Dados do administrador não recebidos da API. Tente novamente.';
-                erroBox.style.display = 'block';
+            if (!loginForm || !loginInput || !senhaInput || !erroBox) {
+                console.error('Elementos HTML de login não encontrados. Verifique os IDs.');
+                return;
             }
-        }
 
-      } catch (err) {
-        console.error('Erro na chamada de login:', err);
-        if (erroBox) {
-          erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
-          erroBox.style.display = 'block';
-        }
-      }
-    });
-  </script>
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Impede o recarregamento da página
+
+                const login = loginInput.value;
+                const senha = senhaInput.value;
+
+                erroBox.style.display = 'none'; // Esconde a mensagem de erro anterior
+
+                try {
+                    const response = await fetch(`${API_BASE}/api/admin/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ login, senha })
+                    });
+
+                    const data = await response.json();
+                    console.log('Dados recebidos da API após login:', data);
+
+                    if (response.ok && data && data.token && data.admin) {
+                        console.log('Entrou no bloco if (data && data.admin). Objeto data.admin:', data.admin);
+                        localStorage.setItem('sixstar_token', data.token);
+                        localStorage.setItem('ssm_user', JSON.stringify(data.admin)); // Salva o objeto admin completo
+                        console.log('ssm_user salvo no localStorage:', localStorage.getItem('ssm_user'));
+                        window.location.href = 'admin.html'; // Redireciona para a página de administração
+                    } else {
+                        console.error('Erro no login:', data.erro || 'Credenciais inválidas.');
+                        erroBox.textContent = data.erro || 'Login ou senha incorretos. Tente novamente.';
+                        erroBox.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Erro ao conectar com o servidor:', error);
+                    erroBox.textContent = 'Erro ao conectar com o servidor. Tente novamente.';
+                    erroBox.style.display = 'block';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
