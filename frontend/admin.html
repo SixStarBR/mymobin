@@ -16,6 +16,23 @@
       return; // Importante para parar a execução aqui
     }
 
+    // --- NOVO CÓDIGO AQUI ---
+      try {
+        // Decodifica o token para obter as informações do usuário
+        // Assumimos que o token é um JWT e que o payload está na segunda parte
+        const payload = JSON.parse(atob(token.split('.')[1]));
+
+        // Armazena o nome e o nível de acesso para uso posterior
+        localStorage.setItem('user_name', payload.nome_completo || 'Usuário');
+        localStorage.setItem('user_nivel_acesso', payload.nivel_acesso || 'operador');
+      } catch (e) {
+        console.error('Erro ao decodificar token:', e);
+        // Se o token for inválido, redireciona para login
+        localStorage.removeItem('sixstar_token');
+        window.location.href = 'login.html';
+      }
+      // --- FIM DO NOVO CÓDIGO ---
+
     try {
       // Decodifica o token para obter as informações do usuário
       // Nota: Em um ambiente de produção, a decodificação do token no frontend
@@ -234,13 +251,13 @@
       <div class="nav-item" onclick="showPage('usuarios')"><span class="icon">👥</span> Usuários Admin</div>
     </nav>
     <div class="sidebar-user">
-      <div class="avatar" id="sidebarAvatar">W</div>
-      <div class="info">
-        <p id="sidebarName">William Admin</p>
-        <span id="sidebarRole">Administrador</span>
-      </div>
-      <button class="btn-logout" onclick="logout()" title="Sair">⏻</button>
-    </div>
+  <div class="avatar" id="sidebarAvatar"></div> <!-- Vamos preencher isso via JS -->
+  <div class="info">
+    <p id="sidebarName">Carregando...</p> <!-- Será preenchido via JS -->
+    <span id="sidebarRole">Carregando...</span> <!-- Será preenchido via JS -->
+  </div>
+  <button class="btn-logout" onclick="logout()" title="Sair">⏻</button>
+</div>
   </aside>
 
   <!-- ===== MAIN ===== -->
@@ -3842,6 +3859,62 @@ function closeModal(modalId) {
   function toggleBlock(userId) {
     alert(`Bloquear/Desbloquear usuário ${userId}`);
     // Implementar lógica de backend para bloquear/desbloquear
+  }
+</script>
+
+  <script>
+  // -------- FUNÇÕES DE INICIALIZAÇÃO DA INTERFACE --------
+  document.addEventListener('DOMContentLoaded', function () {
+    // 1. Preencher informações do usuário na sidebar
+    const userName = localStorage.getItem('user_name');
+    const userNivelAcesso = localStorage.getItem('user_nivel_acesso');
+
+    const sidebarName = document.getElementById('sidebarName');
+    const sidebarRole = document.getElementById('sidebarRole');
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
+
+    if (sidebarName) {
+      sidebarName.textContent = userName || 'Usuário Desconhecido';
+    }
+    if (sidebarRole) {
+      // Formata o nível de acesso para exibição (ex: 'super_admin' -> 'Super Administrador')
+      let roleText = 'Visitante';
+      if (userNivelAcesso === 'super_admin') {
+        roleText = 'Super Administrador';
+      } else if (userNivelAcesso === 'admin') {
+        roleText = 'Administrador';
+      } else if (userNivelAcesso === 'operador') {
+        roleText = 'Operador';
+      }
+      sidebarRole.textContent = roleText;
+    }
+    if (sidebarAvatar && userName) {
+      sidebarAvatar.textContent = userName.charAt(0).toUpperCase(); // Primeira letra do nome
+    }
+
+    // 2. Restringir o item "Usuários Admin" no menu
+    const usuariosAdminMenuItem = document.querySelector('.nav-item[onclick="showPage(\'usuarios\')"]');
+    if (usuariosAdminMenuItem) {
+      if (userNivelAcesso !== 'super_admin') {
+        usuariosAdminMenuItem.style.display = 'none'; // Esconde o item do menu
+      } else {
+        usuariosAdminMenuItem.style.display = 'flex'; // Garante que esteja visível se for super_admin
+      }
+    }
+
+    // ... (outras inicializações que você já tem, como carregarUsuariosAdmin(), etc.) ...
+    // Exemplo:
+    // carregarUsuariosAdmin();
+    // carregarMotoristas();
+    // showPage('dashboard');
+  });
+
+  // Função de logout (se ainda não tiver)
+  function logout() {
+    localStorage.removeItem('sixstar_token');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_nivel_acesso');
+    window.location.href = 'login.html';
   }
 </script>
   
