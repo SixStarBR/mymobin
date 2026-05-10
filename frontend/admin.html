@@ -13,6 +13,36 @@
     if (!token) {
       // Sem token → redireciona para login
       window.location.href = 'login.html';
+      return; // Importante para parar a execução aqui
+    }
+
+    try {
+      // Decodifica o token para obter as informações do usuário
+      // Nota: Em um ambiente de produção, a decodificação do token no frontend
+      // deve ser usada apenas para extrair dados NÃO SENSÍVEIS e para fins de UI.
+      // A validação real do token e das permissões deve sempre ocorrer no backend.
+      const payloadBase64 = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payloadBase64));
+      const userRole = decodedPayload.nivel_acesso; // Assume que o token tem 'nivel_acesso'
+
+      // Armazena o nível de acesso globalmente ou em localStorage para uso posterior
+      localStorage.setItem('user_nivel_acesso', userRole);
+
+      // Atualiza as informações do usuário na sidebar (se existirem)
+      const sidebarName = document.getElementById('sidebarName');
+      const sidebarRole = document.getElementById('sidebarRole');
+      const sidebarAvatar = document.getElementById('sidebarAvatar');
+
+      if (sidebarName) sidebarName.textContent = decodedPayload.nome_completo || 'Usuário';
+      if (sidebarRole) sidebarRole.textContent = userRole.replace('_', ' ').toUpperCase() || 'Nível Desconhecido';
+      if (sidebarAvatar) sidebarAvatar.textContent = (decodedPayload.nome_completo || '?').trim().charAt(0).toUpperCase();
+
+    } catch (error) {
+      console.error('Erro ao decodificar token ou obter nível de acesso:', error);
+      // Se o token for inválido ou der erro, redireciona para login
+      localStorage.removeItem('sixstar_token');
+      localStorage.removeItem('user_nivel_acesso');
+      window.location.href = 'login.html';
     }
   })();
 </script>
@@ -3759,16 +3789,60 @@ function closeModal(modalId) {
   }
 }
 
-  // -------- INICIALIZAÇÃO --------
+  // -------- INICIALIZAÇÃO GERAL --------
   document.addEventListener('DOMContentLoaded', function () {
     // Garante que mudar o select no modal aplica o preset
-    const selectNivel = document.getElementById('usuario-nivel-acesso');
-    if (selectNivel) {
-      selectNivel.addEventListener('change', onChangeNivelAcesso);
+    const selectNivelUsuario = document.getElementById('usuario-nivel-acesso');
+    if (selectNivelUsuario) {
+      selectNivelUsuario.addEventListener('change', onChangeNivelAcesso);
     }
 
     carregarUsuariosAdmin();
+    carregarMotoristas(); // Carrega motoristas ao carregar a página
+    showPage('dashboard'); // Exibe o dashboard por padrão
+
+    // --- NOVA LÓGICA PARA ESCONDER ITEM DE MENU ---
+    const userNivelAcesso = localStorage.getItem('user_nivel_acesso');
+    const usuariosAdminMenuItem = document.querySelector('.nav-item[onclick="showPage(\'usuarios\')"]');
+
+    if (usuariosAdminMenuItem && userNivelAcesso !== 'super_admin') {
+      usuariosAdminMenuItem.style.display = 'none';
+    }
+    // --- FIM DA NOVA LÓGICA ---
   });
+
+  // Funções para outros modais (ex: modalEvento)
+  function openModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+    const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', ''));
+
+    if (modalElement) {
+      modalElement.style.display = 'block';
+      if (overlayElement) {
+        overlayElement.style.display = 'block';
+      }
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+    const overlayElement = document.getElementById('modalOverlay' + modalId.replace('modal', ''));
+
+    if (modalElement) {
+      modalElement.style.display = 'none';
+      if (overlayElement) {
+        overlayElement.style.display = 'none';
+      }
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Função toggleBlock (exemplo, você precisará implementar a lógica de backend)
+  function toggleBlock(userId) {
+    alert(`Bloquear/Desbloquear usuário ${userId}`);
+    // Implementar lógica de backend para bloquear/desbloquear
+  }
 </script>
   
 </body>
