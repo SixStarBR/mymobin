@@ -1088,11 +1088,6 @@
                 topbarTitle.textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1).replace(/-/g, ' ');
             }
         }
-        // Lógica específica para o mapa
-      if (pageId === 'mapa-ao-vivo') {
-        initMap(); // Inicializa o mapa quando a página é exibida
-      }
-    }
 
         // Atualiza o estado ativo na sidebar
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -1520,104 +1515,7 @@
        }
      }
 
-         /* ---- MAPA ---- */
-    let map, markers = [];
-
-    const driversData = [
-      {
-        name:'João Silva', foto:'foto_joao.jpg', iniciais:'JS',
-        lat:-23.5489, lng:-46.6388, status:'Em viagem', speed:62,
-        demand:'GRU → Centro de Eventos Gramado',
-        codigo:'IT145874', tel:'(11) 98765-4321'
-      },
-      {
-        name:'Maria Santos', foto:'foto_maria.jpg', iniciais:'MS',
-        lat:-23.5505, lng:-46.6333, status:'A caminho', speed:45,
-        demand:'Hotel Unique → Aeroporto CGH',
-        codigo:'BQ587412', tel:'(11) 99876-5432'
-      },
-      {
-        name:'Pedro Oliveira', foto:'foto_pedro.jpg', iniciais:'PO',
-        lat:-23.5450, lng:-46.6400, status:'Disponível', speed:0,
-        demand:'Nenhuma',
-        codigo:'-', tel:'(11) 97654-3210'
-      },
-      {
-        name:'Ana Costa', foto:'foto_ana.jpg', iniciais:'AC',
-        lat:-23.5600, lng:-46.6250, status:'Em viagem', speed:70,
-        demand:'Aeroporto GRU → Av. Paulista',
-        codigo:'GR837463', tel:'(11) 96543-2109'
-      }
-    ];
-
-    function initMap() {
-      if (!map && document.getElementById('map')) { // Garante que o mapa só é inicializado uma vez
-        map = L.map('map').setView([-23.55052, -46.633308], 13); // Coordenadas de São Paulo
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        updateDriverMarkers(); // Carrega os marcadores iniciais
-      } else if (map) {
-        map.invalidateSize(); // Garante que o mapa se ajuste ao tamanho do contêiner se já estiver inicializado
-      }
-    }
-
-    function addDriverMarker(driver, index) {
-      const marker = L.marker([driver.lat, driver.lng]).addTo(map)
-        .bindPopup(`
-          <b>${driver.name}</b><br>
-          Status: ${driver.status}<br>
-          Demanda: ${driver.demand}<br>
-          <button onclick="highlightDriver(${index})" class="btn btn-sm btn-primary mt-2">Ver Detalhes</button>
-        `);
-      markers.push(marker);
-    }
-
-    function updateDriverMarkers() {
-      // Limpa marcadores existentes
-      markers.forEach(marker => map.removeLayer(marker));
-      markers = [];
-
-      // Adiciona novos marcadores
-      driversData.forEach((driver, index) => {
-        addDriverMarker(driver, index);
-      });
-
-      // Atualiza a lista de motoristas no modal
-      const driversListModal = document.getElementById('driversListModal');
-      if (driversListModal) {
-        driversListModal.innerHTML = driversData.map((driver, index) => `
-          <div class="driver-modal-card" id="dmc_${index}" onclick="highlightDriver(${index})">
-            <div class="avatar">${driver.iniciais}</div>
-            <div class="driver-info">
-              <h4>${driver.name}</h4>
-              <p>${driver.demand}</p>
-            </div>
-            <span class="driver-status ${driver.status.toLowerCase().replace(' ', '-')}">${driver.status}</span>
-          </div>
-        `).join('');
-      }
-
-      document.getElementById('lastUpdate').textContent = 'Última atualização: ' + new Date().toLocaleTimeString('pt-BR');
-      // showToast('Posições atualizadas!', 'success'); // Descomente se tiver a função showToast
-    }
-
-    function highlightDriver(index) {
-      if (markers[index]) {
-        map.setView(markers[index].getLatLng(), 14, { animate: true });
-        markers[index].openPopup();
-      }
-      document.querySelectorAll('.driver-modal-card').forEach((c, i) => {
-        c.classList.toggle('highlight', i === index);
-      });
-      openModal('modalDriversMap');
-      setTimeout(() => {
-        const el = document.getElementById('dmc_' + index);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 100);
-    }
+     
 </script>
 </body>
 </html>
