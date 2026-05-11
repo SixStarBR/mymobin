@@ -151,6 +151,44 @@
     /* MAPA DRIVERS */
     .driver-map-icon-btn { background:none; border:none; cursor:pointer; padding:2px; border-radius:6px; }
     .driver-modal-card { border:2px solid var(--border); border-radius:var(--radius-sm); padding:14px; margin-bottom:10px; transition:border-color .2s, box-shadow .2s; }
+    .driver-modal-card:hover, .driver-modal-card.highlight { border-color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+    .driver-modal-card .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .driver-modal-card .driver-info {
+      flex-grow: 1;
+    }
+    .driver-modal-card .driver-info h4 {
+      margin: 0 0 5px 0;
+      font-size: 15px;
+      color: var(--dark);
+    }
+    .driver-modal-card .driver-info p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--medium);
+    }
+    .driver-modal-card .driver-status {
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .driver-status.em-viagem { background-color: #ffe0b2; color: #e65100; } /* Laranja */
+    .driver-status.a-caminho { background-color: #c8e6c9; color: #2e7d32; } /* Verde */
+    .driver-status.disponivel { background-color: #bbdefb; color: #1976d2; } /* Azul */
+    .driver-status.offline { background-color: #e0e0e0; color: #616161; } /* Cinza */
     .driver-modal-card.highlight { border-color:var(--primary); box-shadow:0 0 0 3px rgba(245,166,35,.15); background:#fffbf2; }
     .driver-modal-header { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
     .driver-modal-info { display:flex; flex-wrap:wrap; gap:8px; font-size:12px; color:var(--medium); margin-left:50px; }
@@ -485,13 +523,29 @@
         <div class="card-header">
           <h3>🗺️ Mapa de Motoristas e Transfers</h3>
           <div class="map-controls">
-            <label><input type="checkbox" checked> Motoristas Online</label>
-            <label><input type="checkbox"> Transfers Ativos</label>
-            <label><input type="checkbox"> Eventos</label>
-          </div>
+        <button class="btn btn-primary" onclick="updateDriverMarkers()">🔄 Atualizar Posições</button>
+        <span id="lastUpdate" class="text-muted">Última atualização: nunca</span>
+        <div class="ml-auto">
+          <span class="dot dot-orange"></span> Em viagem
+          <span class="dot dot-green"></span> A caminho
+          <span class="dot dot-gray"></span> Disponível
         </div>
-        <div class="card-body">
-          <div id="map"></div>
+      </div>
+      <div id="map"></div>
+
+      <!-- Modal de Motoristas no Mapa -->
+      <div class="modal-overlay" id="modalDriversMapOverlay"></div>
+      <div class="modal-custom" id="modalDriversMap">
+        <div class="modal-header">
+          <h5 class="modal-title">Motoristas Ativos</h5>
+          <button type="button" class="close" onclick="closeModal('modalDriversMap')">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="driversListModal">
+          <!-- Cards dos motoristas serão injetados aqui pelo JS -->
+        </div>
+      </div>
         </div>
       </div>
     </div>
@@ -1034,6 +1088,11 @@
                 topbarTitle.textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1).replace(/-/g, ' ');
             }
         }
+        // Lógica específica para o mapa
+      if (pageId === 'mapa-ao-vivo') {
+        initMap(); // Inicializa o mapa quando a página é exibida
+      }
+    }
 
         // Atualiza o estado ativo na sidebar
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -1460,6 +1519,105 @@
            .openPopup();
        }
      }
+
+         /* ---- MAPA ---- */
+    let map, markers = [];
+
+    const driversData = [
+      {
+        name:'João Silva', foto:'foto_joao.jpg', iniciais:'JS',
+        lat:-23.5489, lng:-46.6388, status:'Em viagem', speed:62,
+        demand:'GRU → Centro de Eventos Gramado',
+        codigo:'IT145874', tel:'(11) 98765-4321'
+      },
+      {
+        name:'Maria Santos', foto:'foto_maria.jpg', iniciais:'MS',
+        lat:-23.5505, lng:-46.6333, status:'A caminho', speed:45,
+        demand:'Hotel Unique → Aeroporto CGH',
+        codigo:'BQ587412', tel:'(11) 99876-5432'
+      },
+      {
+        name:'Pedro Oliveira', foto:'foto_pedro.jpg', iniciais:'PO',
+        lat:-23.5450, lng:-46.6400, status:'Disponível', speed:0,
+        demand:'Nenhuma',
+        codigo:'-', tel:'(11) 97654-3210'
+      },
+      {
+        name:'Ana Costa', foto:'foto_ana.jpg', iniciais:'AC',
+        lat:-23.5600, lng:-46.6250, status:'Em viagem', speed:70,
+        demand:'Aeroporto GRU → Av. Paulista',
+        codigo:'GR837463', tel:'(11) 96543-2109'
+      }
+    ];
+
+    function initMap() {
+      if (!map && document.getElementById('map')) { // Garante que o mapa só é inicializado uma vez
+        map = L.map('map').setView([-23.55052, -46.633308], 13); // Coordenadas de São Paulo
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        updateDriverMarkers(); // Carrega os marcadores iniciais
+      } else if (map) {
+        map.invalidateSize(); // Garante que o mapa se ajuste ao tamanho do contêiner se já estiver inicializado
+      }
+    }
+
+    function addDriverMarker(driver, index) {
+      const marker = L.marker([driver.lat, driver.lng]).addTo(map)
+        .bindPopup(`
+          <b>${driver.name}</b><br>
+          Status: ${driver.status}<br>
+          Demanda: ${driver.demand}<br>
+          <button onclick="highlightDriver(${index})" class="btn btn-sm btn-primary mt-2">Ver Detalhes</button>
+        `);
+      markers.push(marker);
+    }
+
+    function updateDriverMarkers() {
+      // Limpa marcadores existentes
+      markers.forEach(marker => map.removeLayer(marker));
+      markers = [];
+
+      // Adiciona novos marcadores
+      driversData.forEach((driver, index) => {
+        addDriverMarker(driver, index);
+      });
+
+      // Atualiza a lista de motoristas no modal
+      const driversListModal = document.getElementById('driversListModal');
+      if (driversListModal) {
+        driversListModal.innerHTML = driversData.map((driver, index) => `
+          <div class="driver-modal-card" id="dmc_${index}" onclick="highlightDriver(${index})">
+            <div class="avatar">${driver.iniciais}</div>
+            <div class="driver-info">
+              <h4>${driver.name}</h4>
+              <p>${driver.demand}</p>
+            </div>
+            <span class="driver-status ${driver.status.toLowerCase().replace(' ', '-')}">${driver.status}</span>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('lastUpdate').textContent = 'Última atualização: ' + new Date().toLocaleTimeString('pt-BR');
+      // showToast('Posições atualizadas!', 'success'); // Descomente se tiver a função showToast
+    }
+
+    function highlightDriver(index) {
+      if (markers[index]) {
+        map.setView(markers[index].getLatLng(), 14, { animate: true });
+        markers[index].openPopup();
+      }
+      document.querySelectorAll('.driver-modal-card').forEach((c, i) => {
+        c.classList.toggle('highlight', i === index);
+      });
+      openModal('modalDriversMap');
+      setTimeout(() => {
+        const el = document.getElementById('dmc_' + index);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
 </script>
 </body>
 </html>
